@@ -1,4 +1,4 @@
-@node logging logger, logging port-log, container queue, Top
+@node logging logger, logging port-log, Top, Top
 @chapter (logging logger)
 
 @cindex logging

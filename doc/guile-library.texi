@@ -36,14 +36,14 @@ Free Documentation License".
 @contents
 
 @ifnottex
-@node Top, container queue, (dir), (dir)
+@node Top, logging logger, (dir), (dir)
 @top guile-library 
 
 @insertcopying
 @end ifnottex
 
 @menu
-* container queue::             Queues, Stacks, and Deques
+@c * container queue::             Queues, Stacks, and Deques
 * logging logger::              Logging mechanism
 * logging port-log::            A log handler that outputs to ports
 * logging rotating-log::        A log handler for rotating text file logs
@@ -56,16 +56,17 @@ Free Documentation License".
 * string transform::            Transformations of strings
 * string wrap::                 String wrapping and filling functions
 * term ansi-color::             Colors text with ANSI sequences 
+* xml ssax::                    XML parsing toolkit
 
 Other Material
 * Naming Conventions::          Project Naming Conventions
-* Source Material::             Mapping of this library to its source material
+@c * Source Material::             Mapping of this library to its source material
 * Copying This Manual::         Description of the license covering this manual
 * Concept Index::               Concept Index
 * Function Index::              Function Index
 @end menu
 
-@include container.queue.texi
+@c @include container.queue.texi
 @include logging.logger.texi
 @include logging.port-log.texi
 @include logging.rotating-log.texi
@@ -78,9 +79,10 @@ Other Material
 @include string.transform.texi
 @include string.wrap.texi
 @include term.ansi-color.texi
+@include xml.ssax.texi
 
 @include NamingConventions.texi
-@include SourceMaterial.texi
+@c @include SourceMaterial.texi
 @include Copying.texi
 @include ConceptIndex.texi
 @include FunctionIndex.texi

@@ -1,4 +1,4 @@
-@node term ansi-color, Naming Conventions, string wrap, Top
+@node term ansi-color, xml ssax, string wrap, Top
 @chapter (term ansi-color) 
 
 @cindex terminals, ANSI color codes for

@@ -22,6 +22,7 @@
   #:use-module (oop goops)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 format)
+  #:use-module (ice-9 pretty-print)
   #:export (assert-equal
             assert-true
             assert-numeric-=
@@ -96,10 +97,10 @@
       (throw 'test-failed-exception
              (with-output-to-string
                (lambda ()
-                 (display "assert-equal: expected: ")
-                 (write expected)
-                 (display " got: ")
-                 (write got))))))
+                 (display "assert-equal: expected:\n")
+                 (pretty-print expected)
+                 (display "\ngot: \n")
+                 (pretty-print got))))))
 
 (define (assert-true got)
   (if (not got)

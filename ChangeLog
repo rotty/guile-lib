@@ -1,3 +1,233 @@
+2004-06-17  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi->named-tree-nodes):
+	Make sure that the stexi for each node is headed by 'texinfo with
+	a title.
+
+	* src/sxml/texinfo/html.scm (add-ref-resolver!): New function,
+	exported.
+	(tag-replacements): Fix typo for cartouche.
+	(rules): Add an xmlns on <html>.
+
+	* src/sxml/texinfo.scm (call-with-file-and-dir): Export.
+	(texinfo-command-specs): Add a spec for @ignore.
+
+	* src/sxml/simple.scm (sxml->string): New function, de-tags an
+	sxml tree. Exported.
+
+2004-06-16  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/named-tree-nodes.scm: New file, chunks a stexi
+	into nodes. Based on the one in text/structured (that will soon go
+	away).
+
+	* src/sxml/texinfo/html.scm (rules): Use *ENTITY*.
+
+	* src/sxml/simple.scm (universal-sxslt-rules): Handle *ENTITY*.
+
+	* src/sxml/texinfo.scm (read-char-data): Newline before a non-@end
+	command should generate a space instead.
+
+	* src/sxml/texinfo/html.scm (stexi->shtml): Rename to
+	stexi->shtml.
+
+	* unit-tests/sxml.texinfo.scm: Adapted to optional args and
+	s/texinfo/texi/.
+
+	* src/sxml/texinfo.scm (make-command-parser): Don't put paras if
+	whitespace is significant.
+
+	* src/sxml/texinfo/html.scm: New file, outputs stexi into shtml.
+	pre-post-order makes things easy!
+
+	* src/sxml/texinfo.scm: I didn't mean for this to be public
+	domain, that header was from SSAX. Change to GPL. Also add some
+	more commentary.
+	(texi->stexi): Name changed from texinfo->stexinfo.
+	(stexi->sxml): Likewise.
+	(texinfo-command-specs): arguments (the cddr) now more reflect
+	lambda formals: #f -> (), #t -> named rest arg, also add #:opt for
+	optional arguments (yay!). I think the format of stexi is stable
+	now, modulo additions of elements I haven't covered. The sxml
+	output needs some fixes, though.
+	(read-command-token): Cleanups. Doesn't validate any more, FBOFW.
+	(read-arguments): Use functions in C instead of rolling our own.
+	Much faster that way.
+	(arguments->attlist): Rewrite for new command formals syntax, and
+	handle optional arguments.
+
+2004-06-14  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo.scm (stexinfo->sxml): New function, replaces %
+	with texinfo-arguments.
+	(texinfo->stexinfo): Change name from texinfo->sxml.
+
+	* src/sxml/simple.scm (enattr, entag): Fix a typo.
+
+	* src/sxml/transform.scm: Whoops, forgot to change the module
+	name.
+
+	* unit-tests/debugging.statprof.scm: Adapted to new API.
+
+	The src/xml directory was moved to src/sxml. That's because only
+	ssax and simple deal with xml, and then only marginally; the rest
+	deal with sxml. Also, the test suites were moved and adjusted
+	accordingly.
+	
+	* src/sxml/ssax.scm: Moved from (xml ssax).
+
+	* src/sxml/texinfo.scm: Moved from (xml texinfo).
+
+	* src/sxml/xpath.scm: Moved from (xml xpath).
+
+	* src/sxml/simple.scm: Moved from (xml simple).
+
+	* src/sxml/htmlprag.scm: Moved from (xml pragmatic). Name change
+	by author's request.
+
+	* src/sxml/apply-templates.scm: Moved from (xml templates).
+	apply-templates seems to make more sense.
+
+2004-06-13  Andy Wingo  <wingo@pobox.com>
+
+	* src/text/lex-simple.scm (next-token, read-text-line): Use (ice-9
+	rdelim). Lots faster! It could be faster if there were a C
+	function to read only characters from a certain charset, instead
+	of reading those not in a charset.
+
+	* src/xml/texinfo.scm (trim-whitespace): Speed improvements.
+
+	* src/debugging/statprof.scm (statprof-start, statprof-stop)
+	(statprof-display): Keep track of the time in GC as well.
+	(make-call-data): Don't profile anonymous functions -- record
+	their time under their calling function. Also, make procedure-data
+	a strong hash.
+	(with-statprof): Removed the #:reject and #:only-named? options.
+	The real problem was that anonymous functions were being profiled.
+
+	* src/debugging/time.scm: New file, implements a macro to time
+	execution of a body of expressions.
+
+	* src/debugging/statprof.scm Reworked to support cumulative and
+	self stats.
+	(profile-signal-handler): More efficient when not trapping
+	apply-frame.
+	(inc-call-data-call-count!, inc-call-data-self-sample-count!)
+	(inc-call-data): New functions, replacing their set- variants.
+	(sample-count-frame, sample-uncount-frame): Gone.
+	(sample-stack-procs): Cut out more frames to avoid counting the
+	profile signal.
+	(count-call): Simplify.
+	(with-statprof): Some new kwargs: #:count-calls?, #:only-named?,
+	#:reject
+	(statprof-reset): Takes another arg, count-calls?.
+	(statprof-call-data->stats): Output the self time and the
+	cumulative time, like gprof.
+
+2004-06-12  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/transform.scm (let*-values): Same.
+
+	* src/xml/texinfo.scm (let*-values): Yikes, srfi-11 uses syncase
+	macros! Go back to a define-macro version.
+
+	* src/debugging/statprof.scm (with-statprof): New macro. It's
+	lisp-style rather than scheme-style, fwiw (implicit lambda).
+
+	* unit-tests/debugging.statprof.scm: New file.
+
+	* src/debugging/statprof.scm: New file, from the guile-statprof
+	guile CVS module. I haven't talked to Rob yet, though!
+
+	* src/xml/texinfo.scm (parse-environment-args): Fix environ args.
+
+	* unit-tests/xml.texinfo.scm: Updates to the SXML representation.
+
+	* src/xml/transform.scm: Use srfi-11's let*-values instead of
+	rolling our own, and export the foldts operator.
+
+	* src/xml/texinfo.scm: Lots of changes -- it finally works right
+	now.
+
+	* src/xml/simple.scm (check-name): New procedure, checks a QName
+	for validity before outputting. Good for detecting errors in
+	generated SXML.
+	(entag, enattr): Use check-name.
+
+	* src/unit-test/guileUnit.scm (assert-equal): Use ice-9's
+	pretty-print instead of `write'.
+
+2004-06-03  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/xml.texinfo.scm: New file, texinfo->sxml test suite.
+
+	* src/xml/texinfo.scm: New file, parses texinfo into sxml.
+
+2004-05-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/ssax.scm (xml): Fix a typo.
+
+	* src/xml/simple.scm: Add a serializer for XML.
+
+2004-05-23  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/xpath.scm: Made into a proper guile module.
+
+	* src/xml/pragmatic.scm: Integrated with guile-lib.
+
+	* src/xml/transform.scm: Made into a proper guile module.
+
+	* unit-tests/xml.xpath.scm, unit-tests/xml.transform.scm,
+	unit-tests/xml.pragmatic.scm: New files.
+
+	* src/xml/templates.scm: New file, implements the XSLT-like
+	apply-templates.
+
+	* src/xml/ssax.scm: Typo fix: SLIB->SSAX.
+	
+	* src/xml/ssax.scm: Same.
+
+	* unit-tests/xml.ssax.scm (test-xml->sxml): Re-enabled CR/LF tests
+	(they were only disabled for PLT scheme).
+
+	* doc/xml.ssax.texi: New file, attempting to document SSAX (but
+	incomplete).
+
+	* doc/*.texi: Made to compile, and to include xml.ssax.texi.
+
+	* src/text/lex-simple.scm: Moved from text/lex.scm, and made into
+	a proper guile module.
+
+	* src/xml/ssax.scm: Adapted into a proper guile module.
+
+	* unit-tests/xml.ssax.scm: New file with a boatload of tests for
+	SSAX. Extracted and adapted from SSAX.scm.
+
+	* src/xml/simple.scm: New file to provide a simple DOM interface
+	to SSAX.
+
+	* src/debugging/assert.scm: New file, from SSAX.
+
+	* src/io/string.scm: New file, from SSAX.
+
+	* src/xml/ssax.scm: New file, from SSAX.
+
+	* src/text/lex.scm: New file, from SSAX's input-parse.scm.
+
+2004-05-07  Andy Wingo  <wingo@pobox.com>
+
+	* src/text/structured/plain-text.scm: Add output wrappers for
+	tables, code, and var elements.
+
+	* src/scheme/session.scm: New file. The same as (ice-9 session),
+	but more extensible. Will just re-export (ice-9 session) when
+	upstream gets this change.
+
+	* src/text/structured/help.scm: New file, provides help handlers
+
+	* src/scheme/documentation.scm (define-macro-with-docs): New
+	macro, and use it in the other doc macros.
+
 2004-04-19  Andy Wingo  <wingo@pobox.com>
 
 	* src/scheme/documentation.scm: New module, implements some macros

@@ -1,0 +1,229 @@
+;; guile-lib
+;; Copyright (C) 2003,2004 Andy Wingo <wingo at pobox dot com>
+
+;; This program is free software; you can redistribute it and/or    
+;; modify it under the terms of the GNU General Public License as   
+;; published by the Free Software Foundation; either version 2 of   
+;; the License, or (at your option) any later version.              
+;;                                                                  
+;; This program is distributed in the hope that it will be useful,  
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of   
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+;; GNU General Public License for more details.                     
+;;                                                                  
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, contact:
+;;
+;; Free Software Foundation           Voice:  +1-617-542-5942
+;; 59 Temple Place - Suite 330        Fax:    +1-617-542-2652
+;; Boston, MA  02111-1307,  USA       gnu@gnu.org
+
+;;; Commentary:
+;;
+;;Doc me!
+;;        
+;;; Code:
+
+;; TODO: nice ref resolving API, default CSS stylesheet (esp. to remove
+;; margin-top on dd > p)
+
+(define-module (sxml texinfo html)
+  :use-module (sxml texinfo)
+  :use-module (sxml transform)
+  :use-module (scheme documentation)
+  :use-module (srfi srfi-13)
+  :export (stexi->shtml add-ref-resolver!))
+
+;; The caller is responsible for carring the returned list.
+(define (arg-ref key %-args)
+  (and=> (assq key (cdr %-args)) (lambda (x) (stexi->shtml (cdr x)))))
+(define (arg-req key %-args)
+  (or (arg-ref key %-args)
+      (error "Missing argument:" key %-args)))
+(define (car* x) (and x (car x)))
+
+(define (urlify str)
+  (string-downcase
+   (string-map
+    (lambda (c)
+      (case c
+        ((#\space #\/ #\:) #\-)
+        (else c)))
+    str)))
+
+(define ref-resolvers 
+  (list
+   (lambda (node-name manual-name) ;; the default
+     (urlify (string-append (or manual-name "") "#" node-name)))))
+
+(define (add-ref-resolver! proc)
+  (set! ref-resolvers (cons proc ref-resolvers)))
+
+(define (resolve-ref node manual)
+  (or (or-map (lambda (x) (x node manual)) ref-resolvers)
+      (error "Could not resolve reference" node manual)))
+
+(define (ref tag args)
+  (let* ((node (car (arg-req 'node args)))
+         (section (or (car* (arg-ref 'section args)) node))
+         (manual (car* (arg-ref 'manual args)))
+         (target (resolve-ref node manual)))
+    `(span ,(and=> (assq tag '((xref "See ") (pxref "see "))) cdr)
+           (a (@ (href ,target)) ,section))))
+
+(define (uref tag args)
+  (let ((url (car (arg-req 'url args))))
+    `(a (@ (href ,url)) ,(or (car* (arg-ref 'title args)) url))))
+
+(define (node tag args)
+  `(a (@ (name ,(urlify (car (arg-req 'this args)))))))
+
+(define (def tag args . body)
+  (define (code x) (and x (cons 'code x)))
+  (define (var x) (and x (cons 'var x)))
+  (define (b x) (and x (cons 'b x)))
+  (define (list/spaces . elts)
+    (let lp ((in elts) (out '()))
+      (cond ((null? in) (reverse! out))
+            ((null? (car in)) (lp (cdr in) out))
+            (else (lp (cdr in)
+                      (cons (car in)
+                            (if (null? out) out (cons " " out))))))))
+  (define (left-td-contents)
+    (list/spaces (code (arg-ref 'data-type args))
+                 (b (code (arg-ref 'class args))) ;; is this right?
+                 (b (code (arg-ref 'name args)))
+                 (if (memq tag '(deftypeop deftypefn deftypefun))
+                     (code (arg-ref 'arguments args))
+                     (var (code (arg-ref 'arguments args))))))
+
+  (let* ((category (case tag
+                     ((deftp) "Function")
+                     ((defspec) "Special Form")
+                     ((defvar "Variable"))
+                     (else (car (arg-req 'category args))))))
+    `(div
+      (table
+       (@ (cellpadding "0") (cellspacing "0") (width "100%") (class "def"))
+       (tr (td ,@(left-td-contents))
+           (td (p (@ (class "right")) "[" ,right "]"))))
+      (div (@ (class "description")) ,@body))))
+
+(define (enumerate tag . elts)
+  (define (tonumber start)
+    (let ((c (string-ref start 0)))
+      (cond ((number? c) (string->number start))
+            (else (1+ (- (char->integer c)
+                         (char->integer (if (char-upper? c) #\A #\a))))))))
+  `(ol ,@(if (and (pair? elts) (pair? (car elts)) (eq? (caar elts) '%))
+             (cons `(@ (start ,@(tonumber (arg-req 'start (car elts)))))
+                       ;; (type ,(type (arg-ref 'start (car elts)))))
+                   (cdr elts))
+             elts)))
+
+(define (table tag args . body)
+  (let ((formatter (caar (arg-req 'formatter args))))
+    (cons 'dl
+          (map (lambda (x)
+                 (cond ((eq? formatter 'asis) x)
+                       ((and (pair? x) (eq? (car x) 'dt))
+                        (list (car x) (cons formatter (cdr x))))
+                       (else x)))
+               (apply append body)))))
+
+(define (entry tag args . body)
+  `((dt ,@(arg-req 'heading args))
+    (dd ,@body)))
+
+(define tag-replacements
+  '((titlepage    div (@ (class "titlepage")))
+    (title        h2  (@ (class "title")))
+    (subtitle     h3  (@ (class "subtitle")))
+    (author       h3  (@ (class "author")))
+    (example      pre)
+    (lisp         pre)
+    (smallexample pre (@ (class "smaller")))
+    (smalllisp    pre (@ (class "smaller")))
+    (cartouche    div (@ (class "cartouche")))
+    (chapter      h2)
+    (section      h3)
+    (subsection   h4)
+    (subsubsection       h5)
+    (appendix     h2)
+    (appendixsec  h3)
+    (appendixsubsec      h4)
+    (appendixsubsubsec   h5)
+    (unnumbered   h2)
+    (unnumberedsec       h3)
+    (unnumberedsubsec    h4)
+    (unnumberedsubsubsec h5)
+    (quotation    blockquote)
+    (itemize      ul)
+    (item         li) ;; itemx ?
+    (para         p)
+
+    (bold         b)
+    (sample       samp)
+    (samp         samp)
+    (code         code)
+    (kbd          kbd)
+    (key          code (@ (class "key")))
+    (var          var)
+    (env          code (@ (class "env")))
+    (file         code (@ (class "file")))
+    (command      code (@ (class "command")))
+    (option       code (@ (class "option")))
+    (url          code (@ (class "url")))
+    (dfn          dfn)
+    (cite         cite)
+    (acro         acronym)
+    (email        code (@ (class "email")))
+    (emph         em)
+    (strong       strong)
+    (sc           span (@ (class "small-caps")))))
+
+(define ignore-list
+  '(page setfilename setchapternewpage iftex ifinfo ifplaintext ifxml sp vskip
+    menu ignore syncodeindex comment c))
+(define (ignored? tag)
+  (memq tag ignore-list))
+
+(define rules
+  `((% *preorder* . ,(lambda args args)) ;; Keep these around...
+    (texinfo   . ,(lambda (tag args . body)
+                    (pre-post-order
+                     `(html
+                       (@ (xmlns "http://www.w3.org/1999/xhtml"))
+                       (head (title ,(car (arg-req 'title args))))
+                       (body ,@body))
+                     `((% *preorder* . ,(lambda args #f)) ;; ... filter out.
+                       (*text*       . ,(lambda (tag x) x))
+                       (*default*    . ,(lambda (tag . body)
+                                          (cons tag body)))))))
+    (copyright . ,(lambda args '(*ENTITY* "copy")))
+    (result    . ,(lambda args '(*ENTITY* "rArr")))
+    (xref . ,ref) (ref . ,ref) (pxref . ,ref)
+    (uref . ,uref)
+    (node . ,node) (anchor . ,node)
+    (table . ,table)
+    (enumerate . ,enumerate)
+    (entry . ,entry)
+
+    (deftp . ,def) (defcv . ,def) (defivar . ,def) (deftypeivar . ,def)
+    (defop . ,def) (deftypeop . ,def) (defmethod . ,def)
+    (deftypemethod . ,def) (defopt . ,def) (defvr . ,def) (defvar . ,def)
+    (deftypevr . ,def) (deftypevar . ,def) (deffn . ,def) 
+    (deftypefn . ,def) (defmac . ,def) (defspec . ,def) (defun . ,def)
+    (deftypefun . ,def)
+    (*text*    . ,(lambda (tag x) x))
+    (*default* . ,(lambda (tag . body)
+                    (let ((subst (assq tag tag-replacements)))
+                      (cond
+                       (subst (append (cdr subst) body))
+                       ((memq tag ignore-list) #f)
+                       (else (cons tag body))))))))
+
+(define (stexi->shtml tree)
+  (pre-post-order tree rules))
+
+;;; arch-tag: ab05f3fe-9981-4a78-b64c-48efcd9983a6

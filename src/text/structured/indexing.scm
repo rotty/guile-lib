@@ -1,4 +1,4 @@
-;; Soundscrape
+;; guile-lib
 ;; Copyright (C) 2003,2004 Andy Wingo <wingo at pobox dot com>
 
 ;; This program is free software; you can redistribute it and/or    

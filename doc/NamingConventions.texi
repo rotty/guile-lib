@@ -1,4 +1,4 @@
-@node Naming Conventions, Source Material, term ansi-color, Top
+@node Naming Conventions, Copying This Manual, xml ssax, Top
 
 @table @asis
 

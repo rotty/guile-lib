@@ -1,4 +1,4 @@
-@node Copying This Manual, Concept Index, Source Material, Top
+@node Copying This Manual, Concept Index, Naming Conventions, Top
 @appendix Copying This Manual
 
 This manual is covered under the GNU Free Documentation License.  A copy

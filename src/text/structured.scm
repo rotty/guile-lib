@@ -1,4 +1,4 @@
-;; Soundscrape
+;; guile-lib
 ;; Copyright (C) 2003,2004 Andy Wingo <wingo at pobox dot com>
 
 ;; This program is free software; you can redistribute it and/or    
@@ -19,8 +19,6 @@
 ;; Boston, MA  02111-1307,  USA       gnu@gnu.org
 
 ;;; Commentary:
-;;
-;;"Structured text", the internal format of help in soundscrape.
 ;;
 ;;Structured text is essentially texinfo expressed with s-expressions.
 ;;Its syntax is:
