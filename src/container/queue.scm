@@ -60,7 +60,7 @@
 (define-module (container queue)
   #:export (make-queue list->queue queue->list queue? queue-empty?  
             queue-front queue-rear queue-length
-	   remove-from-queue! push-queue! enqueue! pop-queue! dequeue!)
+            remove-from-queue! push-queue! enqueue! pop-queue! dequeue!)
   #:use-module (srfi srfi-1))
 
 ;;; sync-q!

@@ -13,6 +13,7 @@ clean: clean-doc-info
 test:
 
 install-doc-info:
+	mkdir -p $(info-install-dir)
 	cp $(theinfo) $(info-install-dir)
 
 clean-doc-info:

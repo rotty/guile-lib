@@ -1,3 +1,8 @@
+2004-10-18  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* doc/Makefile.in (install-doc-info): Add a "mkdir -p", in case
+	we're installing to a not-yet-existing directory.
+
 2004-09-05  Andreas Rottmann  <andy@findus>
 
 	* src/texinfo/reflection.scm (module-stexi-documentation): Get rid
