@@ -91,7 +91,7 @@
      (else (loop (cdr l) (cons (car l) res))))))
 
 ;; This should be in goops.scm, really
-(define-public (class-supers c)
+(define (class-supers c)
   (letrec ((allsubs (lambda (c)
 		      (cons c (mapappend allsubs
 					 (class-direct-supers c))))))
