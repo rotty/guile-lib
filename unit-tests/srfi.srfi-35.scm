@@ -2,7 +2,8 @@
 exec ${srcdir:-.}/guile-test-env guile -s "$0" "$@"
 !#
 
-(use-modules (srfi srfi-35)
+(use-modules (oop goops)
+             (srfi srfi-35)
              (unit-test))
 
 (define-condition-type &c &condition
@@ -25,15 +26,17 @@ exec ${srcdir:-.}/guile-test-env guile -s "$0" "$@"
   (slot-set! self 'v2 (condition (&c2 (x "V2") (b "b2"))))
   (slot-set! self 'v3 (condition (&c1 (x "V3/1") (a "a3"))
                         (&c2 (b "b3"))))
-  (slot-set! self 'v4 (make-compound-condition v1 v2))
-  (slot-set! self 'v5 (make-compound-condition v2 v3)))
+  (slot-set! self 'v4 (make-compound-condition (slot-ref self 'v1)
+                                               (slot-ref self 'v2)))
+  (slot-set! self 'v5 (make-compound-condition (slot-ref self 'v2)
+                                               (slot-ref self 'v3))))
 
 (define-method (test-v1 (self <test-basics>))
   (let ((v1 (slot-ref self 'v1)))
     (assert-true (c? v1))
     (assert-true (c1? v1))
     (assert-true (not (c2? v1)))
-    (assert-tru2 (string=? (c-x v1) "V1"))
+    (assert-true (string=? (c-x v1) "V1"))
     (assert-true (string=? (c1-a v1) "a1"))))
 
 (define-method (test-v2 (self <test-basics>))
