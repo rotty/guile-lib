@@ -20,34 +20,20 @@
 
 ;;; Commentary:
 ;;
-;;Integration between texinfo, structured text, and guile's help system.
-;;        
+;; Unit tests for (htmlprag).
+;;
 ;;; Code:
 
-(define-module (text structured help)
-  :use-module (text structured plain-text)
-  :use-module (text structured texinfo)
-  :use-module (ice-9 documentation)
-  :use-module (scheme session))
+(use-modules (oop goops)
+             (unit-test)
+             (htmlprag))
 
-(define (stext-help-handler value)
-  (let ((docs (object-documentation value)))
-    (if (list? docs) ;; pretty lame check for stext, eh...
-        (stext->plain-text (list '(stext) docs "\n")) ;; ghetto! i want to
-						 ;; move to sxml.
-        #f)))
+(define-class <test-xml-pragmatic> (<test-case>))
 
-(define (texinfo-help-handler value)
-  (let ((docs (object-documentation value)))
-    (if (and (string? docs) (string-index docs #\@)) ;; another lame check
-        (stext->plain-text
-         (list '(stext) ;; yikes
-               (with-input-from-string docs
-                 texinfo->stext)
-               "\n"))
-        #f)))
+(define-method (test-all (self <test-xml-pragmatic>))
+  (assert-true (test-htmlprag)))
 
-(add-value-help-handler! texinfo-help-handler)
-(add-value-help-handler! stext-help-handler)
+(exit-with-summary (run-all-defined-test-cases))
 
-;;; arch-tag: 99d453bd-cc00-4ca0-b5b7-f018dc1ae0e5
+;;; arch-tag: 87b8fe8e-3d60-47c9-ad9e-d98bb16a0266
+;;; htmlprag.scm ends here

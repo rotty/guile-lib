@@ -7,49 +7,54 @@
 
 ;;; Commentary:
 ;;
-;; Defines an assert macro, and the cout and cerr utility functions.
-;; Used by (xml ssax).
+;; Defines an @code{assert} macro, and the @code{cout} and @code{cerr}
+;; utility functions.
 ;;
 ;;; Code:
 
 (define-module (debugging assert)
+  #:use-module (scheme documentation)
   #:export (assert cout cerr))
 
-; like cout << arguments << args
-; where argument can be any Scheme object. If it's a procedure
-; (without args) it's executed rather than printed (like newline)
-
 (define (cout . args)
+  "Similar to @code{cout << arguments << args}, where @var{argument} can
+be any Scheme object. If it's a procedure (e.g. @code{newline}), it's
+called without args rather than printed."
   (for-each (lambda (x)
               (if (procedure? x) (x) (display x)))
             args))
 
 (define (cerr . args)
+  "Similar to @code{cerr << arguments << args}, where @var{argument} can
+be any Scheme object. If it's a procedure (e.g. @code{newline}), it's
+called without args rather than printed."
   (for-each (lambda (x)
               (if (procedure? x) (x (current-error-port)) (display x (current-error-port))))
             args))
 
-; assert the truth of an expression (or of a sequence of expressions)
-;
-; syntax: assert ?expr ?expr ... [report: ?r-exp ?r-exp ...]
-;
-; If (and ?expr ?expr ...) evaluates to anything but #f, the result
-; is the value of that expression.
-; If (and ?expr ?expr ...) evaluates to #f, an error is reported.
-; The error message will show the failed expressions, as well
-; as the values of selected variables (or expressions, in general).
-; The user may explicitly specify the expressions whose
-; values are to be printed upon assertion failure -- as ?r-exp that
-; follow the identifier 'report:'
-; Typically, ?r-exp is either a variable or a string constant.
-; If the user specified no ?r-exp, the values of variables that are
-; referenced in ?expr will be printed upon the assertion failure.
-
 (define nl (string #\newline))
 
-(define-macro (assert expr . others)
-			; given the list of expressions or vars,
-			; make the list appropriate for cerr
+(define-macro-with-docs (assert expr . others)
+  "Assert the truth of an expression (or of a sequence of expressions).
+
+syntax: @code{assert @var{?expr} @var{?expr} ... [report: @var{?r-exp} @var{?r-exp} ...]}
+
+If @code{(and @var{?expr} @var{?expr} ...)} evaluates to anything but
+@code{#f}, the result is the value of that expression. Otherwise, an
+error is reported.
+
+The error message will show the failed expressions, as well as the
+values of selected variables (or expressions, in general). The user may
+explicitly specify the expressions whose values are to be printed upon
+assertion failure -- as @var{?r-exp} that follow the identifier
+@code{report:}.
+
+Typically, @var{?r-exp} is either a variable or a string constant. If
+the user specified no @var{?r-exp}, the values of variables that are
+referenced in @var{?expr} will be printed upon the assertion failure."
+
+  ;; given the list of expressions or vars, make the list appropriate
+  ;; for cerr
   (define (make-print-list prefix lst)
     (cond
      ((null? lst) '())
@@ -60,9 +65,9 @@
      (else 
       (cons prefix (cons (car lst) (make-print-list "" (cdr lst)))))))
 
-			; return the list of all unique "interesting"
-			; variables in the expr. Variables that are certain
-			; to be bound to procedures are not interesting.
+  ;; return the list of all unique "interesting" variables in the expr.
+  ;; Variables that are certain to be bound to procedures are not
+  ;; interesting.
   (define (vars-of expr)
     (let loop ((expr expr) (vars '()))
       (cond

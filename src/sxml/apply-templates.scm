@@ -7,7 +7,30 @@
 
 ;;; Commentary:
 ;;
-;; XSLT-like `apply-templates' function.
+;; Pre-order traversal of a tree and creation of a new tree:
+;;
+;;@smallexample
+;;	apply-templates:: tree x <templates> -> <new-tree>
+;;@end smallexample
+;; where
+;;@smallexample
+;; <templates> ::= (<template> ...)
+;; <template>  ::= (<node-test> <node-test> ... <node-test> . <handler>)
+;; <node-test> ::= an argument to node-typeof? above
+;; <handler>   ::= <tree> -> <new-tree>
+;;@end smallexample
+;;
+;; This procedure does a @emph{normal}, pre-order traversal of an SXML
+;; tree.  It walks the tree, checking at each node against the list of
+;; matching templates.
+;;
+;; If the match is found (which must be unique, i.e., unambiguous), the
+;; corresponding handler is invoked and given the current node as an
+;; argument. The result from the handler, which must be a @code{<tree>},
+;; takes place of the current node in the resulting tree.
+;; 
+;; The name of the function is not accidental: it resembles rather
+;; closely an @code{apply-templates} function of XSLT.
 ;;
 ;;; Code:
 
@@ -15,24 +38,6 @@
   #:use-module (sxml ssax)
   #:use-module (sxml xpath)
   #:export (apply-templates))
-
-; Pre-order traversal of a tree and creation of a new tree:
-;	apply-templates:: tree x <templates> -> <new-tree>
-; where
-; <templates> ::= (<template> ...)
-; <template>  ::= (<node-test> <node-test> ... <node-test> . <handler>)
-; <node-test> ::= an argument to node-typeof? above
-; <handler>   ::= <tree> -> <new-tree>
-;
-; This procedure does a _normal_, pre-order traversal of an SXML
-; tree.  It walks the tree, checking at each node against the list of
-; matching templates.
-; If the match is found (which must be unique, i.e., unambiguous), the
-; corresponding handler is invoked and given the current node as an
-; argument.  The result from the handler, which must be a <tree>,
-; takes place of the current node in the resulting tree.
-; The name of the function is not accidental: it resembles rather closely
-; an 'apply-templates' function of XSLT.
 
 (define (apply-templates tree templates)
 

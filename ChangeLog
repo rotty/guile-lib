@@ -1,3 +1,266 @@
+2004-07-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/htmlprag.scm: Moved from (sxml htmlprag). Testsuite adjusted
+	accordingly.
+
+	* src/sxml/ssax/input-parse.scm: Moved from (text lex-simple).
+	Includes the upstream/input-parse.scm, then overrides some
+	functions for speed.
+
+	* src/texinfo.scm: Adapt to (sxml ssax input-parse) name change.
+
+	* src/sxml/upstream/SXML-tree-trans.scm: Upstream for (sxml
+	transform).
+
+	* src/sxml/upstream/SSAX.scm: The main upstream file.
+
+	* src/sxml/upstream/SSAX-expanded.scm: New file. Same as SSAX.scm,
+	but has already been macroexpanded. We include this one so we can
+	avoid loading up syncase, because it's slow.
+
+	* src/sxml/ssax.scm: Updated to SSAX.scm v5.1. No longer includes
+	the body of SSAX.scm here; instead loads files from sxml/upstream.
+	Should be more maintainable. Only exports what PLT exports; also,
+	most names have been lower-cased upstream.
+
+	* src/sxml/simple.scm: Updated to lower-case ssax identifiers.
+
+2004-07-23  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.scm (test-texinfo->stexinfo): It is valid to
+	have no @itemize formatter: it should default to @bullet.
+
+	* unit-tests/statprof.scm: Moved from debugging.statprof.scm, and
+	adapted to the new (statprof) name.
+
+	* src/statprof.scm: Moved from (debugging statprof), as per the
+	hierarchy discussions on guile-user.
+
+	* examples/document-module.scm (module-docs): Adjusted to use
+	(texinfo reflection).
+
+	* src/scheme/session.scm (*name-help-handlers*) 
+	(add-name-help-handler!, remove-name-help-handler!) 
+	(try-name-help): Added a hook for "name handlers", which are
+	called with the unevaluated name of the thing to get help on.
+	(add-value-help-handler!): Changed so value handlers are also
+	passed the name of the value. All callers and callees changed.
+
+	Override the (ice-9 session) help with our own using evil methods.
+	Necessary, but I don't know why.
+
+	* src/texinfo/reflection.scm: Renamed from (scheme
+	module-documentation), because it's really part of the (texinfo)
+	package.
+	(object-stexi-documentation): Split out from
+	module-stexi-documentation. Exported.
+	(module-stexi-documentation): Renamed from module-documentation.
+	(stexi-help-handler): Calls object-stexi-documentation.
+	(texi-help-handler): Removed, handled by the stexi handler.
+
+	* src/texinfo/help.scm: Merged into reflection.scm.
+
+2004-07-10  Andy Wingo  <wingo@pobox.com>
+
+	* src/scheme/module-documentation.scm (string->stexi): New
+	function. Parses the string if appropriate and possible, otherwise
+	returns the string in a verbatim tag.
+	(module-documentation): Use string->stexi.
+	(false-if-exception): Like the normal false-if-exception, but
+	doesn't affect the-last-stack.
+
+	* src/container/nodal-tree.scm (make-node): Ensure that nodes have
+	the 'children property defined. Note this in the commentary.
+
+	* examples/document-module.scm (srfi): Use (texinfo), not (sxml
+	texinfo).
+
+	* src/texinfo.scm (index): Create anchors before cindex, etc.
+	(texi-command-specs): Add specs for cindex, etc.
+	(parse-table-args): Allow an empty itemizer, default to @bullet.
+
+	* src/texinfo/indexing.scm: Handle cindex, findex, etc. in
+	addition to the def* commands.
+
+2004-07-07  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/nodal-tree.scm: Was (texinfo named-tree-nodes). This
+	uses the nodal tree mentioned below.
+
+	* src/texinfo*: All the texinfo files are here now. This means the
+	texinfo things are no longer (sxml texinfo), they are (texinfo).
+	This changed was sparked by recent guile-user discussions that
+	ended up promoting flatter hierarchies. The test cases were also
+	changed.
+
+	* src/container/delay-tree.scm: New file, defines "delay tree" as
+	a cousin to nodal trees. Delay trees can have any field, including
+	the 'children field, be a promise created by `delay'.
+
+	* src/container/nodal-tree.scm: New file, defines a "nodal tree"
+	type. See the source for details.
+
+2004-06-30  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo.scm (make-command-parser): Parse verbatim
+	entries also.
+
+2004-06-27  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/*: Adapt to (unit-test).
+
+	* unit-tests/debugging.statprof.scm: Add license block.
+
+2004-06-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/debugging/statprof.scm: Use docstrings where appropriate,
+	and give the module a commentary (snarfed from the original
+	README). Also, the license is LGPL (confirmed by private email
+	with Rob).
+	Remove the old TODO items, they're fixed :) Replace with some new
+	ones.
+
+	* src/sxml/ssax.scm: Don't export
+	SSAX:read-pi-body-as-name-values, it's not defined.
+
+	* src/debugging/statprof.scm (statprof-fold-call-data): Renamed
+	from -called, to match what's exported. Calling functions changed.
+
+2004-06-23  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/xpath.scm: Marked up the commentary.
+
+	* src/sxml/transform.scm (SRV:send-reply): Gave it a happy
+	docstring.
+	Mark up the pre-post-order docs and put them in the commentary.
+
+	* src/sxml/texinfo.scm: Marked up the commentary as texinfo, and
+	added some docstrings.
+
+	* src/sxml/simple.scm: Add some documentation.
+
+	* src/scheme/module-documentation.scm (texi?): Broaden the texi?
+	predicate to include @c.
+
+	* src/sxml/htmlprag.scm: Some of the docs copied to the
+	commentary. This is getting a bit silly -- obviously you're
+	missing out on some of the docs. Perhaps we should just parse all
+	of the comments in a file. A definite FIXME.
+
+	* src/sxml/ssax.scm: Move some elided comments into the
+	commentary, mark them up as texinfo.
+
+	* src/sxml/texinfo/html.scm (table): Don't check for asis, we'll
+	never see it.
+	(tag-replacements): asis -> span.
+
+	* src/sxml/apply-templates.scm: Move comments to the commentary. I
+	was considering moving them to be docstrings, but I decided
+	against it on two reasons: first, neither guile 1.6 nor 1.7 will
+	memoize away the docstring, so every time the procedure is
+	executed, the string will have to be skipped; and second, it's an
+	extensive change to make in code that I didn't write.
+
+	* src/scheme/module-documentation.scm: Only trim newlines from the
+	module commentary.
+
+	* src/sxml/texinfo/html.scm (node): Mozilla gets confused at an
+	empty ("<a .. />") a tag. Put an empty string here to placate the
+	reptile.
+	(def): Use divs on both sides so the top and bottom margins line
+	up.
+
+2004-06-20  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/html.scm (def): Fix some bugs in the definition
+	output.
+
+	* src/sxml/texinfo.scm (read-command-token): Re-enable detection
+	of invalid command tokens.
+
+	* examples/document-module.scm: New file, documents the module
+	given on the command line as html or plain text. texinfo output
+	coming soon.
+
+	* src/scheme/module-documentation.scm: New file, generates stexi
+	documentation for a module.
+
+	* src/sxml/texinfo/plain-text.scm (stexi->plain-text): Use
+	map-in-order.
+	(tag-handlers): Add a handler for @verbatim that doesn't indent
+	the output.
+
+	* src/scheme/session.scm (scheme): Export `module-commentary'.
+
+	* src/sxml/texinfo/html.scm (def): Same bug.
+
+	* src/sxml/texinfo/plain-text.scm (def): Fix bug: defun has
+	category "Function", not deftp.
+
+	* src/text/structured.scm, src/text/structured/*.scm: Removed.
+	These modules are completely replaced by (sxml texinfo ...).
+
+	* src/sxml/texinfo/indexing.scm: New file, generates an index from
+	a stexi.
+
+	* src/sxml/texinfo.scm (index): New function, adds an anchor
+	before an indexing element if necessary. Called by
+	make-command-parser.
+
+	* src/sxml/texinfo/plain-text.scm (wrap-heading): New function to
+	wrap a string and only append one newline.
+
+	* src/sxml/texinfo.scm (texi-fragment->stexi): New function,
+	parses a fragment of a texinfo document. Exported.
+	(parse-environment-args): Fix a bug introduced by conversion to
+	make-dom-parser.
+	(read-char-data): Only feed "\n" to the str-handler if we are
+	preserving ws, otherwise feed " ".
+	(reverse-collect-str-drop-ws): Fix bug regarding interstitial
+	whitespace.
+
+	* unit-tests/sxml.texinfo.scm (test-complete-start-command):
+	Change to accomodate node arguments renaming.
+
+	* src/sxml/texinfo.scm (make-contents): Make sure the contents of
+	@item are in a @para.
+	(make-parser): Removed, just use make-command-parser or
+	make-dom-parser.
+	(make-dom-parser): New function.
+
+	* src/sxml/texinfo/plain-text.scm: New file, outputs one
+	procedure: stexi->plain-text. Works remarkably well!
+
+2004-06-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/simple.scm (sxml->string): Use
+	string-concatenate-reverse.
+
+	* src/sxml/texinfo.scm: Update the comments.
+	(texi-command-specs): Renamed.
+	(texi-command-depth): Renamed.
+
+	* src/sxml/texinfo.scm (texinfo-command-specs): Add entries for
+	the @heading commands.
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi->named-tree-nodes):
+	Include the node and chapter heading in the chunked output.
+
+	* src/sxml/texinfo/html.scm (node): Use 'name, not 'this.
+
+	* src/sxml/texinfo.scm (stexi-command-depth): New function,
+	exported.
+	(make-contents): New function, makes a table of contents.
+	(texinfo-command-specs): The node name argument is now stored as
+	'name, rather than 'this.
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi-command-depth):
+	Renamed from name->depth, and moved to texinfo.scm.
+
+	* src/sxml/texinfo/html.scm (rules): Warn if there's not a rule
+	for converting a given tag to HTML. Fall through to just output
+	the untagged body.
+
 2004-06-17  Andy Wingo  <wingo@pobox.com>
 
 	* src/sxml/texinfo/named-tree-nodes.scm (stexi->named-tree-nodes):

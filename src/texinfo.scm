@@ -23,34 +23,38 @@
 
 ;;; Commentary:
 ;;
-;; Texinfo processing in scheme.
-;;
-;; This module parses texinfo into SXML. TeX does a great job, and is
-;; quite extensible, so it doesn't make sense to compete with it in
-;; print output. Although makeinfo works well for info, its output in
-;; other formats is not very customizable, and the program is not
-;; extensible as a whole. This module aims to provide an extensible
-;; framework for texinfo processing that integrates texinfo into the
-;; constellation of SXML processing tools.
+;; @subheading Texinfo processing in scheme
+;; 
+;; This module parses texinfo into SXML. TeX will always be the
+;; processor of choice for print output, of course. However, although
+;; @code{makeinfo} works well for info, its output in other formats is
+;; not very customizable, and the program is not extensible as a whole.
+;; This module aims to provide an extensible framework for texinfo
+;; processing that integrates texinfo into the constellation of SXML
+;; processing tools.
+;; 
+;; @subheading Notes on the SXML vocabulary
 ;;
 ;; Consider the following texinfo fragment:
-;;
-;; @deffn Primitive set-car! pair value
+;; 
+;;@example
+;; @@deffn Primitive set-car! pair value
 ;; This function...
-;; @end deffn
-;;
+;; @@end deffn
+;;@end example
+;; 
 ;; Logically, the category (Primitive), name (set-car!), and arguments
 ;; (pair value) are ``attributes'' of the deffn, with the description as
-;; the content. However, texinfo allows for @-commands within the
-;; arguments to an environment, like @deffn, which means that texinfo
-;; ``attributes'' are PCDATA. XML attributes, on the other hand, are
-;; CDATA. For this reason, ``attributes'' of texinfo @-commands are
+;; the content. However, texinfo allows for @@-commands within the
+;; arguments to an environment, like @code{@@deffn}, which means that
+;; texinfo ``attributes'' are PCDATA. XML attributes, on the other hand,
+;; are CDATA. For this reason, ``attributes'' of texinfo @@-commands are
 ;; called ``arguments'', and are grouped under the special element, `%'.
 ;;
 ;; Because `%' is not a valid NCName, stexinfo is a superset of SXML. In
 ;; the interests of interoperability, this module provides a conversion
 ;; function to replace the `%' with `texinfo-arguments'.
-;;
+;; 
 ;;; Code:
 
 ;; Comparison to xml output of texinfo (which is rather undocumented):
@@ -63,27 +67,38 @@
 ;;  Definitions are handled a lot better
 ;;  Does parse comments
 ;;  Outputs only significant line breaks (a biggie!)
-;;  Examples contain a single para, fwiw
 ;;  Nodes are treated as anchors, rather than content organizers (a biggie)
 ;;    (more book-like, less info-like)
 
 ;; TODO
-;; Update the comments
-;; Integration: HTML, chunkers, help, indexing, plain text, toc
+;; Integration: help, indexing, plain text
 
-(define-module (sxml texinfo)
+(define-module (texinfo)
+  #:use-module (sxml simple)
   #:use-module (sxml transform)
-  #:use-module (text lex-simple)
+  #:use-module (sxml ssax input-parse)
+  #:use-module (scheme documentation)
   #:use-module (io string)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-13)
-  #:export (texi->stexi stexi->sxml
-            call-with-file-and-dir))
+  #:export (call-with-file-and-dir
+            texi-command-specs
+            texi-command-depth
+            texi-fragment->stexi
+            texi->stexi
+            stexi->sxml))
+
+;; Some utilities
 
 (define (parser-error port message . rest)
   (apply error port message rest))
 
 (define (call-with-file-and-dir filename proc)
+  "Call the one-argument procedure @var{proc} with an input port that
+reads from @var{filename}. During the dynamic extent of @var{proc}'s
+execution, the current directory will be @code{(dirname
+@var{filename})}. This is useful for parsing documents that can include
+files by relative path name."
   (let ((current-dir (getcwd)))
     (dynamic-wind
         (lambda () (chdir (dirname filename)))
@@ -91,7 +106,8 @@
           (call-with-input-file (basename filename) proc))
         (lambda () (chdir current-dir)))))
 
-; Like let* but allowing for multiple-value bindings
+;; Define this version here, because (srfi srfi-11)'s definition uses
+;; syntax-rules, which is really damn slow
 (define-macro (let*-values bindings . body)
   (if (null? bindings) (cons 'begin body)
       (apply
@@ -109,87 +125,72 @@
 	      (lambda ,vars ,cont))))))
        (car bindings))))
 
-;========================================================================
-;				Data Types
+;;========================================================================
+;;            Reflection on the XML vocabulary
 
-; TAG-KIND
-;	A symbol 'EMPTY, 'START, 'LINE, 'END
+(define-with-docs texi-command-specs
+"A list of (@var{name} @var{content-model} . @var{args})
 
-; TAG-NAME
-;	A a single symbol.
+@table @var
+@item name 
+The name of an @@-command, as a symbol.
 
-; ELEM-CONTENT-MODEL
-;	A symbol:
-;	ENVIRON	  - The tag is an environment tag, expect `@end foo'.
-;	EMPTY-COMMAND - no content, and no @end is coming
-;	EOL-ARGS  - Arguments := CDATA to end of line
-;	EOL-TEXT  - Arguments end at end of line, but are parsed
-;       INLINE-ARGS - Attribute is inline
-;       INLINE-TEXT - Attribute is inline
+@item content-model
+A symbol indicating the syntactic type of the @@-command:
+@table @code
+@item EMPTY-COMMAND
+No content, and no @code{@@end} is coming
+@item EOL-ARGS
+Unparsed arguments until end of line
+@item EOL-TEXT
+Parsed arguments until end of line
+@item INLINE-ARGS
+Unparsed arguments ending with @code{#\@}}
+@item INLINE-TEXT
+Parsed arguments ending with @code{#\@}}
+@item ENVIRON
+The tag is an environment tag, expect @code{@@end foo}.
+@item TABLE-ENVIRON
+Like ENVIRON, but with special parsing rules for its arguments.
+@item FRAGMENT
+For @code{*fragment*}, the command used for parsing fragments of
+texinfo documents.
+@end table
 
-; STR-HANDLER
-;	A procedure of three arguments: STRING1 STRING2 SEED
-;	returning a new SEED
-;	The procedure is supposed to handle a chunk of character data
-;	STRING1 followed by a chunk of character data STRING2.
-;	STRING2 is a short string, often "\n" and even ""
+Note that the @code{-TEXT} commands will receive their arguments within
+their bodies, whereas the @code{-ARGS} commands will receive them in
+their attribute list. @code{ENVIRON} commands have both: parsed
+arguments until the end of line, received through their attribute list,
+and parsed text until the @code{@@end}, received in their bodies.
 
-; INCLUDES
-;	A stack of strings indicating which files are being included.
-;       An attempt to include a file in this list will result in an
-;       error: violation of nonrecursion.
+There are four @@-commands that are treated specially. @code{@@include}
+is a low-level token that will not be seen by higher-level parsers, so
+it has no content-model. @code{@@para} is the paragraph command, which
+is only implicit in the texinfo source. @code{@@item} has special
+syntax, as noted above, and @code{@@entry} is how this parser treats
+@code{@@item} commands within @code{@@table}, @code{@@ftable}, and
+@code{@@vtable}.
 
-; TOKEN -- a record
+Also, indexing commands (@code{@@cindex}, etc.) are treated specially.
+Their arguments are parsed, but they are needed before entering the
+element so that an anchor can be inserted into the text before the index
+entry.
 
-; This record represents a markup, which is either a stop or an end tag.
-;
-;	kind -- a TAG-KIND
-;	head -- a TAG-NAME. Only 'START For xml-tokens of kinds 'COMMENT and
-;		'CDSECT, the head is #f
-;
-; For example,
-;	<P>     => kind='START, head='P
-;	</P>    => kind='END, head='P
-;	@dots{} => kind='EMPTY-EL, head='BR
-; 
-; Character references are not represented by xml-tokens as these references
-; are transparently resolved into the corresponding characters.
-
-(define (make-token kind head) (cons kind head))
-(define token? pair?)
-(define token-kind car)
-(define token-head cdr)
-
-;; The % is for arguments
-(define (space-significant? command)
-  (memq command
-        '(example smallexample verbatim lisp smalllisp menu %)))
-
-;; Like a DTD for texinfo
-(define (command-spec command)
-  (or (assq command texinfo-command-specs)
-      (parser-error #f "Unknown command" command)))
-
-(define (inline-content? content)
-  (or (eq? content 'INLINE-TEXT) (eq? content 'INLINE-ARGS)))
-
-(define texinfo-command-specs
-  ;; name content-model args
-  ;; args are there only for
-  ;;   content-model := INLINE-ARGS, EOL-ARGS, ENVIRON, TABLE-ENVIRON
-  ;; although ENTRY has args, just for the sake of the dtd
-  ;;
-  ;; args has the same format as the formals for a lambda
-  ;; #f for args means no args (expect EOL or {}),
-  ;; #t means put args as leaves of element
+@item args
+Named arguments to the command, in the same format as the formals for a
+lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
+@code{ENVIRON}, @code{TABLE-ENVIRON} commands.
+@end table"
   '(;; Special commands
     (include            #f) ;; this is a low-level token
     (para               PARAGRAPH)
     (item               ITEM)
     (entry              ENTRY . heading)
     (noindent           EMPTY-COMMAND)
+    (*fragment*         FRAGMENT)
 
     ;; Inline text commands
+    (*braces*           INLINE-TEXT) ;; FIXME: make me irrelevant
     (bold               INLINE-TEXT)
     (sample             INLINE-TEXT)
     (samp               INLINE-TEXT)
@@ -211,7 +212,6 @@
     (sample             INLINE-TEXT)
     (sc                 INLINE-TEXT)
     (titlefont          INLINE-TEXT)
-    (*braces*           INLINE-TEXT) ;; FIXME: make me irrelevant
     (asis               INLINE-TEXT)
 
     ;; Inline args commands
@@ -227,7 +227,7 @@
     (copyright          INLINE-ARGS . ())
 
     ;; EOL args elements
-    (node               EOL-ARGS . (this #:opt next previous up))
+    (node               EOL-ARGS . (name #:opt next previous up))
     (c                  EOL-ARGS . all)
     (comment            EOL-ARGS . all)
     (setchapternewpage  EOL-ARGS . all)
@@ -259,6 +259,19 @@
     (appendixsubsubsec  EOL-TEXT)
     (unnumberedsubsec   EOL-TEXT)
     (unnumberedsubsubsec EOL-TEXT)
+    (chapheading        EOL-TEXT)
+    (majorheading       EOL-TEXT)
+    (heading            EOL-TEXT)
+    (subheading         EOL-TEXT)
+    (subsubheading      EOL-TEXT)
+
+    ;; Indexing commands
+    (cindex             INDEX . entry)
+    (findex             INDEX . entry)
+    (vindex             INDEX . entry)
+    (kindex             INDEX . entry)
+    (pindex             INDEX . entry)
+    (tindex             INDEX . entry)
 
     ;; Environment commands (those that need @end)
     (texinfo            ENVIRON . title)
@@ -308,9 +321,49 @@
     (ftable             TABLE-ENVIRON . (formatter))
     (vtable             TABLE-ENVIRON . (formatter))))
 
+(define command-depths
+  '((chapter . 1) (section . 2) (subsection . 3) (subsubsection . 4)
+    (top . 0) (unnumbered . 1) (unnumberedsec . 2)
+    (unnumberedsubsec . 3) (unnumberedsubsubsec . 4)
+    (appendix . 1) (appendixsec . 2) (appendixsection . 2)
+    (appendixsubsec . 3) (appendixsubsubsec . 4)))
+(define (texi-command-depth command max-depth)
+  "Given the texinfo command @var{command}, return its nesting level, or
+@code{#f} if it nests too deep for @var{max-depth}.
 
-;-------------------------
-; Utilities
+Examples:
+@example
+(texi-command-depth 'chapter 4)        @result{} 1
+(texi-command-depth 'top 4)            @result{} 0
+(texi-command-depth 'subsection 4)     @result{} 3
+(texi-command-depth 'appendixsubsec 4) @result{} 3
+(texi-command-depth 'subsection 2)     @result{} #f
+@end example"
+  (let ((depth (and=> (assq command command-depths) cdr)))
+    (and depth (<= depth max-depth) depth)))
+
+;; The % is for arguments
+(define (space-significant? command)
+  (memq command
+        '(example smallexample verbatim lisp smalllisp menu %)))
+
+;; Like a DTD for texinfo
+(define (command-spec command)
+  (or (assq command texi-command-specs)
+      (parser-error #f "Unknown command" command)))
+
+(define (inline-content? content)
+  (or (eq? content 'INLINE-TEXT) (eq? content 'INLINE-ARGS)))
+
+
+;;========================================================================
+;;		Lower-level parsers and scanners
+;;
+;; They deal with primitive lexical units (Names, whitespaces, tags) and
+;; with pieces of more generic productions. Most of these parsers must
+;; be called in appropriate context. For example, complete-start-command
+;; must be called only when the @-command start has been detected and
+;; its name token has been read.
 
 ;; Test if a string is made of only whitespace
 ;; An empty string is considered made of whitespace as well
@@ -318,7 +371,7 @@
   (or (string-null? str)
       (string-every char-whitespace? str)))
 
-;; allows eof
+;; Like read-text-line, but allows EOF.
 (define read-eof-breaks '(*eof* #\return #\newline))
 (define (read-eof-line port)
   (if (eof-object? (peek-char port))
@@ -332,24 +385,18 @@
 
 (define ascii->char integer->char)
 
-;========================================================================
-;		Lower-level parsers and scanners
-;
-; They deal with primitive lexical units (Names, whitespaces, tags)
-; and with pieces of more generic productions. Most of these parsers
-; must be called in appropriate context. For example, complete-start-tag
-; must be called only when the start-tag has been detected and its GI
-; has been read.
-
 (define (skip-whitespace port)
   (skip-while '(#\space #\tab #\return #\newline) port))
 
 (define (skip-horizontal-whitespace port)
   (skip-while '(#\space #\tab) port))
 
-; command ::= Letter+
-; Read a command starting from the current position in the PORT and
-; return it as a symbol.
+;; command ::= Letter+
+
+;; procedure:   read-command PORT
+;;
+;; Read a command starting from the current position in the PORT and
+;; return it as a symbol.
 (define (read-command port)
   (let ((first-char (peek-char port)))
     (or (char-alphabetic? first-char)
@@ -363,14 +410,33 @@
           (else #f)))
       port)))
 
-; procedure:	read-command-token PORT
-; This procedure starts parsing of a command token. The current position
-; in the stream must be #\@. This procedure scans enough of the input stream
-; to figure out what kind of a command token it is seeing. The procedure returns
-; a token structure describing the token. Note, generally reading
-; of the current command is not finished! In particular, no arguments of
-; the start-tag token are scanned.
-;; FIXME: doc return values
+;; A token is a primitive lexical unit. It is a record with two fields,
+;; token-head and token-kind.
+;;
+;; Token types:
+;;      END     The end of a texinfo command. If the command is ended by },
+;;              token-head will be #f. Otherwise if the command is ended by
+;;              @end COMMAND, token-head will be COMMAND. As a special case,
+;;              @bye is the end of a special @texinfo command.
+;;      START   The start of a texinfo command. The token-head will be a
+;;              symbol of the @-command name.
+;;      INCLUDE An @include directive. The token-head will be empty -- the
+;;              caller is responsible for reading the include file name.
+;;      ITEM    @item commands have an irregular syntax. They end at the
+;;              next @item, or at the end of the environment. For that
+;;              read-command-token treats them specially.
+
+(define (make-token kind head) (cons kind head))
+(define token? pair?)
+(define token-kind car)
+(define token-head cdr)
+
+;; procedure:	read-command-token PORT
+;;
+;; This procedure starts parsing of a command token. The current
+;; position in the stream must be #\@. This procedure scans enough of
+;; the input stream to figure out what kind of a command token it is
+;; seeing. The procedure returns a token structure describing the token.
 
 (define (read-command-token port)
   (assert-curr-char '(#\@) "start of the command" port)
@@ -379,7 +445,7 @@
      ((memq peeked '(#\! #\. #\? #\@ #\\ #\{ #\}))
       ;; @-commands that escape characters
       (make-token 'STRING (string (read-char port))))
-     ((char-alphabetic? peeked)
+     (else
       (let ((name (read-command port)))
         (case name
           ((end)
@@ -400,26 +466,26 @@
           (else
            (make-token 'START name))))))))
 
-; procedure+: 	read-verbatim-body PORT STR-HANDLER SEED
-;
-; This procedure must be called after we have read a string
-; "@verbatim\n" that begins a verbatim section. The current position
-; must be the first position of the verbatim body. This function reads
-; _lines_ of the verbatim body and passes them to a STR-HANDLER, a
-; character data consumer.
-;
-; The str-handler is a STR-HANDLER, a procedure STRING1 STRING2 SEED.
-; The first STRING1 argument to STR-HANDLER never contains a newline.
-; The second STRING2 argument often will. On the first invocation of the
-; STR-HANDLER, the seed is the one passed to read-verbatim-body
-; as the third argument. The result of this first invocation will be
-; passed as the seed argument to the second invocation of the line
-; consumer, and so on. The result of the last invocation of the
-; STR-HANDLER is returned by the read-verbatim-body. Note a
-; similarity to the fundamental 'fold' iterator.
-;
-; Within a verbatim section all characters are taken at their face
-; value. It ends with "\n@end verbatim(\r)?\n".
+;; procedure+: 	read-verbatim-body PORT STR-HANDLER SEED
+;;
+;; This procedure must be called after we have read a string
+;; "@verbatim\n" that begins a verbatim section. The current position
+;; must be the first position of the verbatim body. This function reads
+;; _lines_ of the verbatim body and passes them to a STR-HANDLER, a
+;; character data consumer.
+;;
+;; The str-handler is a STR-HANDLER, a procedure STRING1 STRING2 SEED.
+;; The first STRING1 argument to STR-HANDLER never contains a newline.
+;; The second STRING2 argument often will. On the first invocation of the
+;; STR-HANDLER, the seed is the one passed to read-verbatim-body
+;; as the third argument. The result of this first invocation will be
+;; passed as the seed argument to the second invocation of the line
+;; consumer, and so on. The result of the last invocation of the
+;; STR-HANDLER is returned by the read-verbatim-body. Note a
+;; similarity to the fundamental 'fold' iterator.
+;;
+;; Within a verbatim section all characters are taken at their face
+;; value. It ends with "\n@end verbatim(\r)?\n".
 
 ;; Must be called right after the newline after @verbatim.
 (define (read-verbatim-body port str-handler seed)
@@ -433,23 +499,23 @@
           seed
           (loop (str-handler fragment "\n" seed))))))
 
-; procedure+:	read-arguments PORT
-;
-; This procedure reads and parses a production ArgumentList.
-; ArgumentList ::= S* Argument (S* , S* Argument)* S*
-; Argument ::= ([^@{},])*
-;
-; Arguments are the things in braces, i.e @ref{my node} has one
-; argument, "my node". Most commands taking braces actually don't have
-; arguments, they process text. For example, in
-; @emph{@strong{emphasized}}, the emph takes text, because the tree
-; traversal continues into the braces.
-;
-; Any whitespace within Argument is replaced with a single space.
-; Whitespace around an Argument is trimmed.
-;
-; The procedure returns a list of arguments. Afterwards the current
-; character will be after the final #\}.
+;; procedure+:	read-arguments PORT
+;;
+;; This procedure reads and parses a production ArgumentList.
+;; ArgumentList ::= S* Argument (S* , S* Argument)* S*
+;; Argument ::= ([^@{},])*
+;;
+;; Arguments are the things in braces, i.e @ref{my node} has one
+;; argument, "my node". Most commands taking braces actually don't have
+;; arguments, they process text. For example, in
+;; @emph{@strong{emphasized}}, the emph takes text, because the parse
+;; continues into the braces.
+;;
+;; Any whitespace within Argument is replaced with a single space.
+;; Whitespace around an Argument is trimmed.
+;;
+;; The procedure returns a list of arguments. Afterwards the current
+;; character will be after the final #\}.
 
 (define (read-arguments port stop-char)
   (define (split str)
@@ -462,23 +528,28 @@
   (split (next-token '() (list stop-char)
                      "arguments of @-command" port)))
 
-; procedure+:	complete-start-command COMMAND PORT
-;
-; This procedure is to complete parsing of an @-command. The procedure
-; must be called after the command token has been read. COMMAND is a
-; TAG-NAME.
-;
-; This procedure returns several values:
-;  COMMAND: a symbol.
-;  ARGUMENTS: command's arguments, as an alist.
-;  ELEM-CONTENT-MODEL
-
-; On exit, the current position in PORT will depends on the ELEM-CONTENT-MODEL.
-; For INLINE-TEXT, it will be one character after the #\{.
-; For INLINE-ARGS, it will be the first character after the #\}.
-; For EOL-TEXT, it will be the first non-whitespace character after the command.
-; For EOL-ARGS, it will be the first character on the next line.
-; ENVIRON is like EOL-TEXT.
+;; procedure+:	complete-start-command COMMAND PORT
+;;
+;; This procedure is to complete parsing of an @-command. The procedure
+;; must be called after the command token has been read. COMMAND is a
+;; TAG-NAME.
+;;
+;; This procedure returns several values:
+;;  COMMAND: a symbol.
+;;  ARGUMENTS: command's arguments, as an alist.
+;;  CONTENT-MODEL: the content model of the command.
+;;
+;; On exit, the current position in PORT will depend on the CONTENT-MODEL.
+;;
+;; Content model     Port position
+;; =============     =============
+;; INLINE-TEXT       One character after the #\{.
+;; INLINE-ARGS       The first character after the #\}.
+;; EOL-TEXT          The first non-whitespace character after the command.
+;; ENVIRON, TABLE-ENVIRON, EOL-ARGS
+;;                   The first character on the next line.
+;; PARAGRAPH, ITEM, EMPTY-COMMAND
+;;                   The first character after the command.
 
 (define (arguments->attlist port args arg-names)
   (let loop ((in args) (names arg-names) (opt? #f) (out '()))
@@ -527,11 +598,9 @@
                     port "Invalid enumerate start" line))))))
       ((itemize)
        `((bullet
-          ,(or (and (eq? length 1)
-                    (not (char-whitespace? (string-ref line 0)))
-                    line)
-               (list (get-formatter))
-               line))))
+          ,(or (and (eq? length 1) line)
+               (and (string-null? line) '(bullet))
+               (list (get-formatter))))))
       (else ;; tables of various varieties
        `((formatter (,(get-formatter))))))))
 
@@ -551,7 +620,7 @@
        (values command (get-arguments type arg-names #\}) type))
       ((EOL-ARGS)
        (values command (get-arguments type arg-names #\newline) type))
-      ((ENVIRON ENTRY)
+      ((ENVIRON ENTRY INDEX)
        (skip-horizontal-whitespace port)
        (values command (parse-environment-args command port) type))
       ((TABLE-ENVIRON)
@@ -560,17 +629,15 @@
       ((EOL-TEXT)
        (skip-horizontal-whitespace port)
        (values command '() type))
-      ((PARAGRAPH EMPTY-COMMAND ITEM)
+      ((PARAGRAPH EMPTY-COMMAND ITEM FRAGMENT)
        (values command '() type))
       (else ;; INCLUDE shouldn't get here
        (parser-error port "can't happen")))))
 
-;-----------------------------------------------------------------------------
-;			Higher-level parsers and scanners
-;
-; They parse productions corresponding to the whole (document) entity
-; or its higher-level pieces (prolog, root element, etc).
-
+;;-----------------------------------------------------------------------------
+;;			Higher-level parsers and scanners
+;;
+;; They parse productions corresponding entire @-commands.
 
 ;; Only reads @settitle, leaves it to the command parser to finish
 ;; reading the title.
@@ -581,35 +648,35 @@
   (and (eq? (peek-char port) #\newline)
        (parser-error port "You have a @settitle, but no title")))
 
-; procedure+:	read-char-data PORT EXPECT-EOF? STR-HANDLER SEED
-;
-; This procedure is to read the CharData of a texinfo document.
-;
-; text ::= (CharData | Command | Environment)*
-;
-; The procedure reads CharData and stops at @-commands (or
-; environments). It also stops at an open or close brace.
-;
-; port
-;	a PORT to read
-; expect-eof?
-;	a boolean indicating if EOF is normal, i.e., the character
-;	data may be terminated by the EOF. EOF is normal
-;	while processing the main document.
-; str-handler
-;	a STR-HANDLER
-; seed
-;	an argument passed to the first invocation of STR-HANDLER.
-;
-; The procedure returns two results: SEED and TOKEN.
-; The SEED is the result of the last invocation of STR-HANDLER, or the
-; original seed if STR-HANDLER was never called.
-;
-; TOKEN can be either an eof-object (this can happen only if expect-eof?
-; was #t), or a texinfo token denoting the start or end of a tag.
-;
-; @verbatim sections are expanded inline and never returned. Comments
-; are silently disregarded.
+;; procedure+:	read-char-data PORT EXPECT-EOF? STR-HANDLER SEED
+;;
+;; This procedure is to read the CharData of a texinfo document.
+;;
+;; text ::= (CharData | Command)*
+;;
+;; The procedure reads CharData and stops at @-commands (or
+;; environments). It also stops at an open or close brace.
+;;
+;; port
+;;	a PORT to read
+;; expect-eof?
+;;	a boolean indicating if EOF is normal, i.e., the character
+;;	data may be terminated by the EOF. EOF is normal
+;;	while processing the main document.
+;; preserve-ws?
+;;	a boolean indicating if we are within a whitespace-preserving
+;;      environment. If #t, suppress paragraph detection.
+;; str-handler
+;;	a STR-HANDLER, see read-verbatim-body
+;; seed
+;;	an argument passed to the first invocation of STR-HANDLER.
+;;
+;; The procedure returns two results: SEED and TOKEN. The SEED is the
+;; result of the last invocation of STR-HANDLER, or the original seed if
+;; STR-HANDLER was never called.
+;;
+;; TOKEN can be either an eof-object (this can happen only if expect-eof?
+;; was #t), or a texinfo token denoting the start or end of a tag.
 
 ;; read-char-data port expect-eof? preserve-ws? str-handler seed
 (define read-char-data
@@ -654,7 +721,8 @@
                   (values (handle str-handler fragment "" seed)
                           (make-token 'PARA 'para)))
                  (else
-                  (loop (handle str-handler fragment "\n" seed)))))))))))))
+                  (loop (handle str-handler fragment
+                                (if preserve-ws? "\n" " ") seed)))))))))))))
 
 ; procedure+:	assert-token TOKEN KIND NAME
 ; Make sure that TOKEN is of anticipated KIND and has anticipated NAME
@@ -664,47 +732,47 @@
            (equal? name (token-head token)))
       (parser-error #f "Expecting @end for " command ", got " token)))
 
-;========================================================================
-;		Highest-level parsers: Texinfo to SXML
+;;========================================================================
+;;		Highest-level parsers: Texinfo to SXML
 
-; These parsers are a set of syntactic forms to instantiate a SSAX
-; parser. The user tells what to do with the parsed character and
-; element data. These latter handlers determine if the parsing follows a
-; SAX or a DOM model.
+;; These parsers are a set of syntactic forms to instantiate a SSAX
+;; parser. The user tells what to do with the parsed character and
+;; element data. These latter handlers determine if the parsing follows a
+;; SAX or a DOM model.
 
-; syntax: make-command-parser fdown fup str-handler
+;; syntax: make-command-parser fdown fup str-handler
 
-; Create a parser to parse and process one element, including its
-; character content or children elements. The parser is typically
-; applied to the root element of a document.
+;; Create a parser to parse and process one element, including its
+;; character content or children elements. The parser is typically
+;; applied to the root element of a document.
 
-; fdown
-;	procedure COMMAND ARGUMENTS EXPECTED-CONTENT SEED
-;
-;	This procedure is to generate the seed to be passed to handlers
-;	that process the content of the element. This is the function
-;	identified as 'fdown' in the denotational semantics of the XML
-;	parser given in the title comments to this file.
-;
-; fup
-;	procedure COMMAND ARGUMENTS PARENT-SEED SEED
-;
-;	This procedure is called when parsing of COMMAND is finished.
-;	The SEED is the result from the last content parser (or from
-;	fdown if the element has the empty content). PARENT-SEED is the
-;	same seed as was passed to fdown. The procedure is to generate a
-;	seed that will be the result of the element parser. This is the
-;	function identified as 'fup' in the denotational semantics of
-;	the XML parser given in the title comments to this file.
-;
-; str-handler
-;	A STR-HANDLER
-;
+;; fdown
+;;	procedure COMMAND ARGUMENTS EXPECTED-CONTENT SEED
+;;
+;;	This procedure is to generate the seed to be passed to handlers
+;;	that process the content of the element. This is the function
+;;	identified as 'fdown' in the denotational semantics of the XML
+;;	parser given in the title comments to (sxml ssax).
+;;
+;; fup
+;;	procedure COMMAND ARGUMENTS PARENT-SEED SEED
+;;
+;;	This procedure is called when parsing of COMMAND is finished.
+;;	The SEED is the result from the last content parser (or from
+;;	fdown if the element has the empty content). PARENT-SEED is the
+;;	same seed as was passed to fdown. The procedure is to generate a
+;;	seed that will be the result of the element parser. This is the
+;;	function identified as 'fup' in the denotational semantics of
+;;	the XML parser given in the title comments to (sxml ssax).
+;;
+;; str-handler
+;;	A STR-HANDLER, see read-verbatim-body
+;;
 
-; The generated parser is a
-;	procedure COMMAND PORT SEED
-;
-; The procedure must be called *after* the command token has been read.
+;; The generated parser is a
+;;	procedure COMMAND PORT SEED
+;;
+;; The procedure must be called *after* the command token has been read.
 
 (define (read-include-file-name port)
   (let ((x (string-trim-both (read-eof-line port))))
@@ -712,13 +780,31 @@
         (error "no file listed")
         x))) ;; fixme: should expand @value{} references
 
+(define (index command arguments fdown fup parent-seed)
+  (case command
+    ((deftp defcv defivar deftypeivar defop deftypeop defmethod
+      deftypemethod defopt defvr defvar deftypevr deftypevar deffn
+      deftypefn defspec defmac defun deftypefun)
+     (let ((args `((name ,(string-append (symbol->string command) "-"
+                                         (cadr (assq 'name arguments)))))))
+       (fup 'anchor args parent-seed
+            (fdown 'anchor args 'INLINE-ARGS '()))))
+    ((cindex findex vindex kindex pindex tindex)
+     (let ((args `((name ,(string-append (symbol->string command) "-"
+                                         (sxml->string
+                                          (assq-ref arguments 'entry)))))))
+       (fup 'anchor args parent-seed
+            (fdown 'anchor args 'INLINE-ARGS '()))))
+    (else parent-seed)))
+
 (define (make-command-parser fdown fup str-handler)
   (lambda (command port seed)
     (let visit ((command command) (port port) (sig-ws? #f) (parent-seed seed))
       (let*-values (((command arguments expected-content)
                      (complete-start-command command port)))
-        (let* ((seed (fdown command arguments expected-content parent-seed))
-               (eof-closes? (or (memq command '(texinfo para))
+        (let* ((parent-seed (index command arguments fdown fup parent-seed))
+               (seed (fdown command arguments expected-content parent-seed))
+               (eof-closes? (or (memq command '(texinfo para *fragment*))
                                 (eq? expected-content 'EOL-TEXT)))
                (sig-ws? (or sig-ws? (space-significant? command)))
                (up (lambda (s) (fup command arguments parent-seed s)))
@@ -731,9 +817,11 @@
                 port))
 
           (cond
-           ((memq expected-content '(EMPTY-COMMAND INLINE-ARGS EOL-ARGS))
+           ((memq expected-content '(EMPTY-COMMAND INLINE-ARGS EOL-ARGS INDEX))
             ;; empty or finished by complete-start-command
             (up seed))
+           ((eq? command 'verbatim)
+            (up (read-verbatim-body port str-handler seed)))
            (else
             (let loop ((port (port-for-content))
                        (expect-eof? eof-closes?)
@@ -741,7 +829,7 @@
                        (need-break? (and (not sig-ws?)
                                          (memq expected-content
                                                '(ENVIRON TABLE-ENVIRON
-                                                 ENTRY ITEM))))
+                                                 ENTRY ITEM FRAGMENT))))
                        (seed seed))
               (cond
                ((and need-break? (or sig-ws? (skip-whitespace port))
@@ -825,22 +913,67 @@
                       (else
                        (parser-error port "Unknown token type" token))))))))))))))))
 
+;; procedure: reverse-collect-str-drop-ws fragments
+;;
+;; Given the list of fragments (some of which are text strings), reverse
+;; the list and concatenate adjacent text strings. We also drop
+;; "unsignificant" whitespace, that is, whitespace in front, behind and
+;; between elements. The whitespace that is included in character data
+;; is not affected.
+(define (reverse-collect-str-drop-ws fragments)
+  (cond 
+   ((null? fragments)                   ; a shortcut
+    '())
+   ((and (string? (car fragments))	; another shortcut
+         (null? (cdr fragments))	; remove single ws-only string
+         (string-whitespace? (car fragments)))
+    '())
+   (else
+    (let loop ((fragments fragments) (result '()) (strs '())
+               (all-whitespace? #t))
+      (cond
+       ((null? fragments)
+        (if all-whitespace?
+            result                      ; remove leading ws
+            (cons (apply string-append strs) result)))
+       ((string? (car fragments))
+        (loop (cdr fragments) result (cons (car fragments) strs)
+              (and all-whitespace?
+                   (string-whitespace? (car fragments)))))
+       (else
+        (loop (cdr fragments)
+              (cons
+               (car fragments)
+               (cond
+                ((null? strs) result)
+                (all-whitespace?
+                 (if (null? result)
+                     result             ; remove trailing whitespace
+                     (cons " " result))); replace interstitial ws with
+					; one space
+                (else
+                 (cons (apply string-append strs) result))))
+              '() #t)))))))
+
+(define (make-dom-parser)
+  (make-command-parser
+   (lambda (command args content seed)      ; fdown
+     '())
+   (lambda (command args parent-seed seed)  ; fup
+     (let ((seed (reverse-collect-str-drop-ws seed)))
+       (acons command
+              (if (null? args) seed (acons '% args seed))
+              parent-seed)))
+   (lambda (string1 string2 seed)           ; str-handler
+     (if (string-null? string2)
+         (cons string1 seed)
+         (cons* string2 string1 seed)))))
+
 (define parse-environment-args
-  (let ((parser (make-command-parser
-                 (lambda args           ; fdown
-                   '())
-                 (lambda (command arguments parent-seed seed) ; fup
-                   (acons
-                    command
-                    (if (null? arguments) seed (acons '% arguments seed))
-                    parent-seed))
-                 (lambda (string1 string2 seed) ; str-handler
-                   (if (string-null? string2) 
-                       (cons string1 seed)
-                       (cons* string2 string1 seed))))))
+  (let ((parser (make-dom-parser)))
     ;; duplicate arguments->attlist to avoid unnecessary splitting
     (lambda (command port)
-      (let ((args (reverse! (cdar (parser '*ENVIRON-ARGS* port '()))))
+      (let ((args (cdar (parser '*ENVIRON-ARGS* port '())))
             (arg-names (cddr (command-spec command))))
         (cond
          ((not arg-names)
@@ -875,161 +1008,69 @@
                         (acons (car arg-names) (cdar args) out)
                         (cons (list (car arg-names) (car args)) out))))))))))))
    
-; syntax: make-parser user-handler-tag user-handler-proc ...
-;
-; Create a texinfo parser as an instance of this parsing framework. It
-; will be a SAX, a DOM, or a specialized parser depending on the
-; handlers that the user supplies.
+;; procedure: texi-fragment->stexi STRING
+;;
+;; A DOM parser for a texinfo fragment STRING.
+;;
+;; The procedure returns an SXML tree headed by the special tag,
+;; *fragment*.
 
-; user-handler-tag is a symbol that identifies a procedural expression
-; that follows the tag. Given below are tags and signatures of the
-; corresponding procedures. Not all tags have to be specified. If some
-; are omitted, reasonable defaults will apply.
+(define (texi-fragment->stexi string)
+  "Parse the texinfo commands in @var{string}, and return the resultant
+stexi tree. The head of the tree will be the special command,
+@code{*fragment*}."
+  (let ((parser (make-dom-parser)))
+    (call-with-input-string string
+      (lambda (port)
+        (postprocess (car (parser '*fragment* port '())))))))
 
-; tag: FDOWN
-; handler-procedure: see make-elem-parser, my-new-level-seed
-
-; tag: FUP
-; handler-procedure: see make-elem-parser, my-finish-element
-
-; tag: STR-HANDLER
-; handler-procedure: see make-elem-parser, my-char-data-handler
-
-; The generated parser is a
-;	procedure PORT SEED
-
-(define (make-parser . user-handlers)
-  ;; An assoc list of user-handler-tag and default handlers
-  (define all-handlers
-    `((FDOWN . REQD)                    ; required
-      (FUP . REQD)                      ; required
-      (STR-HANDLER . REQD)))            ; required
-
-  ;; Delete an association with the tag from alist
-  ;; exit to cont, passing the tag, tag-association, and the list
-  ;; of remaining associations.
-  ;; It's an error if the association with the tag does not exist
-  ;; in alist
-  (define (delete-assoc alist tag cont)
-    (let loop ((alist alist) (scanned '()))
-      (cond
-       ((null? alist) (error "Unknown user-handler-tag: " tag))
-       ((eq? tag (caar alist))
-        (cont tag (cdar alist) (append scanned (cdr alist))))
-       (else (loop (cdr alist) (cons (car alist) scanned))))))
-
-  ;; create an assoc list of tags and handlers
-  ;; based on the defaults and on the given handlers
-  (define (merge-handlers declared-handlers given-handlers)
-    (cond
-     ((null? given-handlers)		; the arguments are exhausted...
-      (cond
-       ((null? declared-handlers) '())
-       ((not (eq? 'REQD (cdar declared-handlers))) ; default value was given:
-        (cons (car declared-handlers)	; use it
-              (merge-handlers (cdr declared-handlers) given-handlers)))
-       (else (error "The handler for the tag " (caar declared-handlers)
-                    " must be specified"))))
-     ((null? (cdr given-handlers))
-      (error "Odd number of arguments to make-parser"))
-     (else
-      (delete-assoc declared-handlers (car given-handlers)
-                    (lambda (tag value alist)
-                      (cons (cons tag (cadr given-handlers))
-                            (merge-handlers alist (cddr given-handlers))))))))
-
-  (let ((user-handlers (merge-handlers all-handlers user-handlers)))
-
-    (define (get-handler tag)
-      (cond
-       ((assq tag user-handlers) => cdr)
-       (else (error "unknown tag: " tag))))
-
-    ;; this is the parser
-    (lambda (port seed)
-      
-      ;; A procedure command port seed
-      (define command-parser
-        (make-command-parser (get-handler 'FDOWN)
-                             (get-handler 'FUP)
-                             (get-handler 'STR-HANDLER)))
-
-      (take-until-settitle port)
-      (command-parser 'texinfo port seed))))
-
-
-;========================================================================
-;		Highest-level parsers: Texinfo to SXML
-;
-
-; procedure: texi->stexi PORT NAMESPACE-PREFIX-ASSIG
-;
-; This is an instance of a SSAX parser above that returns an SXML
-; representation of the texinfo document ready to be read at PORT.
-;
-; The procedure returns an SXML tree. The port points to the
-; first character after the @bye, or to the end of the file.
+;; procedure: texi->stexi PORT
+;;
+;; This is an instance of a SSAX parser above that returns an SXML
+;; representation of the texinfo document ready to be read at PORT.
+;;
+;; The procedure returns an SXML tree. The port points to the
+;; first character after the @bye, or to the end of the file.
 
 (define (texi->stexi port)
-  (define (reverse-collect-str-drop-ws fragments)
-    ;; given the list of fragments (some of which are text strings)
-    ;; reverse the list and concatenate adjacent text strings We also
-    ;; drop "unsignificant" whitespace, that is, whitespace in front,
-    ;; behind and between elements. The whitespace that is included in
-    ;; character data is not affected.
-    (cond 
-     ((null? fragments) '())		; a shortcut
-     ((and (string? (car fragments))	; another shortcut
-           (null? (cdr fragments))	; remove trailing ws
-           (string-whitespace? (car fragments))) '())
-     (else
-      (let loop ((fragments fragments) (result '()) (strs '())
-                 (all-whitespace? #t))
-        (cond
-         ((null? fragments)
-          (if all-whitespace? result	; remove leading ws
-              (cons (apply string-append strs) result)))
-         ((string? (car fragments))
-          (loop (cdr fragments) result (cons (car fragments) strs)
-                (and all-whitespace?
-                     (string-whitespace? (car fragments)))))
-         (else
-          (loop (cdr fragments)
-                (cons
-                 (car fragments)
-                 (if all-whitespace? result
-                     (cons (apply string-append strs) result)))
-                '() #t)))))))
+  "Read a full texinfo document from @var{port} and return the parsed
+stexi tree. The parsing will start at the @code{@@settitle} and end at
+@code{@@bye} or EOF."
+  (let ((parser (make-dom-parser)))
+    (take-until-settitle port)
+    (postprocess (car (parser 'texinfo port '())))))
 
-    (let ((result
-	   (reverse
-	    ((make-parser
-              'FDOWN
-              (lambda (command arguments expected-content seed)
-                ;;(pk 'down command)
-                ;;(pk 'fdown command arguments expected-content seed)
-                '())
-   
-              'FUP
-              (lambda (command arguments parent-seed seed)
-                ;;(pk 'up command)
-                ;;(pk 'fup command arguments parent-seed seed)
-                (let ((seed (reverse-collect-str-drop-ws seed)))
-                    (acons
-                     command
-                     (if (null? arguments)
-                         seed
-                         (acons '% arguments seed))
-                     parent-seed)))
-
-              'STR-HANDLER
-              (lambda (string1 string2 seed)
-                ;;(pk 'str-handler string1 string2 seed)
-                (if (string-null? string2)
-                    (cons string1 seed)
-                    (cons* string2 string1 seed))))
-             port '()))))
-      (postprocess (car result))))
+(define (car-eq? x y) (and (pair? x) (eq? (car x) y)))
+(define (make-contents tree)
+  (define (lp in out depth)
+    (cond
+     ((null? in) (values in (cons 'enumerate (reverse! out))))
+     ((and (pair? (cdr in)) (texi-command-depth (caadr in) 4))
+      => (lambda (new-depth)
+           (let ((node-name (and (car-eq? (car in) 'node)
+                                 (cadr (assq 'name (cdadar in))))))
+             (cond
+              ((< new-depth depth)
+               (values in (cons 'enumerate (reverse! out))))
+              ((> new-depth depth)
+               (let ((out-cdr (if (null? out) '() (cdr out)))
+                     (out-car (if (null? out) (list 'item) (car out))))
+                 (let*-values (((new-in new-out) (lp in '() (1+ depth))))
+                   (lp new-in
+                       (cons (append out-car (list new-out)) out-cdr)
+                       depth))))
+              (else ;; same depth
+               (lp (cddr in)
+                   (cons
+                    `(item (para
+                            ,@(if node-name
+                                  `((ref (% (node ,node-name))))
+                                  (cdadr in))))
+                    out)
+                   depth))))))
+     (else (lp (cdr in) out depth))))
+  (let*-values (((_ contents) (lp tree '() 1)))
+    `((chapheading "Table of Contents") ,contents)))
 
 (define (trim-whitespace str trim-left? trim-right?)
   (let* ((left-space? (and (not trim-left?)
@@ -1080,6 +1121,8 @@
                                (error "copying isn't set yet")))
                out
                state #f sig-ws?))
+        ((contents)
+         (loop (cdr in) (fold cons out (make-contents tree)) state #f sig-ws?))
         (else
          (let*-values (((kid-out state)
                         (loop (car in) '() state #t
@@ -1094,6 +1137,12 @@
 
 ;; Replace % with texinfo-arguments.
 (define (stexi->sxml tree)
+  "Transform the stexi tree @var{tree} into sxml. This involves
+replacing the @code{%} element that keeps the texinfo arguments with an
+element for each argument.
+
+FIXME: right now it just changes % to @code{texinfo-arguments} -- that
+doesn't hang with the idea of making a dtd at some point"
   (pre-post-order
    tree
    `((% . ,(lambda (x . t) (cons 'texinfo-arguments t)))

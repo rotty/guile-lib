@@ -26,10 +26,10 @@
 ;;; Code:
 
 (use-modules (oop goops)
-             (unit-test guileUnit)
-             (sxml texinfo))
+             (unit-test)
+             (texinfo))
 
-(define-class <test-ssax-texinfo> (<test-case>))
+(define-class <test-texinfo> (<test-case>))
 
 (define nl (string #\newline))
 
@@ -50,8 +50,8 @@
   `(module-ref (resolve-module ',mod) ',var))
 
 (define texinfo:read-verbatim-body
-  (@@ (sxml texinfo) read-verbatim-body))
-(define-method (test-read-verbatim-body (self <test-ssax-texinfo>))
+  (@@ (texinfo) read-verbatim-body))
+(define-method (test-read-verbatim-body (self <test-texinfo>))
   (define (read-verbatim-body-from-string str)
     (define (consumer fragment foll-fragment seed)
       (cons* (if (equal? foll-fragment (string #\newline))
@@ -81,8 +81,8 @@
                 (read-verbatim-body-from-string "@end verbatim \n@end verbatim\n")))
 
 (define texinfo:read-arguments
-  (@@ (sxml texinfo) read-arguments))
-(define-method (test-read-arguments (self <test-ssax-texinfo>))
+  (@@ (texinfo) read-arguments))
+(define-method (test-read-arguments (self <test-texinfo>))
   (define (read-arguments-from-string str)
     (call-with-input-string
      str
@@ -101,8 +101,8 @@
   (pass-if-exception (test "foo,,bar" 'foo)))
 
 (define texinfo:complete-start-command
-  (@@ (sxml texinfo) complete-start-command))
-(define-method (test-complete-start-command (self <test-ssax-texinfo>))
+  (@@ (texinfo) complete-start-command))
+(define-method (test-complete-start-command (self <test-texinfo>))
   (define (test command str)
     (call-with-input-string
      str
@@ -120,13 +120,13 @@
   (assert-equal '(ref ((node "foo bar") (section "baz") (info-file "bonzerts"))
                       INLINE-ARGS)
                 (test 'ref "{ foo bar ,,  baz, bonzerts}"))
-  (assert-equal '(node ((this "referenced node")) EOL-ARGS)
+  (assert-equal '(node ((name "referenced node")) EOL-ARGS)
                 (test 'node " referenced node\n")))
 
 (define texinfo:read-char-data
-  (@@ (sxml texinfo) read-char-data))
+  (@@ (texinfo) read-char-data))
 (define make-texinfo-token cons)
-(define-method (test-read-char-data (self <test-ssax-texinfo>))
+(define-method (test-read-char-data (self <test-texinfo>))
   (let* ((code (make-texinfo-token 'START 'code))
          (ref (make-texinfo-token 'EMPTY 'ref))
          (title (make-texinfo-token 'LINE 'title))
@@ -160,7 +160,7 @@
     (test " blah blah} asda" #f #f '(" blah blah") (make-texinfo-token 'END #f))))
      
 
-(define-method (test-texinfo->stexinfo (self <test-ssax-texinfo>))
+(define-method (test-texinfo->stexinfo (self <test-texinfo>))
   (define (test str expected-res)
     (assert-equal expected-res
                   (call-with-input-string str texi->stexi)))
@@ -321,14 +321,17 @@
                           "@item three"
                           "@end itemize"
                           )))
-  (pass-if-exception
-   (try-with-title "foo" (join-lines
-                          "@itemize" ;; no formatter
-                          "@item one"
-                          "@item two"
-                          "@item three"
-                          "@end itemize"
-                          )))
+  (test-body (join-lines
+              "@itemize" ;; no formatter, should default to bullet
+              "@item one"
+              "@item two"
+              "@item three"
+              "@end itemize"
+              )
+             '((itemize (% (bullet (bullet)))
+                        (item (para "one"))
+                        (item (para "two"))
+                        (item (para "three")))))
   (test-body (join-lines
               "@itemize @bullet"
               "@item one"

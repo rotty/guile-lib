@@ -20,15 +20,24 @@
 
 ;;; Commentary:
 ;;
-;;Doc me!
+;;This module implements transformation from @code{stexi} to HTML. Note
+;;that the output of @code{stexi->shtml} is actually SXML with the HTML
+;;vocabulary. This means that the output can be further processed, and
+;;that it must eventually be serialized by
+;;@ref{sxml-simple-sxml->xml,sxml->xml,,,(sxml-simple)}.
 ;;        
+;;References (i.e., the @code{@@ref} family of commands) are resolved by
+;;a @dfn{ref-resolver}.
+;;@xref{sxml-texinfo-html-add-ref-resolver!,add-ref-resolver!} for more
+;;information.
+;;
 ;;; Code:
 
 ;; TODO: nice ref resolving API, default CSS stylesheet (esp. to remove
 ;; margin-top on dd > p)
 
-(define-module (sxml texinfo html)
-  :use-module (sxml texinfo)
+(define-module (texinfo html)
+  :use-module (texinfo)
   :use-module (sxml transform)
   :use-module (scheme documentation)
   :use-module (srfi srfi-13)
@@ -57,6 +66,13 @@
      (urlify (string-append (or manual-name "") "#" node-name)))))
 
 (define (add-ref-resolver! proc)
+  "Add @var{proc} to the head of the list of ref-resolvers. @var{proc}
+will be expected to take the name of a node and the name of a manual and
+return the URL of the referent, or @code{#f} to pass control to the next
+ref-resolver in the list.
+
+The default ref-resolver will return the concatenation of the manual
+name, @code{#}, and the node name."
   (set! ref-resolvers (cons proc ref-resolvers)))
 
 (define (resolve-ref node manual)
@@ -75,8 +91,10 @@
   (let ((url (car (arg-req 'url args))))
     `(a (@ (href ,url)) ,(or (car* (arg-ref 'title args)) url))))
 
+;; @!*&%( Mozilla gets confused at an empty ("<a .. />") a tag. Put an
+;; empty string here to placate the reptile.
 (define (node tag args)
-  `(a (@ (name ,(urlify (car (arg-req 'this args)))))))
+  `(a (@ (name ,(urlify (car (arg-req 'name args))))) ""))
 
 (define (def tag args . body)
   (define (code x) (and x (cons 'code x)))
@@ -91,22 +109,22 @@
                             (if (null? out) out (cons " " out))))))))
   (define (left-td-contents)
     (list/spaces (code (arg-ref 'data-type args))
-                 (b (code (arg-ref 'class args))) ;; is this right?
-                 (b (code (arg-ref 'name args)))
+                 (b (list (code (arg-ref 'class args)))) ;; is this right?
+                 (b (list (code (arg-ref 'name args))))
                  (if (memq tag '(deftypeop deftypefn deftypefun))
                      (code (arg-ref 'arguments args))
-                     (var (code (arg-ref 'arguments args))))))
+                     (var (list (code (arg-ref 'arguments args)))))))
 
   (let* ((category (case tag
-                     ((deftp) "Function")
+                     ((defun) "Function")
                      ((defspec) "Special Form")
-                     ((defvar "Variable"))
+                     ((defvar) "Variable")
                      (else (car (arg-req 'category args))))))
     `(div
       (table
        (@ (cellpadding "0") (cellspacing "0") (width "100%") (class "def"))
        (tr (td ,@(left-td-contents))
-           (td (p (@ (class "right")) "[" ,right "]"))))
+           (td (div (@ (class "right")) "[" ,category "]"))))
       (div (@ (class "description")) ,@body))))
 
 (define (enumerate tag . elts)
@@ -125,8 +143,7 @@
   (let ((formatter (caar (arg-req 'formatter args))))
     (cons 'dl
           (map (lambda (x)
-                 (cond ((eq? formatter 'asis) x)
-                       ((and (pair? x) (eq? (car x) 'dt))
+                 (cond ((and (pair? x) (eq? (car x) 'dt))
                         (list (car x) (cons formatter (cdr x))))
                        (else x)))
                (apply append body)))))
@@ -145,6 +162,7 @@
     (smallexample pre (@ (class "smaller")))
     (smalllisp    pre (@ (class "smaller")))
     (cartouche    div (@ (class "cartouche")))
+    (verbatim     pre (@ (class "verbatim")))
     (chapter      h2)
     (section      h3)
     (subsection   h4)
@@ -157,11 +175,17 @@
     (unnumberedsec       h3)
     (unnumberedsubsec    h4)
     (unnumberedsubsubsec h5)
+    (majorheading h2)
+    (chapheading  h2)
+    (heading      h3)
+    (subheading   h4)
+    (subsubheading       h5)
     (quotation    blockquote)
     (itemize      ul)
     (item         li) ;; itemx ?
     (para         p)
 
+    (asis         span)
     (bold         b)
     (sample       samp)
     (samp         samp)
@@ -221,9 +245,13 @@
                       (cond
                        (subst (append (cdr subst) body))
                        ((memq tag ignore-list) #f)
-                       (else (cons tag body))))))))
+                       (else 
+                        (warn "Don't know how to convert" tag "to HTML")
+                        body)))))))
 
 (define (stexi->shtml tree)
+  "Transform the stexi @var{tree} into shtml, resolving references via
+ref-resolvers. See the module commentary for more details."
   (pre-post-order tree rules))
 
 ;;; arch-tag: ab05f3fe-9981-4a78-b64c-48efcd9983a6

@@ -1,99 +1,32 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
-;; Copyright (C) 2003 Oleg Kiselyov <oleg at pobox dot com>
-
-;; This file is based on SSAX's SXML-tree-trans.scm, and is in the
-;; public domain.
-
-;;; Commentary:
-;;
-;;@heading SXML expression tree transformers
+;		XML/HTML processing in Scheme
+;		SXML expression tree transformers
 ;
-;@subheading Pre-Post-order traversal of a tree and creation of a new tree
-;@smallexample
-;pre-post-order:: <tree> x <bindings> -> <new-tree>
-;@end smallexample
-; where
-;@smallexample
-; <bindings> ::= (<binding> ...)
-; <binding> ::= (<trigger-symbol> *preorder* . <handler>) |
-;               (<trigger-symbol> *macro* . <handler>) |
-;		(<trigger-symbol> <new-bindings> . <handler>) |
-;		(<trigger-symbol> . <handler>)
-; <trigger-symbol> ::= XMLname | *text* | *default*
-; <handler> :: <trigger-symbol> x [<tree>] -> <new-tree>
-;@end smallexample
+; IMPORT
+; A prelude appropriate for your Scheme system
+;	(myenv-bigloo.scm, myenv-mit.scm, etc.)
 ;
-; The pre-post-order function visits the nodes and nodelists
-; pre-post-order (depth-first). For each @code{<Node>} of the form
-; @code{(@var{name} <Node> ...)}, it looks up an association with the
-; given @var{name} among its @var{<bindings>}. If failed,
-; @code{pre-post-order} tries to locate a @code{*default*} binding. It's
-; an error if the latter attempt fails as well. Having found a binding,
-; the @code{pre-post-order} function first checks to see if the binding
-; is of the form
-;@smallexample
-;	(<trigger-symbol> *preorder* . <handler>)
-;@end smallexample
+; EXPORT
+; (provide SRV:send-reply
+;	   post-order pre-post-order replace-range)
 ;
-; If it is, the handler is 'applied' to the current node. Otherwise, the
-; pre-post-order function first calls itself recursively for each child
-; of the current node, with @var{<new-bindings>} prepended to the
-; @var{<bindings>} in effect. The result of these calls is passed to the
-; @var{<handler>} (along with the head of the current @var{<Node>}). To
-; be more precise, the handler is _applied_ to the head of the current
-; node and its processed children. The result of the handler, which
-; should also be a @code{<tree>}, replaces the current @var{<Node>}. If
-; the current @var{<Node>} is a text string or other atom, a special
-; binding with a symbol @code{*text*} is looked up.
+; See vSXML-tree-trans.scm for the validation code, which also
+; serves as usage examples.
 ;
-; A binding can also be of a form
-;@smallexample
-;	(<trigger-symbol> *macro* . <handler>)
-;@end smallexample
-; This is equivalent to @code{*preorder*} described above. However, the
-; result is re-processed again, with the current stylesheet.
-;;
-;;; Code:
+; $Id: SXML-tree-trans.scm,v 1.6 2003/04/25 19:16:15 oleg Exp $
 
-(define-module (sxml transform)
-  #:export (SRV:send-reply
-            foldts
-            post-order
-            pre-post-order
-            replace-range))
 
-;; Upstream version:
-; $Id: SXML-tree-trans.scm,v 1.8 2003/04/24 19:39:53 oleg Exp oleg $
-
-; Like let* but allowing for multiple-value bindings
-(define-macro (let*-values bindings . body)
-  (if (null? bindings) (cons 'begin body)
-      (apply
-       (lambda (vars initializer)
-	 (let ((cont 
-		(cons 'let*-values
-		      (cons (cdr bindings) body))))
-	   (cond
-	    ((not (pair? vars))		; regular let case, a single var
-	     `(let ((,vars ,initializer)) ,cont))
-	    ((null? (cdr vars))		; single var, see the prev case
-	     `(let ((,(car vars) ,initializer)) ,cont))
-	   (else			; the most generic case
-	    `(call-with-values (lambda () ,initializer)
-	      (lambda ,vars ,cont))))))
-       (car bindings))))
+; Output the 'fragments'
+; The fragments are a list of strings, characters,
+; numbers, thunks, #f, #t -- and other fragments.
+; The function traverses the tree depth-first, writes out
+; strings and characters, executes thunks, and ignores
+; #f and '().
+; The function returns #t if anything was written at all;
+; otherwise the result is #f
+; If #t occurs among the fragments, it is not written out
+; but causes the result of SRV:send-reply to be #t
 
 (define (SRV:send-reply . fragments)
-  "Output the @var{fragments} to the current output port.
-
-The fragments are a list of strings, characters, numbers, thunks,
-@code{#f}, @code{#t} -- and other fragments. The function traverses the
-tree depth-first, writes out strings and characters, executes thunks,
-and ignores @code{#f} and @code{'()}. The function returns @code{#t} if
-anything was written at all; otherwise the result is @code{#f} If
-@code{#t} occurs among the fragments, it is not written out but causes
-the result of @code{SRV:send-reply} to be @code{#t}."
   (let loop ((fragments fragments) (result #f))
     (cond
       ((null? fragments) result)
@@ -128,7 +61,41 @@ the result of @code{SRV:send-reply} to be @code{#t}."
 ; See SXPath.scm and SSAX.scm for more information on SXML.
 
 
-;; see the commentary for docs
+; Pre-Post-order traversal of a tree and creation of a new tree:
+;	pre-post-order:: <tree> x <bindings> -> <new-tree>
+; where
+; <bindings> ::= (<binding> ...)
+; <binding> ::= (<trigger-symbol> *preorder* . <handler>) |
+;               (<trigger-symbol> *macro* . <handler>) |
+;		(<trigger-symbol> <new-bindings> . <handler>) |
+;		(<trigger-symbol> . <handler>)
+; <trigger-symbol> ::= XMLname | *text* | *default*
+; <handler> :: <trigger-symbol> x [<tree>] -> <new-tree>
+;
+; The pre-post-order function visits the nodes and nodelists
+; pre-post-order (depth-first).  For each <Node> of the form (name
+; <Node> ...) it looks up an association with the given 'name' among
+; its <bindings>. If failed, pre-post-order tries to locate a
+; *default* binding. It's an error if the latter attempt fails as
+; well.  Having found a binding, the pre-post-order function first
+; checks to see if the binding is of the form
+;	(<trigger-symbol> *preorder* . <handler>)
+; If it is, the handler is 'applied' to the current node. Otherwise,
+; the pre-post-order function first calls itself recursively for each
+; child of the current node, with <new-bindings> prepended to the
+; <bindings> in effect. The result of these calls is passed to the
+; <handler> (along with the head of the current <Node>). To be more
+; precise, the handler is _applied_ to the head of the current node
+; and its processed children. The result of the handler, which should
+; also be a <tree>, replaces the current <Node>. If the current <Node>
+; is a text string or other atom, a special binding with a symbol
+; *text* is looked up.
+;
+; A binding can also be of a form
+;	(<trigger-symbol> *macro* . <handler>)
+; This is equivalent to *preorder* described above. However, the result
+; is re-processed again, with the current stylesheet.
+
 (define (pre-post-order tree bindings)
   (let* ((default-binding (assq '*default* bindings))
 	 (text-binding (or (assq '*text* bindings) default-binding))
@@ -280,5 +247,3 @@ the result of @code{SRV:send-reply} to be @code{#t}."
   (let*-values (((new-forest keep?) (loop forest #t '())))
      new-forest))
 
-;;; arch-tag: 6c814f4b-38f7-42c1-b8ef-ce3447edefc7
-;;; transform.scm ends here

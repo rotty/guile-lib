@@ -6,15 +6,14 @@
 
 ;;; Commentary:
 ;;
-;; SXPath: SXML Query Language
+;;@heading SXPath: SXML Query Language
 ;;
 ;; SXPath is a query language for SXML, an instance of XML Information
-;; set (Infoset) in the form of s-expressions. See SSAX.scm for the
-;; definition of SXML and more details. SXPath is also a translation into
-;; Scheme of an XML Path Language, XPath:
-;;	http://www.w3.org/TR/xpath
-;; XPath and SXPath describe means of selecting a set of Infoset's items
-;; or their properties.
+;; set (Infoset) in the form of s-expressions. See @code{(sxml ssax)}
+;; for the definition of SXML and more details. SXPath is also a
+;; translation into Scheme of an XML Path Language,
+;; @uref{http://www.w3.org/TR/xpath,XPath}. XPath and SXPath describe
+;; means of selecting a set of Infoset's items or their properties.
 ;;
 ;; To facilitate queries, XPath maps the XML Infoset into an explicit
 ;; tree, and introduces important notions of a location path and a
@@ -32,17 +31,23 @@
 ;; The SXML representation of the XML Infoset (see SSAX.scm) is rather
 ;; suitable for querying as it is. Bowing to the XPath specification,
 ;; we will refer to SXML information items as 'Nodes':
+;;@example
 ;; 	<Node> ::= <Element> | <attributes-coll> | <attrib>
 ;; 		   | "text string" | <PI>
+;;@end example
 ;; This production can also be described as
+;;@example
 ;;	<Node> ::= (name . <Nodeset>) | "text string"
+;;@end example
 ;; An (ordered) set of nodes is just a list of the constituent nodes:
+;;@example
 ;; 	<Nodeset> ::= (<Node> ...)
+;;@end example
 ;; Nodesets, and Nodes other than text strings are both lists. A
 ;; <Nodeset> however is either an empty list, or a list whose head is not
 ;; a symbol.  A symbol at the head of a node is either an XML name (in
 ;; which case it's a tag of an XML element), or an administrative name
-;; such as '@'.  This uniform list representation makes processing rather
+;; such as '@@'.  This uniform list representation makes processing rather
 ;; simple and elegant, while avoiding confusion. The multi-branch tree
 ;; structure formed by the mutually-recursive datatypes <Node> and
 ;; <Nodeset> lends itself well to processing by functional languages.
@@ -50,19 +55,19 @@
 ;; A location path is in fact a composite query over an XPath tree or
 ;; its branch. A singe step is a combination of a projection, selection
 ;; or a transitive closure. Multiple steps are combined via join and
-;; union operations. This insight allows us to _elegantly_ implement
-;; XPath as a sequence of projection and filtering primitives --
-;; converters -- joined by _combinators_. Each converter takes a node
-;; and returns a nodeset which is the result of the corresponding query
-;; relative to that node. A converter can also be called on a set of
-;; nodes. In that case it returns a union of the corresponding queries over
-;; each node in the set. The union is easily implemented as a list
-;; append operation as all nodes in a SXML tree are considered
+;; union operations. This insight allows us to @emph{elegantly}
+;; implement XPath as a sequence of projection and filtering primitives
+;; -- converters -- joined by @dfn{combinators}. Each converter takes a
+;; node and returns a nodeset which is the result of the corresponding
+;; query relative to that node. A converter can also be called on a set
+;; of nodes. In that case it returns a union of the corresponding
+;; queries over each node in the set. The union is easily implemented as
+;; a list append operation as all nodes in a SXML tree are considered
 ;; distinct, by XPath conventions. We also preserve the order of the
 ;; members in the union. Query combinators are high-order functions:
 ;; they take converter(s) (which is a Node|Nodeset -> Nodeset function)
-;; and compose or otherwise combine them. We will be concerned with
-;; only relative location paths [XPath]: an absolute location path is a
+;; and compose or otherwise combine them. We will be concerned with only
+;; relative location paths [XPath]: an absolute location path is a
 ;; relative path applied to the root node.
 ;;
 ;; Similarly to XPath, SXPath defines full and abbreviated notations

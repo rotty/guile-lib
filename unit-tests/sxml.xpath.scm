@@ -25,7 +25,7 @@
 ;;; Code:
 
 (use-modules (oop goops)
-             (unit-test guileUnit)
+             (unit-test)
              (sxml xpath))
 
 (define-class <test-xml-xpath> (<test-case>))

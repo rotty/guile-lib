@@ -12,15 +12,41 @@
 ;; consulting, contact the author.
 
 ;; This file was modified in 2004 by Andy Wingo to fit in with guile-lib.
-;; The module name was changed from (htmlprag) to (xml pragmatic).
 
 ;;; Commentary:
 ;;
-;; Pragmatic parsing of XML, focused on HTML, into an SXML-based format.
+;;; HtmlPrag provides permissive HTML parsing capability to Scheme programs,
+;;; which is useful for software agent extraction of information from Web
+;;; pages, for programmatically transforming HTML files, and for implementing
+;;; interactive Web browsers.  HtmlPrag emits ``SHTML,'' which is an encoding
+;;; of HTML in [SXML], so that conventional HTML may be processed with XML
+;;; tools such as [SXPath] and [SXML-Tools].  Like [SSAX-HTML], HtmlPrag
+;;; provides a permissive tokenizer, but also attempts to recover structure.
+;;; HtmlPrag also includes procedures for encoding SHTML in HTML syntax.
+;;;
+;;; The HtmlPrag parsing behavior is permissive in that it accepts erroneous
+;;; HTML, handling several classes of HTML syntax errors gracefully, without
+;;; yielding a parse error.  This is crucial for parsing arbitrary real-world
+;;; Web pages, since many pages actually contain syntax errors that would
+;;; defeat a strict or validating parser.  HtmlPrag's handling of errors is
+;;; intended to generally emulate popular Web browsers' interpretation of the
+;;; structure of erroneous HTML.  We euphemistically term this kind of parse
+;;; ``pragmatic.''
+;;;
+;;; HtmlPrag also has some support for [XHTML], although XML namespace
+;;; qualifiers [XML-Names] are currently accepted but stripped from the
+;;; resulting SHTML.  Note that valid XHTML input is of course better handled
+;;; by a validating XML parser like [SSAX].
+;;;
+;;; To receive notification of new versions of HtmlPrag, and to be polled for
+;;; input on changes to HtmlPrag being considered, ask the author to add you to
+;;; the moderated, announce-only email list, @code{htmlprag-announce}.
+;;;
+;;; Thanks to Oleg Kiselyov and Kirill Lisovsky for their help with SXML.
 ;;
 ;;; Code:
 
-(define-module (sxml htmlprag))
+(define-module (htmlprag))
 
 ;; Exports defined at the end of the file
 
@@ -2192,4 +2218,4 @@ write-sxml-html
 test-htmlprag
 )
 ;;; arch-tag: 491d7e61-5690-4b76-bc8f-d70315c10ed5
-;;; pragmatic.scm ends here
+;;; htmlprag.scm ends here

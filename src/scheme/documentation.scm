@@ -20,14 +20,15 @@
 
 ;;; Commentary:
 ;;
+;;@c texinfo commentary
 ;;Defines some macros to help in documenting macros, variables, generic
 ;;functions, and classes.
 ;;
 ;;; Code:
 
 (define-module (scheme documentation)
-  :export (define-macro-with-docs define-with-docs
-           define-generic-with-docs define-class-with-docs))
+  #:export (define-macro-with-docs define-with-docs
+            define-generic-with-docs define-class-with-docs))
 
 (define-macro (define-macro-with-docs name-and-args docs . body)
   `(begin

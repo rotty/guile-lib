@@ -6,6 +6,7 @@
 
 ;;; Commentary:
 ;;
+;;@c foo :P
 ;; A simple interface to XML parsing and serialization.
 ;;
 ;;; Code:
@@ -15,13 +16,19 @@
   #:use-module (sxml transform)
   #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-13)
+  #:use-module (scheme documentation)
   #:export (xml->sxml sxml->xml sxml->string universal-sxslt-rules))
 
 (define* (xml->sxml #:optional (port (current-input-port)))
-  (SSAX:XML->SXML port '()))
+  "Use SSAX to parse an XML document into SXML. Takes one optional
+argument, @var{port}, which defaults to the current input port."
+  (ssax:xml->sxml port '()))
 
 ;; Universal transformation rules. Works for all XML.
-(define universal-sxslt-rules
+(define-with-docs universal-sxslt-rules
+  "A set of @code{pre-post-order} rules that transform any SXML tree
+into a form suitable for XML serialization by @code{(sxml transform)}'s
+@code{SRV:send-reply}. Used internally by @code{sxml->xml}."
   `((@ 
      ((*default* . ,(lambda (attr-key . value) ((enattr attr-key) value))))
      . ,(lambda (trigger . value) (list '@ value)))
@@ -33,6 +40,9 @@
                       (if (string? str) (string->escaped-xml str) str)))))
 
 (define* (sxml->xml tree #:optional (port (current-output-port)))
+  "Serialize the sxml tree @var{tree} as XML. The output will be written
+to the current output port, unless the optional argument @var{port} is
+present."
   (with-output-to-port port
     (lambda ()
       (SRV:send-reply
@@ -41,18 +51,18 @@
         universal-sxslt-rules)))))
 
 (define (sxml->string sxml)
-  "Detag a sxml tree into a string. Does not perform any formatting."
-  (apply string-append
-         (reverse! 
-          (foldts
-           (lambda (seed tree)          ; fdown
-             '())
-           (lambda (seed kid-seed tree) ; fup
-             (append! kid-seed seed))
-           (lambda (seed tree)          ; fhere
-             (if (string? tree) (cons tree seed) seed))
-           '()
-           sxml))))
+  "Detag an sxml tree @var{sxml} into a string. Does not perform any
+formatting."
+  (string-concatenate-reverse
+   (foldts
+    (lambda (seed tree)                 ; fdown
+      '())
+    (lambda (seed kid-seed tree)        ; fup
+      (append! kid-seed seed))
+    (lambda (seed tree)                 ; fhere
+      (if (string? tree) (cons tree seed) seed))
+    '()
+    sxml)))
 
 ;; The following two functions serialize tags and attributes. They are
 ;; being used in the node handlers for the post-order function, see

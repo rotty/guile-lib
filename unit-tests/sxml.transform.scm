@@ -25,7 +25,7 @@
 ;;; Code:
 
 (use-modules (oop goops)
-             (unit-test guileUnit)
+             (unit-test)
              (sxml transform))
 
 (define-class <test-xml-transform> (<test-case>))

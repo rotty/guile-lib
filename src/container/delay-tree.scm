@@ -1,5 +1,5 @@
 ;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
+;; Copyright (C) 2003,2004 Andy Wingo <wingo at pobox dot com>
 
 ;; This program is free software; you can redistribute it and/or    
 ;; modify it under the terms of the GNU General Public License as   
@@ -20,20 +20,24 @@
 
 ;;; Commentary:
 ;;
-;; Unit tests for (sxml htmlprag).
+;;A delay tree is a superset of a nodal tree (see (container
+;;nodal-tree)). It extends nodal trees to allow any entry of the node to
+;;be a promise created with the @code{delay} operator.
 ;;
 ;;; Code:
 
-(use-modules (oop goops)
-             (unit-test guileUnit)
-             (sxml htmlprag))
+(define-module (container delay-tree)
+  #:use-module (container nodal-tree)
+  #:export (force-ref))
 
-(define-class <test-xml-pragmatic> (<test-case>))
-
-(define-method (test-all (self <test-xml-pragmatic>))
-  (assert-true (test-htmlprag)))
-
-(exit-with-summary (run-all-defined-test-cases))
-
-;;; arch-tag: 87b8fe8e-3d60-47c9-ad9e-d98bb16a0266
-;;; xml.pragmatic.scm ends here
+(define (force-ref node field)
+  "Access a field in a node of a delay tree. If the value of the field
+is a promise, the promise will be forced, and the value will be replaced
+with the forced value."
+  (let ((val (node-ref node field)))
+    (and val
+         (if (promise? val)
+             (begin
+               (node-set! node field (force val))
+               (node-ref node field))
+             val))))

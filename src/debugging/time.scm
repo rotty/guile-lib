@@ -20,15 +20,22 @@
 
 ;;; Commentary:
 ;;
+;;@c it's really texinfo
 ;; Defines a macro to time execution of a body of expressions. Each
 ;; element is timed individually.
 ;;
 ;;; Code:
 
 (define-module (debugging time)
+  #:use-module (scheme documentation)
   #:export (time))
 
-(define-macro (time expr . others)
+(define-macro-with-docs (time expr . others)
+  "syntax: @code{(time @var{expr1} @var{expr2}...)}
+
+Times the execution of a list of expressions, in milliseconds. The
+resolution is limited to guile's @code{internal-time-units-per-second}.
+Disregards the expressions' return value(s) (FIXME)."
   (let ((x (gensym)))
     `(let ((,x (get-internal-run-time)))
        ,expr
