@@ -14,11 +14,11 @@
 ;;;
 ;;;-John
 ;;;
-;;;********************************************************************************
+;;;***************************************************************************
 ;;;goops-unit.scm:
-;;;********************************************************************************
+;;;***************************************************************************
 ;;;
-(define-module (unit-test guileUnit)
+(define-module (unit-test)
   #:use-module (oop goops)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 format)
@@ -51,13 +51,14 @@
 (define-method (lookup-method (object <object>) (name <string>))
   (call-with-current-continuation
    (lambda (return)
-     (for-each (lambda (method)
-                 (if (string=? name
-                               (symbol->string (generic-function-name 
-                                                (method-generic-function method))))
-                     (return (method-generic-function method))
-                     #f))
-               (class-direct-methods (class-of object)))
+     (for-each
+      (lambda (method)
+        (if (string=? name
+                      (symbol->string (generic-function-name 
+                                       (method-generic-function method))))
+            (return (method-generic-function method))
+            #f))
+      (class-direct-methods (class-of object)))
      (throw 'no-such-method-exception
             (string-append name
                            ": no such method in class "
@@ -71,18 +72,19 @@
    (lambda (return)
      (for-each
       (lambda (slot)
-        (if (or (and (slot-definition-getter slot)
-                     (string=? method-name
-                               (symbol->string (generic-function-name 
-                                                (slot-definition-getter slot)))))
-                (and (slot-definition-setter slot)
-                     (string=? method-name
-                               (symbol->string (generic-function-name 
-                                                (slot-definition-setter slot)))))
-                (and (slot-definition-accessor slot)
-                     (string=? method-name
-                               (symbol->string (generic-function-name 
-                                                (slot-definition-accessor slot))))))
+        (if (or
+             (and (slot-definition-getter slot)
+                  (string=? method-name
+                            (symbol->string (generic-function-name 
+                                             (slot-definition-getter slot)))))
+             (and (slot-definition-setter slot)
+                  (string=? method-name
+                            (symbol->string (generic-function-name 
+                                             (slot-definition-setter slot)))))
+             (and (slot-definition-accessor slot)
+                  (string=? method-name
+                            (symbol->string (generic-function-name 
+                                             (slot-definition-accessor slot))))))
             (return #t)))
       (class-slots (class-of object)))
      (return #f))))
@@ -119,7 +121,7 @@
 
 
 
-;;----------------------------------------------------------------
+;;;----------------------------------------------------------------
 (define-class <test-result> ()
   (tests-run-count #:init-value 0 #:accessor tests-run)
   (tests-failed-count #:init-value 0 #:accessor tests-failed)
@@ -143,7 +145,7 @@
 
 
 
-                                        ;----------------------------------------------------------------
+;;;----------------------------------------------------------------
 (define-class <test-case> ()
   (name-value #:init-value "" #:accessor name #:init-keyword #:name))
 
@@ -157,7 +159,8 @@
 (define-method (tear-down-test (self <test-case>)))
 
 (define-method (run (self <test-case>) (result <test-result>))
-  (display (string-append "Running test case: " (name-if-set self) "\n") (current-error-port))
+  (display (string-append "Running test case: " (name-if-set self) "\n")
+           (current-error-port))
   (catch #t
          (lambda ()
            (set-up-test self)
@@ -191,26 +194,27 @@
                             (write throw-args)))))))
 
 
-;;----------------------------------------------------------------
+;;;----------------------------------------------------------------
 (define-class <test-suite> ()
   (tests-value #:init-value '() #:accessor tests #:init-keyword #:tests)
   (suite-name #:init-value "unknown" #:accessor name #:init-keyword #:name))
 
 
 (define-method (test-case-suite (self <test-case>))
-  (make <test-suite> #:name (string-append (name-if-set self) "-suite")
-                     #:tests (map
-                              (lambda (method-name)
-                                (make (class-of self) #:name method-name))
-                              (filter (lambda (method-name)
-                                        (and (>= (string-length method-name) 4)
-                                             (string=? "test" (substring method-name 0 4))
-                                             (not (slot-accessor? self method-name))))
-                                      (map (lambda (method)
-                                             (symbol->string 
-                                              (generic-function-name 
-                                               (method-generic-function method))))
-                                           (class-direct-methods (class-of self)))))))
+  (make <test-suite>
+    #:name (string-append (name-if-set self) "-suite")
+    #:tests (map
+             (lambda (method-name)
+               (make (class-of self) #:name method-name))
+             (filter (lambda (method-name)
+                       (and (>= (string-length method-name) 4)
+                            (string=? "test" (substring method-name 0 4))
+                            (not (slot-accessor? self method-name))))
+                     (map (lambda (method)
+                            (symbol->string 
+                             (generic-function-name 
+                              (method-generic-function method))))
+                          (class-direct-methods (class-of self)))))))
 
 (define-method (add (self <test-suite>) (test <test-case>))
   (set! (tests self)
@@ -222,11 +226,12 @@
         (cons suite (tests self))))
 
 (define-method (run (self <test-suite>) (result <test-result>))
-  (display (string-append "\nRunning test suite: " 
-                          (name self)
-                          " "
-                          (make-string (max (- 60 (string-length (name self))) 0) #\-)
-                          "\n") 
+  (display (string-append
+            "\nRunning test suite: " 
+            (name self)
+            " "
+            (make-string (max (- 50 (string-length (name self))) 0) #\-)
+            "\n")
            (current-error-port))
   (for-each
    (lambda (test)

@@ -18,7 +18,7 @@
 ;;; ----------------------------------------------------------------------
 
 (use-modules (search basic)
-             (unit-test guileUnit)
+             (unit-test)
              (oop goops))
 
 (define-class <test-dfs> (<test-case>))

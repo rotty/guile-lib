@@ -1,29 +1,38 @@
+2004-04-16  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/unit-test/guileUnit.scm: Now named just unit-test.scm;
+	uppercase is un-schemish ;). All tests adapted.
+
 2003-12-27  Richard Todd  <richardt@vzavenue.net>
 
-	* src/unit-test/guileUnit.scm (assert-numeric-=): new function... compares numbers 
-	  with a precision value.
+	* src/unit-test/guileUnit.scm (assert-numeric-=): new
+	  function... compares numbers with a precision value.
 
-	* src/os/process.scm: obscured all symbols exported just because macros use them.
+	* src/os/process.scm: obscured all symbols exported just because
+	macros use them.
 
 2003-12-26  Richard Todd  <richardt@vzavenue.net>
 
-	* src/math/primes.scm (prime?): changed SLIB byte-arrays to guile uniform-vectors
-	(prime:prngs): changed from make-random-state to seed->random-state, to avoid 
-	               pulling in more of SLIB
-	
+	* src/math/primes.scm (prime?): changed SLIB byte-arrays to guile
+	uniform-vectors.
+	(prime:prngs): changed from make-random-state to
+	               seed->random-state, to avoid pulling in more of
+	               SLIB.
 
 2003-12-24  Richard Todd  <richardt@vzavenue.net>>
 
-	* src/unit-test/guileUnit.scm (run): Added messages to screen as tests run
-	(add): When a <test-case> is added, all the methods of name matching 
-	      /^test.*/ are scheduled to run
-	(test-case-suite): Now only internally used, since (add) will perform
-	                   this operation for <test-case>'s now.	
-	(run-all-defined-test-cases): New function...selects all classes derived
-	                              from <test-case> to be run, and runs the
-	                              tests.  This should almost always be what
-	                              the user wants to do.
+	* src/unit-test/guileUnit.scm (run): Added messages to screen as
+	tests run.
+	(add): When a <test-case> is added, all the methods of name
+	      matching /^test.*/ are scheduled to run.
+	(test-case-suite): Now only internally used, since (add) will
+	                   perform this operation for <test-case>'s now.
+	(run-all-defined-test-cases): New function...selects all classes
+	                              derived from <test-case> to be run,
+	                              and runs the tests.  This should
+	                              almost always be what the user wants
+	                              to do.
 	(exit-with-summary): New function...displays summary information
-	                            about results.
+	                     about results.
 
 ;;; arch-tag: 1a2c2797-95c9-4371-8baf-a3ee723b45b1

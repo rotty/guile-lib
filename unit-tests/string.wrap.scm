@@ -18,7 +18,7 @@
 ;;; ----------------------------------------------------------------------
 (use-modules (string wrap)
              (srfi srfi-13)
-             (unit-test guileUnit)
+             (unit-test)
              (oop goops))
 
 
