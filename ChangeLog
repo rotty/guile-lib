@@ -1,3 +1,8 @@
+2004-09-05  Andreas Rottmann  <andy@findus>
+
+	* src/texinfo/reflection.scm (module-stexi-documentation): Get rid
+	of unneeded *fragment* stanza in defvar.
+
 2004-09-02  Andreas Rottmann  <andy@findus>
 
 	* new-doc/Makefile.in: New file, preliminary buildsystem for

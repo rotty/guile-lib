@@ -189,7 +189,7 @@ documentation will be formatted as @code{stexi}
             ,(if (variable-bound? var)
                  (or (object-stexi-documentation (variable-ref var) sym)
                      `(defvar (% (name ,(symbol->string sym)))
-                        (*fragment* (para "[undocumented]"))))
+                        (para "[undocumented]")))
                  (begin
                    (warn "variable unbound!" sym)
                    `(defvar (% (name ,(symbol->string sym)))

@@ -22,10 +22,10 @@ html-stamp: $(scm-module-files)
 	touch $@
 
 clean-texi:
-	rm -rf texi
+	rm -rf texi texi-stamp
 
 clean-html:
-	rm -rf html
+	rm -rf html html-stamp
 
 # arch-tag: 90a459b2-5a89-41d2-8a0a-6832d1276aaf
 
