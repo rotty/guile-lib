@@ -1,3 +1,15 @@
+2004-04-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/scheme/documentation.scm: New module, implements some macros
+	to define things with docstrings.
+	* src/text/structured.scm, src/text/structured/*.scm: New modules.
+	Implements something called structured text, basically texinfo in
+	sexp format. Can convert texinfo to structured text, and from
+	there to a tree of nodes, a gtk text buffer, html, or plain text.
+	Also can index the structured text. I'm not happy with the way it
+	is now, but I'm putting it in anyway! Documentation is only in the
+	modules.
+
 2004-04-16  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* src/unit-test/guileUnit.scm: Now named just unit-test.scm;
