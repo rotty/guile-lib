@@ -1,0 +1,291 @@
+@node logging logger, logging port-log, container queue, Top
+@chapter (logging logger)
+
+@cindex logging
+@cindex loggers, relationship with hondlers
+@cindex handlers, relationship with loggers
+@cindex log levels
+
+This is a logging subsystem similar to the one in the python standard
+library.  There are two main concepts to understand when working with 
+the logging modules.  These are loggers and log handlers.
+
+@table @asis
+@item Loggers
+Loggers are the front end interfaces for program logging.
+They can be registered by name so that no part of a program
+needs to be concerned with passing around loggers.  In 
+addition, a default logger can be designated so that, for
+most applications, the program does not need to be concerned
+with logger instances at all beyond the initial setup.
+
+Log messages all flow through a logger.  Messages carry with them a
+level (for example: 'WARNING, 'ERROR, 'CRITICAL), and loggers can
+filter out messages on a level basis at runtime.  This way, the amount
+of logging can be turned up during development and bug investigation,
+but turned back down on stable releases.
+
+Loggers depend on Log Handlers to actually get text to the log's
+destination (for example, a disk file).  A single Logger can send
+messages through multiple Log Handlers, effectively multicasting logs
+to multiple destinations.
+
+@item Log Hondlers
+Log Handlers actually route text to a destination.  One or more handlers
+must be attached to a logger for any text to actually appear in a log.
+
+Handlers apply a configurable transformation to the text so that it is
+formatted properly for the destination (for instance: syslogs, or a
+text file).  Like the loggers, they can filter out messages based on
+log levels.  By using filters on both the Logger and the Handlers,
+precise controls can be put on which log messages go where, even
+within a single logger.
+@end table
+
+@menu 
+* logger module functions::    Functions provided for use with logging
+* logger class::               A description of the <logger> class
+* log handler class::          Base class for all log handlers
+* Example use of logger::      An example that uses a logger
+@end menu
+
+@node logger module functions, logger class, logging logger, logging logger
+@section logger module functions
+
+This section describes the functions involved in the global management
+of loggers.
+
+@defun set-default-logger! lgr
+Sets the given logger, @var{lgr}, as the default for logging methods where
+a logger is not given.  @var{lgr} can be an instance of @code{<logger>},
+a string that has been registered via @code{register-logger!}, or @code{#f}
+to remove the default logger.
+
+With this mechanism, most applications will never need to worry about
+logger registration or lookup.
+
+@lisp
+;; example 1
+(set-default-logger! "main")  ;; look up "main" logger and make it the default
+
+;; example 2
+(define lgr (make  <logger>))
+(add-handler! lgr 
+              (make <port-handler>
+                    #:port (current-error-port)))
+(set-default-logger! lgr)
+(log-msg 'CRITICAL "This is a message to the default logger!!!")
+(log-msg lgr 'CRITICAL "This is a message to a specific logger!!!")
+@end lisp
+@end defun
+
+@defun register-logger! str lgr
+Makes @var{lgr} accessible from other parts of the program by a name
+given in @var{str}.  @var{str} should be a string, and @var{lgr}
+should be an instance of class @code{<logger>}.
+@lisp 
+(define main-log  (make <logger>))
+(define corba-log (make <logger>))
+(register-logger! "main" main-log)
+(register-logger! "corba" corba-log)
+
+;; in a completely different part of the program....
+(log-msg (lookup-logger "corba") 'WARNING "This is a corba warning.")
+@end lisp
+@end defun
+
+@defun lookup-logger str
+Looks up an instance of class @code{<logger>} by the name given
+in @var{str}.  The string should have already been registered via
+a call to @code{register-logger!}.
+@end defun
+
+@node logger class, log handler class, logger module functions, logging logger
+@section logger class
+
+This section describes the logger class.
+
+@deftp Class <logger>
+A logger provides.
+@end deftp
+
+@defmethod <logger> add-handler! lgr handler
+Adds @var{handler} to @var{lgr}'s list of handlers.  All subsequent
+logs will be sent through the new handler, as well as any previously
+registered handlers.
+@end defmethod
+
+@defmethod <logger> log-msg [lgr] lvl arg1 arg2 @dots{}
+Send a log message made up of the @code{display}'ed representation
+of the given arguments.  The log is generated at level @var{lvl}, 
+which should be a symbol.  If the @var{lvl} is disabled, the log
+message is not generated.  Generated log messages are sent through
+each of @var{lgr}'s handlers.
+
+If the @var{lgr} parameter is omitted, then the default logger
+is used, if one is set.
+
+As the args are @code{display}'ed, a large string is built up.  Then,
+the string is split at newlines and sent through the log handlers as
+independent log messages.  The reason for this behavior is to make 
+output nicer for log handlers that prepend information like pid and
+timestamps to log statements.
+
+@lisp
+;; logging to default logger, level of WARN
+(log-msg 'WARN "Warning! " x " is bigger than " y "!!!")
+
+;; looking up a logger and logging to it
+(let ((l (lookup-logger "main")))
+     (log-msg l 'CRITICAL "FAILURE TO COMMUNICATE!")
+     (log-msg l 'CRITICAL "ABORTING NOW"))
+@end lisp
+@end defmethod
+
+@defmethod <logger> enable-log-level! lgr lvl
+Enables a specific logging level given by the symbol @var{lvl}, such
+that messages at that level will be sent to the log handlers.  
+
+Note that any levels that are neither enabled or disabled are treated
+as enabled by the logging system.  This is so that misspelt level
+names do not cause a logging blackout.
+@end defmethod
+
+@defmethod <logger> disable-log-level! lgr lvl
+Disables a specific logging level, such that messages at that
+level will not be sent to the log handlers.
+
+Note that any levels that are neither enabled or disabled are treated
+as enabled by the logging system.  This is so that misspelt level
+names do not cause a logging blackout.
+@end defmethod
+
+@node log handler class, Example use of logger, logger class, logging logger
+@section log handler class
+
+The last important section of @code{(logging logger)} defines the
+class @code{<log-handler>}.  The information here is of little 
+interest to users of the logging system, but is here to support
+people who want to write new handlers.
+
+@deftp Class <log-handler>
+This is the base class for all of the log handlers, and encompasses
+the basic functionality that all handlers are expected to have.
+Keyword arguments recognized by the @code{<log-handler>} at creation
+time are:
+
+@table @code
+@item #:formatter
+This optional parameter must be a function that takes three arguments:
+the log level, the time (as from @code{current-time}), and the log string
+itself.  The function must return a string representing the formatted log.
+
+Here is an example invokation of the default formatter, and what it's
+output looks like:
+@lisp
+(default-log-formatter 'CRITICAL 
+                       (current-time) 
+                       "The servers are melting!")
+==> "2003/12/29 14:53:02 (CRITICAL): The servers are melting!"
+@end lisp
+@end table
+@end deftp
+
+@defmethod <log-handler> accept-log handler lvl time str
+If @var{lvl} is enabled for @var{handler}, then @var{str} will be
+formatted and sent to the log via the @code{emit-log} method.
+Formatting is done via the formatting function given at
+@var{handler}'s creation time, or by the default if none was given.
+
+This method should not normally need to be overridden by subclasses.
+This method should not normally be called by users of the logging 
+system.  It is only exported so that writers of log handlers can
+override this behavior.
+@end defmethod
+
+@defmethod <log-handler> emit-log handler str
+This method should be implemented for all the handlers.  This sends a
+string to their output media.  All level checking and formatting has
+already been done by @code{accept-log}.
+@end defmethod
+
+@defmethod <log-handler> enable-log-level! handler lvl
+Enables a specific logging level given by the symbol @var{lvl}, such
+that messages at that level will be emitted.  
+
+Note that any levels that are neither enabled or disabled are treated
+as enabled by the logging system.  This is so that misspelt level
+names do not cause a logging blackout.
+@end defmethod
+
+@defmethod <log-handler> disable-log-level! handler lvl
+Disables a specific logging level, such that messages at that
+level will not be emitted.
+
+Note that any levels that are neither enabled or disabled are treated
+as enabled by the logging system.  This is so that misspelt level
+names do not cause a logging blackout.
+@end defmethod
+
+@node Example use of logger,  , log handler class, logging logger
+@section Example use of logger
+
+Here is an example program that sets up a logger with two handlers.  One
+handler sends the log messages to a text log that rotates its logs.  The
+other handler sends logs to standard error, and has its levels set so that
+INFO and WARN-level logs don't get through.
+
+@lisp
+(use-modules (logging logger)
+             (logging rotating-log)
+             (logging port-log)
+             (oop goops))
+
+;; ----------------------------------------------------------------------
+;; Support functions
+;; ----------------------------------------------------------------------
+(define (setup-logging)
+  (let ((lgr       (make <logger>))
+        (rotating  (make <rotating-log>
+                     #:num-files 3
+                     #:size-limit 1024
+                     #:file-name "test-log-file"))
+        (err       (make <port-log> #:port (current-error-port))))
+
+    ;; don't want to see warnings or info on the screen!!
+    (disable-log-level! err 'WARN)
+    (disable-log-level! err 'INFO)
+    
+    ;; add the handlers to our logger
+    (add-handler! lgr rotating)
+    (add-handler! lgr err)
+    
+    ;; make this the application's default logger
+    (set-default-logger! lgr)
+    (open-log! lgr)))
+
+
+(define (shutdown-logging)
+  (flush-log)   ;; since no args, it uses the default
+  (close-log!)  ;; since no args, it uses the default
+  (set-default-logger! #f))
+
+;; ----------------------------------------------------------------------
+;; Main code
+;; ----------------------------------------------------------------------
+(setup-logging)
+
+;; Due to log levels, this will get to file, 
+;; but not to stderr
+(log-msg 'WARN "This is a warning.")
+
+;; This will get to file AND stderr
+(log-msg 'CRITICAL "ERROR message!!!")
+
+(shutdown-logging)
+
+@end lisp
+
+@ignore
+   arch-tag: d55db4c9-feaa-4cce-94f9-12eddd11cb6a
+@end ignore

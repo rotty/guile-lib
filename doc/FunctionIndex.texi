@@ -1,0 +1,8 @@
+@node Function Index, , Concept Index, Top
+@unnumbered Function Index
+     
+@printindex fn 
+
+@ignore
+   arch-tag: d72c8b90-dfd0-4ce8-94ca-8a2c84a7abf0
+@end ignore

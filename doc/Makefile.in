@@ -1,0 +1,21 @@
+
+include $(makefiles)/install-docs.mk
+
+ifndef texi-files
+texi-files	:= $(wildcard $(srcdir)/*.texi)
+endif
+
+theinfo := guile-library.info
+
+all: $(theinfo)
+
+clean: clean-doc-info
+
+clean-doc-info:
+	rm -rf $(theinfo)
+
+%.info: %.texi
+	makeinfo --force -I $(srcdir) -o $@ $<
+
+# arch-tag: 385d1967-44cf-41eb-b991-cea96c3f3971
+

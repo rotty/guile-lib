@@ -1,0 +1,65 @@
+
+NEED: **********************************************************************
+
+  genetic algorithm infrastructure in (search genetic-alg)
+
+  file format readers in (file format xxx)
+
+  take (ice-9 ftw) into (file find) ?  And perhaps make the stat'ing optional 
+   for cases when it isn't necessary.
+ 
+  add A* search, greedy-search, and alpha-beta search to (search basic)
+
+  add regex lib that can apply a regex to a soft port.
+
+  figure out what to put for file header copyright information on
+  files with no identifyable copyright info on them
+
+  document unit test stuff (or ask jmax to do it??)
+
+  more unit tests on string.transform...not all methods fully
+  regression tested
+
+  Add at the very least the Newton-Rhaphson method to (math minima),
+   and potentially more.  (add text to the documentation about when
+   you should use which methods)
+
+  A syslog handler for the logger
+
+Consider:
+   ******************************************************************
+
+  (math minima):golden-section-search has an arg @var{prec} that means
+   different things based on its value...it would be better to convert
+   to (ice-9 optargs) so these could be keyword-based.
+
+  Put #:autoload in the module definitions where some modules were
+  'used' to support just a couple of methods.
+
+  Make prime> and prime< in (math prime) count by 2 instead of 1, for
+  a speed increase...
+
+  Evaluate SLIB wttree.scm to see how much faster the set operations
+  are than core guile's.
+
+  Consider extending the (logging logger) registration mechanism to be
+  hierarchical like python's mechanism.
+
+Needed modules: *******************************************************
+
+(implement via soft-ports???)
+lagger log-protocol   ;; defines the logging interface
+logger rotating-text  ;; concrete logger
+logger syslog         ;; concrete logger
+
+net email  mailbox-protocol
+net email  maildir
+net email  mbox
+
+text parse-lalr
+text lex-lalr
+text diff   provide algorithms for producing diffs
+
+import more SLIB stuff
+
+;;; arch-tag: ffb695f1-a38b-4e15-a2b6-691de2729d02

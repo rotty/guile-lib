@@ -1,0 +1,3 @@
+include $(makefiles)/unit-tests.mk
+
+# arch-tag: 270cdea4-8c07-48df-88fe-437d06d322ad

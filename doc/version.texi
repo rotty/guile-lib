@@ -1,0 +1,8 @@
+@set UPDATED 22:39 January ./guile-library.texi
+@set UPDATED-MONTH January ./guile-library.texi
+@set EDITION 0.1
+@set VERSION 0.1
+
+@ignore
+   arch-tag: 22edb9af-04b9-4e5d-9c25-8f2b282da634
+@end ignore

@@ -1,0 +1,27 @@
+Project Maintainer:  Richard Todd <richardt@vzavenue.net>
+
+(math primes)        SLIB code by Aubrey Jaffer
+
+(math minima)        golden-section-search by Lars Arvestad
+
+(os process)         Gary Houston <ghouston@arglist.com>
+
+(text lalr-parser)   Richard Todd <richardt@vzavenue.net> (started with Domonique Boucher's code)
+
+(string soundex)     Public domain code by jjb@isye.gatech.edu
+
+(string transform)   Richard Todd <richardt@vzavenue.net>
+
+(string wrap)        Richard Todd <richardt@vzavenue.net> (idea from python module) 
+
+(term ansi-color)    Richard Todd <richardt@vzavenue.net> (idea from perl module)
+
+(unit-test guileUnit) Found in a net posting.  Original code by John Maxwell <jmax@toad.net>
+                      Improvements by Richard Todd <richardt@vzavenuen.net>
+
+(email mailbox-protocol)  Richard Todd <richardt@vzavenue.net>
+
+(email maildir)           Richard Todd <richardt@vzavenue.net>
+
+
+;;; arch-tag: 29b8be7d-0f09-4a3e-b8c6-fc1443dff4dd

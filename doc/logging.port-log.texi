@@ -1,0 +1,42 @@
+@node logging port-log, logging rotating-log, logging logger, Top
+@chapter (logging port-log)
+
+@cindex logs, through ports
+@cindex ports, for logging
+
+This module defines a log handler that writes to an arbitrary port of
+the user's choice.  Uses of this handler could include:
+@itemize @bullet
+@item  
+Sending logs across a socket to a network log collector.
+@item
+Sending logs to the screen
+@item
+Sending logs to a file
+@item
+Collecting logs in memory in a string port for later use
+@end itemize
+
+
+@deftp Class <port-log>
+This is a log handler which writes logs to a user-provided port.
+
+Keywords recognized by @code{<port-log>} on creation are:
+@table @code
+@item #:port
+This is the port to which the log handler will write.
+
+@item #:formatter
+Allows the user to provide a function to use as the log formatter for
+this handler.  @xref{log handler class}, for details.
+@end table
+
+Example of creating a @code{<port-log>}:
+@lisp
+(make <port-log> #:port (current-error-port))
+@end lisp
+@end deftp
+
+@ignore
+   arch-tag: 9f2faf99-4558-41dd-9db1-1b9d7c54b0dd
+@end ignore

@@ -1,0 +1,8 @@
+@node Concept Index, Function Index, Copying This Manual, Top
+@unnumbered Concept Index
+     
+@printindex cp
+
+@ignore
+   arch-tag: d91660c5-28f2-4814-a0f2-401b076ba37c
+@end ignore

@@ -1,0 +1,9 @@
+include $(makefiles)/rules.mk
+
+ifeq ($(cfg__install_guile_lib),1)
+include $(makefiles)/install-scm-subdirs.mk
+endif
+
+scm-install-dir := $(cfg__scm_install_dir)
+
+# arch-tag: 1aefadd1-89a2-4a39-9872-75ec828c976d

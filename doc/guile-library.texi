@@ -1,0 +1,92 @@
+\input texinfo
+
+@setfilename guile-library.info
+@include version.texi
+@settitle guile-library: Common modules for Guile Scheme @value{VERSION}
+
+@copying
+This manual is for guile-library (version @value{VERSION}, @value{UPDATED}).
+
+Copyright @copyright{} 2003 Richard Todd
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+Texts.  A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+@end quotation
+@end copying
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* guile-library: (guile-library). Common modules for Guile Scheme.
+@end direntry
+
+@titlepage
+@title guile-library 
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Richard Todd (@email{richardt@@vzavenue.net})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, container queue, (dir), (dir)
+@top guile-library 
+
+@insertcopying
+@end ifnottex
+
+@menu
+* container queue::             Queues, Stacks, and Deques
+* logging logger::              Logging mechanism
+* logging port-log::            A log handler that outputs to ports
+* logging rotating-log::        A log handler for rotating text file logs
+* math minima::                 Finding minimum values of functions
+* math primes::                 Functions dealing with prime numbers
+* os process::                  Manipulating and creating process chains
+* search basic::                Classic searching algorithms
+* string completion::           Facilities for things like TAB-completion
+* string soundex::              Soundex Algorithm
+* string transform::            Transformations of strings
+* string wrap::                 String wrapping and filling functions
+* term ansi-color::             Colors text with ANSI sequences 
+
+Other Material
+* Naming Conventions::          Project Naming Conventions
+* Source Material::             Mapping of this library to its source material
+* Copying This Manual::         Description of the license covering this manual
+* Concept Index::               Concept Index
+* Function Index::              Function Index
+@end menu
+
+@include container.queue.texi
+@include logging.logger.texi
+@include logging.port-log.texi
+@include logging.rotating-log.texi
+@include math.minima.texi
+@include math.primes.texi
+@include os.process.texi
+@include search.basic.texi
+@include string.completion.texi
+@include string.soundex.texi
+@include string.transform.texi
+@include string.wrap.texi
+@include term.ansi-color.texi
+
+@include NamingConventions.texi
+@include SourceMaterial.texi
+@include Copying.texi
+@include ConceptIndex.texi
+@include FunctionIndex.texi
+
+@bye
+
+@ignore
+   arch-tag: 33fde86a-71f8-4218-ba15-1d45b6b296b4
+@end ignore

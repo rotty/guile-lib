@@ -1,0 +1,5 @@
+string		scm-install-dir $(prefix)/share/guile/site
+	Where should .scm files be installed?
+
+binary		install-guile-lib no
+	If true, guile-lib will be installed
