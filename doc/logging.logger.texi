@@ -2,7 +2,7 @@
 @chapter (logging logger)
 
 @cindex logging
-@cindex loggers, relationship with hondlers
+@cindex loggers, relationship with handlers
 @cindex handlers, relationship with loggers
 @cindex log levels
 
