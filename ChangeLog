@@ -1,3 +1,14 @@
+2004-09-02  Andreas Rottmann  <andy@findus>
+
+	* new-doc/Makefile.in: New file, preliminary buildsystem for
+	texinfo and HTML.
+
+	* new-doc/index.scm (maybe-mkdir): Work like "mkdir -p".
+	(make-texinfo): Call (make-texi-module-files).
+	(make-texi-module-files): New procedure.
+	(make-html): Call (maybe-mkdir "./html"), since we must work from
+	empty builddir, too.
+	
 2004-08-28  Andy Wingo  <wingo@pobox.com>
 
 	* new-doc/index.scm: New file, a master document from which to

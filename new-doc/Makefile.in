@@ -1,0 +1,31 @@
+
+texi-files		:= $(wildcard $(builddir)/texi/*.texi)
+scm-module-files	:= $(sort $(shell find $(srcdir)/../src -type f -name "*.scm"))
+
+GUILE_LOAD_PATH = $(srcdir)/../src
+export GUILE_LOAD_PATH
+
+all: html texi 
+
+install: 
+clean: clean-texi clean-html
+test:
+
+texi: texi-stamp
+texi-stamp: $(scm-module-files)
+	guile -l $(srcdir)/index.scm -c '(make-texinfo)'
+	touch $@
+
+html: html-stamp
+html-stamp: $(scm-module-files)
+	guile -l $(srcdir)/index.scm -c '(make-html)'
+	touch $@
+
+clean-texi:
+	rm -rf texi
+
+clean-html:
+	rm -rf html
+
+# arch-tag: 90a459b2-5a89-41d2-8a0a-6832d1276aaf
+

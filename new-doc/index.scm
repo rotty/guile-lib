@@ -8,6 +8,7 @@
              (sxml xpath)
              (texinfo reflection)
              (texinfo html)
+             (texinfo serialize)
              (srfi srfi-13))
 
 ;; The documentation is written in a domain-specific SXML language.
@@ -127,6 +128,37 @@ hooks to make the help system extensible."))))
   (call-with-output-string (lambda (p) (display scm p))))
 (define (module->ustr scm)
   (string-append (string-join (map symbol->string scm) "-") "/"))
+(define (module->dstr scm)
+  (string-join (map symbol->string scm) "-"))
+
+(define (make-module-list)
+  ;; dunno why the ssax one is broken -- need to update to newest
+  ;; sxml-tools, instead of oleg's sxpath
+  (define (my-select-kids test-pred?)
+    (lambda (node)
+      (cond 
+       ((null? node) node)
+       ((not (pair? node)) '())
+       ;;((symbol? (car node))
+       ;; ((filter test-pred?) (cdr node)))
+       (else (map-union (select-kids test-pred?) node)))))
+
+  (map cadr
+       (apply append
+              (map (lambda (type)
+                     ((my-select-kids (node-typeof? type)) page))
+                   '(module lmodule)))))
+
+(define (maybe-mkdir path)
+  (let loop ((path ".") (components (string-split path #\/)))
+    (if (not (null? components))
+        (let ((sub-path (string-append path "/" (car components))))
+          (if (or (not (file-exists? sub-path))
+                  (not (file-is-directory? sub-path)))
+              (mkdir sub-path))
+          (loop sub-path (cdr components))))))
+
+;;; HTML generation
 
 (define (wrap-html title root-path scm-url body)
   `(html (@ (xmlns "http://www.w3.org/1999/xhtml"))
@@ -184,28 +216,6 @@ hooks to make the help system extensible."))))
           (*text* . ,(lambda (tag text) text))
           (*default* . ,(lambda args args))))))))
 
-(define (make-module-list)
-  ;; dunno why the ssax one is broken -- need to update to newest
-  ;; sxml-tools, instead of oleg's sxpath
-  (define (my-select-kids test-pred?)
-    (lambda (node)
-      (cond 
-       ((null? node) node)
-       ((not (pair? node)) '())
-       ;;((symbol? (car node))
-       ;; ((filter test-pred?) (cdr node)))
-       (else (map-union (select-kids test-pred?) node)))))
-
-  (map cadr
-       (apply append
-              (map (lambda (type)
-                     ((my-select-kids (node-typeof? type)) page))
-                   '(module lmodule)))))
-
-(define (maybe-mkdir path)
-  (if (or (not (file-exists? path)) (not (file-is-directory? path)))
-      (mkdir path)))
-
 (define (make-html-module-pages)
   (let ((modules (make-module-list)))
     (for-each
@@ -230,10 +240,24 @@ hooks to make the help system extensible."))))
      modules)))
 
 (define (make-html)
+  (maybe-mkdir "./html")
   (make-html-index)
   (make-html-module-pages))
 
+;;; Texinfo generation
+
+(define (make-texi-module-files)
+  (maybe-mkdir "./texi")
+  (let ((modules (make-module-list)))
+    (for-each
+     (lambda (module)
+       (let ((port (open-output-file
+                    (string-append "./texi/" (module->dstr module) ".texi"))))
+         (format #t "writing .texi for ~S\n" module)
+         (display (stexi->texi (module-stexi-documentation module)) port)))
+     modules)))
+
 (define (make-texinfo)
-  (error "Andreas needs to implement this :-)"))
+  (make-texi-module-files))
 
 ;; arch-tag: e493ad42-ad58-451c-a2d6-b17ba6c1d1d0
