@@ -1,0 +1,22 @@
+README for guile-lib/new-doc/
+=============================
+
+This directory will hold documentation generated from the module source
+files themselves. Over time, documentation from the doc/ directory will
+be moved into source files and into stexinfo files. This will allow
+documentation to be kept up-to-date.
+
+Roadmap
+-------
+
+ index.scm: Toplevel document
+
+ html/: Generated HTML
+
+ texi/: Generated texinfo
+
+
+--
+Andy Wingo, 28 August 2004
+
+arch-tag: f0e3f5cd-8951-4e67-9944-011499ca06bd

@@ -1,0 +1,2 @@
+precious .*\.html$
+precious ^[a-zA-Z0-9\-]*$

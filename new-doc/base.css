@@ -1,0 +1,148 @@
+/* arch-tag: fc7b3dc1-52d4-4634-be09-bf7c6852cec9 */
+
+body {
+  background-color: #ccc;
+  margin: 0;
+  color: #000;
+  font-family: serif;
+}
+
+div#body {
+  margin-left: 36pt;
+  margin-right: 36pt;
+}
+
+div#heading, h1, h2, h3, h4 { 
+  font-family: monospace;
+}
+
+h1, h2 { 
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+h2 { 
+  padding-top: 1em;
+  margin: 0;
+}
+
+div#menu-bar { 
+  clear: both;
+  text-align: center;
+  background-color: #eee;
+  border-bottom: 1pt black dashed;
+}
+
+div#menu-bar a { 
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+a:link { 
+  color: #00f;
+  text-decoration: none;
+}
+
+a:visited { 
+  color: #800;
+  text-decoration: none;
+}
+
+a:hover:link, a:active:link { 
+  color: #eee;
+  background-color: #00f;
+}
+
+a:hover:visited, a:active:visited { 
+  color: #eee;
+  background-color: #800;
+}
+
+div#text {
+  background-color: #eee;
+  padding-bottom: 1em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+div#footer {
+  text-align: center;
+  font-style: italic;
+  font-size: smaller;
+  padding-bottom: 1em;
+}
+
+div.book-navigation { 
+  padding: 0.5em;
+  text-align: right;
+  font-family: 'Trebuchet MS', Verdana, sans-serif;
+}
+
+div.book-navigation a { 
+  padding: 0.5em;
+}
+
+caption {
+  text-align: center; /* doesn't seem to work... */
+  font-weight: bolder;
+}
+
+.float-left { 
+  float: left;
+  margin-right: 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.right { 
+  margin-left: auto;
+  text-align: right;
+}
+
+.centered { 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.author, .subtitle { 
+  text-align: center;
+}
+
+.centered > caption { 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* these ones are hacky */
+table.def p { 
+  margin-bottom: 6pt;
+}
+
+div.description { 
+  margin-left: 18pt;
+  margin-right: 18pt;
+  margin-bottom: 18pt;
+}
+
+.smaller { 
+  font-size: smaller;
+}
+
+div.cartouche { 
+  border: dashed 1px black;
+  padding: 0.5em;
+  margin-left: 15%;
+  margin-right: 15%;
+  text-align: center;
+}
+
+.small-caps { 
+  font-variant: small-caps;
+}
+
+.subsections { 
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
