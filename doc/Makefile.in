@@ -10,6 +10,7 @@ all: $(theinfo)
 
 install: install-doc-info
 clean: clean-doc-info
+test:
 
 install-doc-info:
 	cp $(theinfo) $(info-install-dir)
