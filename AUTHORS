@@ -1,4 +1,4 @@
-Project Maintainer:  Richard Todd <richardt@vzavenue.net>
+Project Maintainer:  Andreas Rottmann <rotty@debian.org>
 
 (math primes)        SLIB code by Aubrey Jaffer
 
@@ -6,22 +6,59 @@ Project Maintainer:  Richard Todd <richardt@vzavenue.net>
 
 (os process)         Gary Houston <ghouston@arglist.com>
 
-(text lalr-parser)   Richard Todd <richardt@vzavenue.net> (started with Domonique Boucher's code)
+(text lalr-parser)   Richard Todd <richardt@vzavenue.net> (started with
+		     Domonique Boucher's code)
 
 (string soundex)     Public domain code by jjb@isye.gatech.edu
 
 (string transform)   Richard Todd <richardt@vzavenue.net>
 
-(string wrap)        Richard Todd <richardt@vzavenue.net> (idea from python module) 
+(string wrap)        Richard Todd <richardt@vzavenue.net> (idea from 
+		     python module) 
 
 (term ansi-color)    Richard Todd <richardt@vzavenue.net> (idea from perl module)
 
-(unit-test guileUnit) Found in a net posting.  Original code by John Maxwell <jmax@toad.net>
-                      Improvements by Richard Todd <richardt@vzavenuen.net>
+(unit-test)          Found in a net posting. Original code by John Maxwell
+		     <jmax@toad.net>. Improvements by Richard Todd 
+		     <richardt@vzavenuen.net>
 
 (email mailbox-protocol)  Richard Todd <richardt@vzavenue.net>
 
 (email maildir)           Richard Todd <richardt@vzavenue.net>
 
+(config load)		Andreas Rottmann <rotty@debian.org>
+
+(container nodal-tree)  Andy Wingo <wingo@pobox.com>
+(container delay-tree)  Andy Wingo <wingo@pobox.com>
+(debugging time)	Andy Wingo <wingo@pobox.com>
+(scheme documentation)  Andy Wingo <wingo@pobox.com>
+(texinfo)		Andy Wingo <wingo@pobox.com>
+(texinfo html)		Andy Wingo <wingo@pobox.com>
+(texinfo indexing)	Andy Wingo <wingo@pobox.com>
+(texinfo nodal-tree)	Andy Wingo <wingo@pobox.com>
+(texinfo plain-text)	Andy Wingo <wingo@pobox.com>
+(texinfo reflection)	Andy Wingo <wingo@pobox.com>
+(sxml simple)		Andy Wingo <wingo@pobox.com>
+
+(htmlprag) 		http://neilvandyke.org/htmlprag/
+
+(sxml ssax) 		http://ssax.sourceforge.net/
+(sxml xpath) 		http://ssax.sourceforge.net/
+(sxml transform) 	http://ssax.sourceforge.net/
+(sxml apply-templates)  http://ssax.sourceforge.net/
+
+(sxml ssax input-parse) Oleg's input-parse.scm, but with some routines 
+			sped up by use of (ice-9 rdelim).
+
+(debugging assert)	Oleg's assert macro that will print out values of
+			variables referenced in the assert expression.
+
+(statprof)    		Code taken from Guile CVS and improved by Andy Wingo 
+			<wingo@pobox.com>.
+
+(io string)		SLIB code by Aubrey Jaffer.
+
+(scheme session)	Guile's (ice-9 session), enhanced by Andy Wingo
+			<wingo@pobox.com>.
 
 ;;; arch-tag: 29b8be7d-0f09-4a3e-b8c6-fc1443dff4dd

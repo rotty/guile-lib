@@ -1,0 +1,32 @@
+Guile-Lib NEWS -- history of user-visible changes.
+
+Version 0.1.2
+
+ - A lot of new modules, written or packaged by Andy Wingo
+   <wingo@pobox.com>:
+
+   + (htmlprag), a pragmatic HTML parser, from 
+     http://neilvandyke.org/htmlprag/.
+   + (sxml ...), the SSAX suite from http://ssax.sourceforge.net/.
+   + (texinfo ...), a suite of tools built on SSAX to process Texinfo.
+   + (statprof), a statistical profiler for Guile.
+   + (container nodal-tree), a tree consisting of nodes with attributes.
+   + (container delay-tree), a nodal tree whose fields can be promises 
+     created by the delay operator.
+   + (debugging assert), an assert macro that will print out values 
+     of variables referenced in the assert expression.
+   + (debugging time), a simple macro to time the execution of an expression.
+   + (io string), IO routines dealing with strings (from SLIB).
+   + (scheme session), an improved version of (ice-9 session).
+
+ - New modules written or packaged Andreas Rottmann <rotty@debian.org>:
+
+   + (srfi srfi-34), exception handling for programs.
+   + (config load), a configuration file parser that evaluates 
+		    the configuration file in a safe environment.
+
+Version 0.1.1
+
+ - First official release.
+
+;; arch-tag: ebd8b84d-e13c-4fb6-911d-3c4b09e0bba4

@@ -1,3 +1,12 @@
+2004-08-04  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* NEWS: New file, updated for next release 0.1.2.
+	
+	* AUTHORS: Updated (added all the additions from Andy Wingo).
+
+	* unit-tests/texinfo.scm (test-texinfo->stexinfo): Fixed unquoted
+	backslash.
+
 2004-08-01  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* src/sxml/ssax/input-parse.scm: Use (load-from-path ...) instead

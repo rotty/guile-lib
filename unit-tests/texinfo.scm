@@ -185,7 +185,7 @@
 
   (pass-if-exception (test "@dots{}\n" '(texinfo (dots))))
 
-  (test "\input texinfo\n@settitle my title\n@dots{}\n"
+  (test "\\input texinfo\n@settitle my title\n@dots{}\n"
         '(texinfo (% (title "my title")) (para (dots))))
   (test-with-title "my title" "@dots{}\n"
         '(texinfo (% (title "my title")) (para (dots))))
