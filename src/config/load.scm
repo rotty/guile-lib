@@ -35,11 +35,14 @@
 
 (define-condition-type &config-error &error
   config-error?
+  (key config-error-key)
   (arguments config-error-arguments))
 
 (define-method (write (self &config-error) port)
   (display "#<" port)
   (display (class-name (class-of self)) port)
+  (display #\space port)
+  (display (config-error-key self) port)
   (display #\space port)
   (display (config-error-arguments self) port)
   (display ">" port))
@@ -65,15 +68,17 @@
 	      ;; ... and read the next expression if no error occured.
 	      (lp (read port)))
 
-	    ;; Handle exceptions.  This procedure will be called when an
-	    ;; error occurs while evaluating the expression.  It just
-	    ;; prints out a message telling so and returns from the
-	    ;; evaluation loop, thus terminating the program.
+	    ;; Handle exceptions.  This procedure will be called when
+	    ;; an error occurs while evaluating the expression.  If a
+	    ;; condition was signalled, it is re-raised, otherwise a
+	    ;; &config-error condition is raised with the original
+	    ;; exception key and arguments.
 	    ;;
 	    (lambda (key . args)
               (if (and (= (length args) 1) (condition? (car args)))
                   (raise (car args))
-                  (raise (condition (&config-error (arguments args))))))))))
+                  (raise (condition (&config-error (key key)
+                                                   (arguments args))))))))))
 
 (define (bind-first proc . bind-args)
   (lambda args
@@ -95,4 +100,5 @@
     
     (cfg-include cfg file-name config-env)))
 
+
 ;;; arch-tag: 09ffbf0f-b7e1-4280-a21f-178226487634

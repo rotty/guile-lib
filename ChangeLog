@@ -1,5 +1,14 @@
 2004-08-04  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* src/config/load.scm: Also pass the original exception's key in
+	&config-error.
+
+	* NEWS: Document new API in (unit-test).
+	* unit-tests/texinfo.scm: Moved pass-if-exception to (unit-test), 
+	now named assert-exception. Adapted all uses to new name.
+	* src/unit-test.scm (assert-exception): New macro, code taken from
+	unit-tests/texinfo.scm.
+
 	* README: New file, containing build/install instructions.
 
 	* NEWS: New file, updated for next release 0.1.2.

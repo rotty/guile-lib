@@ -43,7 +43,9 @@
             tests 
             add
             run-all-defined-test-cases
-            exit-with-summary))
+            exit-with-summary)
+  
+  #:export-syntax (assert-exception))
 
 
  ;; Utility method for finding an object's method given its name. The
@@ -120,6 +122,19 @@
                  (display " got: ")
                  (write got))))))
 
+
+(define-macro (assert-exception expression)
+  `(catch #t
+          (lambda ()
+            ,expression
+            (throw
+             'test-failed-exception
+             (format #f "assert-exception: no exception on ~S"
+                     ',expression)))
+          (lambda (key . args)
+            (case key
+              ((test-failed-exception) (apply throw key args))
+              (else #t)))))
 
 
 ;;;----------------------------------------------------------------

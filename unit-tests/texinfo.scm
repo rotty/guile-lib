@@ -33,19 +33,6 @@
 
 (define nl (string #\newline))
 
-(define-macro (pass-if-exception expression)
-  `(catch #t
-          (lambda ()
-            ,expression
-            (throw
-             'test-failed-exception
-             (format #f "pass-if-exception: no exception on ~S"
-                     ',expression)))
-          (lambda (key . args)
-            (case key
-              ((test-failed-exception) (apply throw key args))
-              (else #t)))))
-
 (define-macro (@@ mod var)
   `(module-ref (resolve-module ',mod) ',var))
 
@@ -68,7 +55,7 @@
 
   ;; after @verbatim, the current position will always directly after
   ;; the newline.
-  (pass-if-exception (read-verbatim-body-from-string "@end verbatim"))
+  (assert-exception (read-verbatim-body-from-string "@end verbatim"))
                      
   (assert-equal '("@@end verbatim" " NL\n")
                 (read-verbatim-body-from-string "@@end verbatim\n@end verbatim\n"))
@@ -98,7 +85,7 @@
   (test "    foo     ,    bar  }" '("foo" "bar"))
   (test " foo ,   , bar }" '("foo" #f "bar"))
   (test "foo,,bar}" '("foo" #f "bar"))
-  (pass-if-exception (test "foo,,bar" 'foo)))
+  (assert-exception (test "foo,,bar" 'foo)))
 
 (define texinfo:complete-start-command
   (@@ (texinfo) complete-start-command))
@@ -114,7 +101,7 @@
 
   (assert-equal '(section () EOL-TEXT)
                 (test 'section "foo bar baz bonzerts"))
-  (pass-if-exception (test 'emph "no brace here"))
+  (assert-exception (test 'emph "no brace here"))
   (assert-equal '(emph () INLINE-TEXT)
                 (test 'emph "{foo bar baz bonzerts"))
   (assert-equal '(ref ((node "foo bar") (section "baz") (info-file "bonzerts"))
@@ -152,7 +139,7 @@
     ;; add some newline-related tests here
     (test "" #t #f '() eof-object)
     (test "foo bar baz" #t #f '("foo bar baz") eof-object)
-    (pass-if-exception (test "" #f #f '() eof-object))
+    (assert-exception (test "" #f #f '() eof-object))
     (test "  " #t #f '("  ") eof-object)
     (test " @code{foo} " #f #f '(" ") code)
     (test " @code" #f #f '(" ") code)
@@ -183,7 +170,7 @@
   (define (join-lines . lines)
     (apply string-append (list-intersperse lines "\n")))
 
-  (pass-if-exception (test "@dots{}\n" '(texinfo (dots))))
+  (assert-exception (test "@dots{}\n" '(texinfo (dots))))
 
   (test "\\input texinfo\n@settitle my title\n@dots{}\n"
         '(texinfo (% (title "my title")) (para (dots))))
@@ -192,7 +179,7 @@
   (test-with-title "my title" "@dots{}"
         '(texinfo (% (title "my title")) (para (dots))))
 
-  (pass-if-exception (try-with-title "my title" "@dots{arg}"))
+  (assert-exception (try-with-title "my title" "@dots{arg}"))
 
   (test-body "@code{arg}"
              '((para (code "arg"))))
@@ -305,7 +292,7 @@
                           (item (para "one"))
                           (item (para "two"))
                           (item (para "three")))))
-  (pass-if-exception
+  (assert-exception
    (try-with-title "foo" (join-lines
                           "@enumerate string"
                           "@item one"
@@ -313,7 +300,7 @@
                           "@item three"
                           "@end enumerate"
                           )))
-  (pass-if-exception
+  (assert-exception
    (try-with-title "foo" (join-lines
                           "@itemize string"
                           "@item one"

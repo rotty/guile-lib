@@ -2,6 +2,9 @@ Guile-Lib NEWS -- history of user-visible changes.
 
 Version 0.1.2
 
+ - (unit-test) now has assert-exception, which passes only when an
+   exception is thrown.
+
  - A lot of new modules, written or packaged by Andy Wingo
    <wingo@pobox.com>:
 
@@ -28,5 +31,10 @@ Version 0.1.2
 Version 0.1.1
 
  - First official release.
+
+^L
+Local variables:
+mode: indented-text
+end:
 
 ;; arch-tag: ebd8b84d-e13c-4fb6-911d-3c4b09e0bba4
