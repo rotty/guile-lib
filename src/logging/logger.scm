@@ -270,39 +270,6 @@ timestamps to log statements.
 (define-method (log-msg (lgr <logger>) lvl . objs)
   (log-helper lgr lvl objs))
 
-;; if called with no args, pass to the default logger...
-(define-method (flush-log)
-  (if default-logger
-      (flush-log default-logger)))
-
-;; if called on a logger, pass the call to all the handlers...
-(define-method (flush-log (lgr <logger>))
-  (for-each (lambda (handler)
-              (flush-log handler))
-            (handlers lgr)))
-
-(define-method (flush-log!)
-  (if default-logger
-      (flush-log! default-logger)))
-
-(define-method (open-log! (lgr <logger>))
-  (for-each (lambda (handler)
-              (open-log! handler))
-            (handlers lgr)))
-
-(define-method (open-log!)
-  (if default-logger
-      (open-log! default-logger)))
-
-(define-method (close-log! (lgr <logger>))
-  (for-each (lambda (handler)
-              (close-log! handler))
-            (handlers lgr)))
-
-(define-method (close-log!)
-  (if default-logger
-      (close-log! default-logger)))
-
 ;; the default formatter makes a log statement like:
 ;; 2003/12/29 14:53:02 (CRITICAL): The servers are melting!
 (define (default-log-formatter lvl time str)
@@ -400,6 +367,39 @@ this method.  The default implementation just returns
 ;; provide do-nothing flush for handlers that don't care about it
 (define-method (flush-log (lh <log-handler>))
   #t)
+
+;; if called with no args, pass to the default logger...
+(define-method (flush-log)
+  (if default-logger
+      (flush-log default-logger)))
+
+;; if called on a logger, pass the call to all the handlers...
+(define-method (flush-log (lgr <logger>))
+  (for-each (lambda (handler)
+              (flush-log handler))
+            (handlers lgr)))
+
+(define-method (flush-log!)
+  (if default-logger
+      (flush-log! default-logger)))
+
+(define-method (open-log! (lgr <logger>))
+  (for-each (lambda (handler)
+              (open-log! handler))
+            (handlers lgr)))
+
+(define-method (open-log!)
+  (if default-logger
+      (open-log! default-logger)))
+
+(define-method (close-log! (lgr <logger>))
+  (for-each (lambda (handler)
+              (close-log! handler))
+            (handlers lgr)))
+
+(define-method (close-log!)
+  (if default-logger
+      (close-log! default-logger)))
 
 ;; ----------------------------------------------------------------------
 ;; These functions work on both <logger> and <log-handler>.

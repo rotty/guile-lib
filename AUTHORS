@@ -20,7 +20,8 @@ Project Maintainer:  Andreas Rottmann <rotty@debian.org>
 
 (unit-test)          Found in a net posting. Original code by John Maxwell
 		     <jmax@toad.net>. Improvements by Richard Todd 
-		     <richardt@vzavenuen.net>
+		     <richardt@vzavenuen.net> and 
+		     Andreas Rottmann <a.rottmann@gmx.at>.
 
 (email mailbox-protocol)  Richard Todd <richardt@vzavenue.net>
 
@@ -38,6 +39,7 @@ Project Maintainer:  Andreas Rottmann <rotty@debian.org>
 (texinfo nodal-tree)	Andy Wingo <wingo@pobox.com>
 (texinfo plain-text)	Andy Wingo <wingo@pobox.com>
 (texinfo reflection)	Andy Wingo <wingo@pobox.com>
+(texinfo serialization)	Andy Wingo <wingo@pobox.com>
 (sxml simple)		Andy Wingo <wingo@pobox.com>
 
 (htmlprag) 		http://neilvandyke.org/htmlprag/

@@ -1,3 +1,31 @@
+2005-01-21  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/unit-test.scm: Added licence header.
+	
+	* src/unit-test.scm (lookup-method, slot-accessor): Use srfi-1 any
+	instead of call/cc.
+
+2004-11-10  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/srfi/srfi-35.scm (condition-type-field-supertype): Removed,
+	dead code.
+	
+	* src/srfi/srfi-35.scm (class-supers, list2set): Removed, can use
+	class-precedence-list instead.
+	
+	* unit-tests/srfi.srfi-35.scm: Added simple test-case for the
+	GOOPS interface to conditions.
+
+	* src/srfi/srfi-35.scm (make-condition-type): Allow field names as
+	init-keywords.
+
+2004-10-23  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* unit-tests/all-tests.sh: set -e, so we actually fail.
+
+	* src/logging/logger.scm: Move define-method calls after their
+	corresponding define-generic calls.
+
 2004-10-18  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* doc/Makefile.in (install-doc-info): Add a "mkdir -p", in case

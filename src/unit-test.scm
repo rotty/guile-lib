@@ -1,23 +1,27 @@
-;;; Original mail for this package....jmax@toad.net
+;;; ----------------------------------------------------------------------
+;;;    unit-test.scm -- GOOPS-based unit-testing framework
 ;;;
-;;;Well, it may not be the most finished/polished thing around, but for 
-;;;whatever it's worth, you're welcome to use this. It's a fairly literal 
-;;;translation of the unit test code in Kent Beck's "Test-Driven Development" 
-;;;book (the book's code is in Java). Done for my own edification as I was 
-;;;reading the book, it also served as a nice way to get my feet wet in 
-;;;goops.
+;;;    This program is free software; you can redistribute it and/or modify
+;;;    it under the terms of the GNU General Public License as published by
+;;;    the Free Software Foundation; either version 2 of the License, or
+;;;    (at your option) any later version.
 ;;;
-;;;goops-unit.scm is the actual framework; goops-unit-test.scm is a set of 
-;;;unit tests for it written using it.
+;;;    This program is distributed in the hope that it will be useful,
+;;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;    GNU General Public License for more details.
 ;;;
-;;;Hope this is of some use; feedback is welcome.
+;;;    You should have received a copy of the GNU General Public
+;;;    License along with this program; if not, write to the Free
+;;;    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+;;;    MA 02111-1307 USA
+;;; ----------------------------------------------------------------------
+;;;   Copyright (C) 2004, 2005 Andreas Rottmann
+;;;   Copyright (C) 2003 Richard Todd
 ;;;
-;;;-John
-;;;
-;;;***************************************************************************
-;;;goops-unit.scm:
-;;;***************************************************************************
-;;;
+;;;   Original code by John Maxwell <jmax@toad.net>
+;;; ----------------------------------------------------------------------
+
 (define-module (unit-test)
   #:use-module (oop goops)
   #:use-module (srfi srfi-1)
@@ -52,47 +56,38 @@
  ;; equivalent probably already exists somewhere in the MOP, but the doc
  ;; is a little sketchy.
 (define-method (lookup-method (object <object>) (name <string>))
-  (call-with-current-continuation
-   (lambda (return)
-     (for-each
-      (lambda (method)
-        (if (string=? name
-                      (symbol->string (generic-function-name 
-                                       (method-generic-function method))))
-            (return (method-generic-function method))
-            #f))
-      (class-direct-methods (class-of object)))
-     (throw 'no-such-method-exception
-            (string-append name
-                           ": no such method in class "
-                           (symbol->string (class-name (class-of object))))))))
+  (or
+   (any (lambda (method)
+          (let ((gf (method-generic-function method)))
+            (if (string=? name (symbol->string (generic-function-name gf)))
+                gf
+                #f)))
+        (class-direct-methods (class-of object)))
+   (throw 'no-such-method-exception
+          (string-append name
+                         ": no such method in class "
+                         (symbol->string (class-name (class-of object)))))))
 
 
 ;; Utility method for finding out whether a method is a slot-accessor
 ;; method for a particular class.
 (define-method (slot-accessor? (object <object>) (method-name <string>))
-  (call-with-current-continuation
-   (lambda (return)
-     (for-each
-      (lambda (slot)
-        (if (or
-             (and (slot-definition-getter slot)
-                  (string=? method-name
-                            (symbol->string (generic-function-name 
-                                             (slot-definition-getter slot)))))
-             (and (slot-definition-setter slot)
-                  (string=? method-name
-                            (symbol->string (generic-function-name 
-                                             (slot-definition-setter slot)))))
-             (and (slot-definition-accessor slot)
-                  (string=? method-name
-                            (symbol->string (generic-function-name 
-                                             (slot-definition-accessor slot))))))
-            (return #t)))
-      (class-slots (class-of object)))
-     (return #f))))
-
-
+  (any
+   (lambda (slot)
+     (or
+      (and (slot-definition-getter slot)
+           (string=? method-name
+                     (symbol->string (generic-function-name 
+                                      (slot-definition-getter slot)))))
+      (and (slot-definition-setter slot)
+           (string=? method-name
+                     (symbol->string (generic-function-name 
+                                      (slot-definition-setter slot)))))
+      (and (slot-definition-accessor slot)
+           (string=? method-name
+                     (symbol->string (generic-function-name 
+                                      (slot-definition-accessor slot)))))))
+   (class-slots (class-of object))))
 
 (define (assert-equal expected got)
   (if (not (equal? expected got))

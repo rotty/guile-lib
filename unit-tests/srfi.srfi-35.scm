@@ -74,6 +74,20 @@ exec ${srcdir:-.}/guile-test-env guile -s "$0" "$@"
     (assert-true (string=? (c1-a v5) "a3"))
     (assert-true (string=? (c2-b v5) "b2"))))
 
+(define-class <test-goops> (<test-case>)
+  c1)
+
+(define-class &g1 (&error &message)
+  (x #:init-keyword #:x))
+
+(define-method (set-up-test (self <test-goops>))
+  (slot-set! self 'c1 (make &g1 #:message "foo" #:x 'y)))
+
+(define-method (test-initialization (self <test-goops>))
+  (let ((c1 (slot-ref self 'c1)))
+    (assert-true (string=? (slot-ref c1 'message) "foo"))
+    (assert-equal (slot-ref c1 'x) 'y)))
+
 (exit-with-summary (run-all-defined-test-cases))
 
 ;; Local Variables:

@@ -60,7 +60,11 @@
                                  fields)))
       (error "make-condition-type: duplicate field name" ))
   
-  (make-class (list supertype) (map list fields) #:name name))
+  (make-class (list supertype)
+              (map (lambda (field)
+                     (list field #:init-keyword (symbol->keyword field)))
+                   fields)
+              #:name name))
 
 (define-macro (define-condition-type ?name ?supertype ?predicate . ?field-acc)
   `(begin
@@ -78,33 +82,8 @@
                             ',(car f-a))))
         ?field-acc)))
 
-;; Stolen from oop/goops.scm
-(define (list2set l)	       
-  (let loop ((l l)
-	     (res '()))
-    (cond		       
-     ((null? l) res)
-     ((memq (car l) res) (loop (cdr l) res))
-     (else (loop (cdr l) (cons (car l) res))))))
-
-;; This should be in goops.scm, really
-(define (class-supers c)
-  (letrec ((allsubs (lambda (c)
-		      (cons c (mapappend allsubs
-					 (class-direct-supers c))))))
-    (list2set (cdr (allsubs c)))))
-
 (define (condition-subtype? subtype supertype)
-  (or (equal? subtype supertype)
-      (memq supertype (class-supers subtype))))
-
-(define (condition-type-field-supertype condition-type field)
-  (let loop ((condition-type condition-type))
-    (cond ((not condition-type) #f)
-          ((memq field (condition-type-fields condition-type))
-           condition-type)
-          (else
-           (loop (condition-type-supertype condition-type))))))
+  (memq supertype (class-precedence-list subtype)))
 
 (define (condition? thing)
   (is-a? thing &condition))
