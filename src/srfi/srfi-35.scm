@@ -4,7 +4,7 @@
   #:use-module (srfi srfi-1)
 
   ;; (oop goops util) and (srfi srfi-1) both define any, every
-  #:duplicates last
+  ;; #:duplicates last ; inhibits the warning, but Guile 1.7 only
 
   #:re-export (define-method define-generic process-define-generic
                 add-method!)
