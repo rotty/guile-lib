@@ -116,9 +116,9 @@
                      (cons (cons (car plist)
                                  (cadr plist))
                            (loop (cddr plist)))))))
-    (if (not (lset= eq?
-                    (condition-type-all-fields type)
-                    (map car alist)))
+    (if (not (lset<= eq?
+                     (map car alist)
+                     (condition-type-all-fields type)))
         (error "condition fields don't match condition type"
                (condition-type-all-fields type) (map car alist)))
     (let ((condition (make type)))
@@ -134,14 +134,12 @@
 (define condition-ref slot-ref)
 
 (define (type-field-alist-ref type-field-alist field)
-  (let loop ((type-field-alist type-field-alist))
-    (cond ((null? type-field-alist)
-           (error "type-field-alist-ref: field not found"
-                  type-field-alist field))
-          ((assq field (cdr (car type-field-alist)))
-           => cdr)
+  (let loop ((alist type-field-alist))
+    (cond ((null? alist) #f)
+          ((assq field (cdr (car alist)))
+           => identity)
           (else
-           (loop (cdr type-field-alist))))))
+           (loop (cdr alist))))))
 
 (define-class &compound-condition (&condition)
   (%components #:init-keyword #:components))
@@ -183,12 +181,14 @@
     ;; Extend entries
     (map (lambda (entry)
            (cons (car entry)
-                 (map (lambda (field)
-                        (or (assq field (cdr entry))
-                            (cons field
-                                  (type-field-alist-ref type-field-alist
-                                                        field))))
-                      (condition-type-all-fields (car entry)))))
+                 (fold (lambda (field rest)
+                         (let ((pr (or (assq field (cdr entry))
+                                       (type-field-alist-ref type-field-alist
+                                                             field))))
+                           (if pr
+                               (cons pr rest)
+                               rest)))
+                       '() (condition-type-all-fields (car entry)))))
         type-field-alist))))
 
 (define-macro (condition . forms)
