@@ -1,5 +1,7 @@
 2004-08-04  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* README: New file, containing build/install instructions.
+
 	* NEWS: New file, updated for next release 0.1.2.
 	
 	* AUTHORS: Updated (added all the additions from Andy Wingo).
