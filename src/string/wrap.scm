@@ -16,6 +16,17 @@
 ;;;    along with this program; if not, write to the Free Software
 ;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;;; ----------------------------------------------------------------------
+#!
+;;; Commentary:
+Module @samp{(string wrap)} provides functions for formatting text
+strings such that they fill a given width field.  A class,
+@code{<text-wrapper>}, does the work, but two convenience methods
+create instances of it for one-shot use, and in the process make for
+a more ``schemey'' interface.  If many strings will be
+formatted with the same parameters, it might be better
+performance-wise to create and use a single @code{<text-wrapper>}.
+;;; Code:
+!#
 (define-module (string wrap)
      #:export  (<text-wrapper>
                 fill-string
@@ -23,9 +34,53 @@
      #:use-module (srfi srfi-13)
      #:use-module (srfi srfi-14)
      #:use-module (string transform)
+     #:use-module (scheme documentation)
      #:use-module (oop goops))
 
-(define-class <text-wrapper> ()
+(define-class-with-docs <text-wrapper> ()
+"This class encapsulates the parameters needing to be fed to the text wrapping
+algorithm.  The following are the recognized keywords on the call to @code{make}:
+
+@table @code
+@item #:line-width
+This is the target length used when deciding where to wrap lines.  Default is 80.
+
+@item #:expand-tabs?
+Boolean describing whether tabs in the input should be expanded.  Default is #t.
+
+@item #:tab-width
+If tabs are expanded, this will be the number of spaces to which they expand.
+Default is 8.
+
+@item #:collapse-whitespace?
+Boolean describing whether the whitespace inside the existing text
+should be removed or not.  Default is #t.
+
+If text is already well-formatted, and is just being wrapped to fit in a different width,
+then setting this to @samp{#f}.  This way, many common text conventions (such as
+two spaces between sentences) can be preserved if in the original text.  If the input
+text spacing cannot be trusted, then leave this setting at the default, and all repeated
+whitespace will be collapsed down to a single space.
+
+@item #:initial-indent
+Defines a string that will be put in front of the first line of wrapped text.  
+Default is the empty string, ``''.
+
+@item #:subsequent-indent
+Defines a string that will be put in front of all lines of wrapped
+text, except the first one.  Default is the empty string, ``''.
+
+@item #:break-long-words?
+If a single word is too big to fit on a line, this setting tells the
+wrapper what to do.  Defaults to #t, which will break up long words.
+When set to #f, the line will be allowed, even though it is longer
+than the defined @code{#:line-width}.
+@end table
+
+Here's an example of creating a @code{<text-wrapper>}:
+@lisp
+ (make <text-wrapper> #:line-width 48 #:break-long-words? #f)
+@end lisp"
   (width #:init-value 80 #:getter line-width #:init-keyword #:line-width)
   (expand-tabs #:init-value #t #:getter expand-tabs? #:init-keyword #:expand-tabs?)
   (tab-width   #:init-value 8  #:getter tab-width #:init-keyword #:tab-width)
@@ -34,6 +89,15 @@
   (initial-indent #:init-value "" #:getter initial-indent #:init-keyword #:initial-indent)
   (break-long-words? #:init-value #t #:getter break-long-words? #:init-keyword #:break-long-words?))
 
+(define-generic-with-docs fill-string
+"@code{fill-string str keywds ...}. 
+Wraps the text given in string @var{str} according to the parameters
+provided in @var{keywds}, or the default setting if they are not
+given.  Returns a single string with the wrapped text.  Valid keyword
+arguments are discussed with the @code{<text-wrapper>} class.
+
+@code{fill-string tw str}.  fills @var{str} using the instance
+of @code{<text-wrapper>} given as @var{tw}.")
 (define-method (fill-string str . keywds)
   (string-join (apply string->wrapped-lines (cons str keywds))
                "\n"
@@ -44,6 +108,19 @@
                "\n"
                'infix))
 
+(define-generic-with-docs string->wrapped-lines
+"@code{string->wrapped-lines str keywds ...}.  
+Wraps the text given in string @var{str} according to the parameters
+provided in @var{keywds}, or the default setting if they are not
+given.  Returns a list of strings representing the formatted lines.
+Valid keyword arguments are discussed with the @code{<text-wrapper>}
+class.
+
+@code{string->wrapped-lines tw str}. 
+Wraps the text given in string @var{str} according to the given
+@code{<text-wrapper>} @var{tw}.  Returns a list of strings representing
+the formatted lines.  Valid keyword arguments are discussed with the
+@code{<text-wrapper>} class.")
 (define-method (string->wrapped-lines str . keywds)
   (string->wrapped-lines (apply make (cons <text-wrapper> keywds)) str))
 

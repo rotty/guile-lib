@@ -24,12 +24,29 @@
 ;;; This code is in the public domain.
 ;;; ----------------------------------------------------------------------
 
-; Taken from Knuth, Vol. 3 "Sorting and searching", pp 391--2
+#!
+;;; Commentary:
+Soundex algorithm, taken from Knuth, Vol. 3 ``Sorting and searching'', pp 391--2
+;;; Code:
+!#
 (define-module (string soundex)
   #:export (soundex)
+  #:use-module (scheme documentation)
   #:use-module (srfi srfi-1))
 
-(define soundex
+(define-with-docs soundex
+"Performs the original soundex algorithm on the input @var{name}.
+Returns the encoded string.  The idea is for similar sounding
+sames to end up with the same encoding.
+
+@lisp
+ (soundex \"Aiza\")
+=> \"A200\"
+ (soundex \"Aisa\")
+=> \"A200\"
+ (soundex \"Aesha\")
+=> \"A200\"
+@end lisp"
   (let* ((letters-to-omit
           (list #\A #\E #\H #\I #\O #\U #\W #\Y))
          (codes

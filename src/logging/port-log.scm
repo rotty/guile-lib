@@ -16,13 +16,48 @@
 ;;;    along with this program; if not, write to the Free Software
 ;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;;; ----------------------------------------------------------------------
+#!
+;;; Commentary:
+@cindex logs, through ports
+@cindex ports, for logging
 
+This module defines a log handler that writes to an arbitrary port of
+the user's choice.  Uses of this handler could include:
+@itemize @bullet
+@item  
+Sending logs across a socket to a network log collector.
+@item
+Sending logs to the screen
+@item
+Sending logs to a file
+@item
+Collecting logs in memory in a string port for later use
+@end itemize
+;;; Code:
+!#
 (define-module (logging port-log)
   #:use-module (oop goops)
   #:use-module (logging logger)
+  #:use-module (scheme documentation)
   #:export (<port-log>))
 
-(define-class <port-log> (<log-handler>)
+(define-class-with-docs <port-log> (<log-handler>)
+"This is a log handler which writes logs to a user-provided port.
+
+Keywords recognized by @code{<port-log>} on creation are:
+@table @code
+@item #:port
+This is the port to which the log handler will write.
+
+@item #:formatter
+Allows the user to provide a function to use as the log formatter for
+this handler.  @xref{log handler class}, for details.
+@end table
+
+Example of creating a @code{<port-log>}:
+@lisp
+ (make <port-log> #:port (current-error-port))
+@end lisp"
   (port  #:init-value #f   #:accessor port #:init-keyword #:port))
 
 (define-method (emit-log (self <port-log>) str)
