@@ -17,6 +17,10 @@
 ;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;;; ----------------------------------------------------------------------
 
+;;; Commentary:
+; This module has the classic search functions in it.
+;;; Code:
+
 (define-module (search basic)
   #:export (depth-first-search
             breadth-first-search
@@ -24,6 +28,19 @@
   #:use-module (ice-9 optargs))
 
 (define (depth-first-search init done? expander)
+"Performs a depth-first search from initial state @var{init}.  It will
+return the first state it sees for which predicate @var{done?}
+returns @code{#t}.  It will use function @var{expander} to get a list
+of all states reacheable from a given state.
+
+@var{init} can take any form the user wishes.  This function treats it
+as opaque data to pass to @var{done?} and @var{expander}.
+
+@var{done?} takes one argument, of the same type as @var{init}, and 
+returns either @code{#t} or @code{#f}.
+
+@var{expander} takes one argument, of the same type as @var{init}, and
+returns a list of states that can be reached from there."
   (let loop ((working (list init)))
     (if (done? (car working))
         (car working)
@@ -31,6 +48,19 @@
                       (cdr working))))))
 
 (define (breadth-first-search init done? expander)
+"Performs a breadth-first search from initial state @var{init}.  It will
+return the first state it sees for which predicate @var{done?}
+returns @code{#t}.  It will use function @var{expander} to get a list
+of all states reacheable from a given state.
+
+@var{init} can take any form the user wishes.  This function treats it
+as opaque data to pass to @var{done?} and @var{expander}.
+
+@var{done?} takes one argument, of the same type as @var{init}, and 
+returns either @code{#t} or @code{#f}.
+
+@var{expander} takes one argument, of the same type as @var{init}, and
+returns a list of states that can be reached from there."
   (let loop ((working (list init)))
     (if (done? (car working))
         (car working)
@@ -42,6 +72,8 @@
                            evaluator-favors-current-player? 
                            expander 
                            depth)
+"
+"
   (let loop ((current init)
              (evaluator-favors evaluator-favors-current-player?)
              (d       depth))
@@ -54,6 +86,22 @@
                     (expander c))))))
 
 (define* (binary-search-sorted-vector vec target #:optional (cmp -) (default #f))
+"Searches a sorted vector @var{vec} for item @var{target}.  A binary search
+is employed which should find an item in O(log n) time if it is present.
+If @var{target} is found, the index into @var{vec} is returned.
+
+As part of the search, the function @var{cmp} is applied to
+determine whether a vector item is less than, greater than, or equal
+to the @var{target}.  If @var{target} cannot be found in the vector,
+then @var{default} is returned.
+
+@var{cmp} defaults to @code{-}, which gives a correct comparison for
+vectors of numbers.  @var{default} will be @code{#f} if another value
+is not given.
+
+@lisp
+ (binary-search-sorted-vector #(10 20 30) 20) @result{} 1
+@end lisp"
   (let loop ((low-index 0)
              (high-index (vector-length vec)))
 

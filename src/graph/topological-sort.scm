@@ -22,9 +22,11 @@
 ;;; Copyright (C) 1995 Mikael Djurfeldt
 ;;; This code is in the public domain.
 
-;;; The algorithm is inspired by Cormen, Leiserson and Rivest (1990)
-;;; "Introduction to Algorithms", chapter 23
-;;; **********************************************************************
+;;; Commentary:
+; The algorithm is inspired by Cormen, Leiserson and Rivest (1990)
+; ``Introduction to Algorithms'', chapter 23.
+;;; Code:
+
 (define-module (graph topological-sort)
   #:export (topological-sort
             topological-sortq
@@ -64,10 +66,36 @@
 	sorted)))
 
 (define (topological-sort dag)
+"Returns a list of the objects in the directed acyclic graph, @var{dag}, topologically sorted.  Objects are
+compared using @code{equal?}.  The graph has the form:
+@lisp
+ (list (obj1 . (dependents-of-obj1)) 
+       (obj2 . (dependents-of-obj2)) ...)
+@end lisp
+...specifying, for example, that @code{obj1} must come before all the objects in @code{(dependents-of-obj1)} in
+the sort."
   (topological-sort-helper dag hash-set! hash-ref))
+
 (define (topological-sortq dag)
+"Returns a list of the objects in the directed acyclic graph, @var{dag}, topologically sorted.  Objects are
+compared using @code{eq?}.  The graph has the form:
+@lisp
+ (list (obj1 . (dependents-of-obj1)) 
+       (obj2 . (dependents-of-obj2)) ...)
+@end lisp
+...specifying, for example, that @code{obj1} must come before all the objects in @code{(dependents-of-obj1)} in
+the sort."
   (topological-sort-helper dag hashq-set! hashq-ref))
+
 (define (topological-sortv dag)
+"Returns a list of the objects in the directed acyclic graph, @var{dag}, topologically sorted.  Objects are
+compared using @code{eqv?}.  The graph has the form:
+@lisp
+ (list (obj1 . (dependents-of-obj1)) 
+       (obj2 . (dependents-of-obj2)) ...)
+@end lisp
+...specifying, for example, that @code{obj1} must come before all the objects in @code{(dependents-of-obj1)} in
+the sort."
   (topological-sort-helper dag hashv-set! hashv-ref))
 
 ;;; arch-tag: 9ef30b53-688a-43fc-b208-df78d5b38c74

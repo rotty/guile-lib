@@ -37,8 +37,7 @@ blah blah blah strings beyond that which is provided in the guile core and
      #:use-module (srfi srfi-13))
 
 (define* (transform-string str match? replace #:optional (start #f) (end #f))
-"@code{transform-string str match? replace [start end]}.  
-Uses @var{match?} against each character in @var{str}, and performs a
+"Uses @var{match?} against each character in @var{str}, and performs a
 replacement on each character for which matches are found.
 
 @var{match?} may either be a function, a character, a string, or
@@ -113,11 +112,9 @@ string.
     (get-output-string os)))
 
 (define* (expand-tabs str #:optional (tab-size 8))
-"@code{expand-tabs str [tab-size]}.  Returns a copy of @var{str}
-with all tabs expanded to spaces.  @var{tab-size} defaults to 8.
+"Returns a copy of @var{str} with all tabs expanded to spaces.  @var{tab-size} defaults to 8.
 
-Assuming tab size of 8, this is equivalent to:
-@lisp
+Assuming tab size of 8, this is equivalent to: @lisp
  (transform-string str #\\tab \"        \")
 @end lisp"
   (transform-string str 
@@ -156,8 +153,7 @@ of all the special characters.
                     (lambda (c) (string escape-char c))))
 
 (define* (center-string str #:optional (width 80) (chr #\space) (rchr #f))
-"@code{center-string str [width chr rchr]}.  
-Returns a copy of @var{str} centered in a field of @var{width}
+"Returns a copy of @var{str} centered in a field of @var{width}
 characters.  Any needed padding is done by character @var{chr}, which
 defaults to @samp{#\\space}.  If @var{rchr} is provided, then the
 padding to the right will use it instead.  See the examples below.
@@ -198,8 +194,7 @@ is never truncated."
         (string-append str pad))))
 
 (define* (right-justify-string str #:optional (width 80) (chr #\space))
-"@code{right-justify-string str [width chr]}. 
-Returns a copy of @var{str} padded with @var{chr} such that it is
+"Returns a copy of @var{str} padded with @var{chr} such that it is
 right justified in a field of @var{width} characters.  The default
 @var{width} is 80.  The default @var{chr} is @samp{#\\space}.  Unlike
 @samp{string-pad} from srfi-13, the string is never truncated."
@@ -210,8 +205,7 @@ right justified in a field of @var{width} characters.  The default
         (string-append pad str))))
 
  (define* (collapse-repeated-chars str #:optional (chr #\space) (num 1))
-"@code{collapse-repeated-chars str [chr num]}.  
-Returns a copy of @var{str} with all repeated instances of 
+"Returns a copy of @var{str} with all repeated instances of 
 @var{chr} collapsed down to at most @var{num} instances.
 The default value for @var{chr} is @samp{#\\space}, and 
 the default value for @var{num} is 1.

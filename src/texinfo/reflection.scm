@@ -67,7 +67,38 @@
                    " " " . ")))
 
 (define (get-proc-args proc)
-  (process-args (and=> (procedure-source proc) cadr)))
+  (cond
+   ((procedure-property proc 'arglist)
+    => (lambda (arglist)
+         (let ((required-args (car arglist))
+	       (optional-args (cadr arglist))
+	       (keyword-args  (caddr arglist))
+	       (rest-arg (car (cddddr arglist))))
+           (process-args 
+            (append 
+                    ;; start with the required args...
+                    (map symbol->string required-args)
+
+                    ;; add any optional args if needed...
+                    (map (lambda (a)
+                           (if (list? a)
+                               (format #f "[~a = ~s]" (car a) (cadr a))
+                               (format #f "[~a]" a)))
+                         optional-args)
+                    
+                    ;; now the keyword args..
+                    (map (lambda (a)
+                           (if (list? a)
+                               (format #f "[#:~a = ~s]" (car a) (cadr a))
+                               (format #f "[#:~a]" a)))
+                         keyword-args)
+                    
+                    ;; now the rest arg...
+                    (if rest-arg
+                        (list "." (symbol->string rest-arg))
+                        '()))))))
+   (else
+    (process-args (and=> (procedure-source proc) cadr)))))
 
 ;; like the normal false-if-exception, but doesn't affect the-last-stack
 (define-macro (false-if-exception exp)

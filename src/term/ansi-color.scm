@@ -16,6 +16,26 @@
 ;;;    along with this program; if not, write to the Free Software
 ;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;;; ----------------------------------------------------------------------
+
+#!
+;;; Commentary:
+The @samp{(term ansi-color)} module generates ANSI escape
+sequences for colors.  Here is an example of the module's use:
+
+@lisp
+;; method one: safer, since you know the colors
+;; will get reset
+(display (colorize-string "Hello!\n" 'RED 'BOLD 'ON-BLUE))
+
+;; method two: insert the colors by hand
+(for-each display
+          (list (color 'RED 'BOLD 'ON-BLUE)
+                "Hello!"
+                 (color 'RESET)))
+@end lisp
+;;; Code:
+!#
+
 (define-module (term ansi-color)
      #:export  (color
                 colorize-string)
@@ -52,6 +72,30 @@
     table))
 
 (define (color . lst)
+"Returns a string containing the ANSI escape sequence for
+producing the requested set of attributes. 
+
+The allowed values for the attributes are listed below.  Unknown
+attributes are ignored.
+
+@table @asis
+@item Reset Attributes
+@samp{CLEAR} and @samp{RESET} are allowed and equivalent.
+
+@item Non-Color Attributes
+@samp{BOLD} makes text bold, and @samp{DARK} reverses this.
+@samp{UNDERLINE} and @samp{UNDERSCORE} are equivalent.  @samp{BLINK}
+makes the text blink.  @samp{REVERSE} invokes reverse video.
+@samp{CONCEALED} hides output (as for getting passwords, etc.).
+
+@item Foregrond Color Attributes
+@samp{BLACK}, @samp{RED}, @samp{GREEN}, @samp{YELLOW}, @samp{BLUE},
+@samp{MAGENTA}, @samp{CYAN}, @samp{WHITE}
+
+@item Background Color Attributes
+@samp{ON-BLACK}, @samp{ON-RED}, @samp{ON-GREEN}, @samp{ON-YELLOW},
+@samp{ON-BLUE}, @samp{ON-MAGENTA}, @samp{ON-CYAN}, @samp{ON-WHITE}
+@end table"
   (let ((color-list 
          (remove not 
                  (map (lambda (color) (hashq-ref ansi-color-tables color))
@@ -64,6 +108,14 @@
          "m"))))
   
 (define (colorize-string str . color-list)
+"Returns a copy of @var{str} colorized using ANSI
+escape sequences according to the attributes specified in
+@var{color-list}.  At the end of the returned string, the color
+attributes will be reset such that subsequent output will not
+have any colors in effect.
+
+The allowed values for the attributes are listed in the
+documentation for the @code{color} function."
   (string-append
    (apply color color-list)
    str

@@ -16,15 +16,58 @@
 ;;;    along with this program; if not, write to the Free Software
 ;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ;;; ----------------------------------------------------------------------
+
+;;; Commentary:
+;; This module contains functions for computing the minimum values of mathematical
+;; expressions on an interval.
+;;; Code:
+
 (define-module (math minima)
+  #:use-module (scheme documentation)
   #:export (golden-section-search))
 
-(define golden-section-search
 ;;; Original author's notice for golden-section-search>>>>>>>>>>>>>>>>
 ;;; Author: Lars Arvestad
 ;;;
 ;;; This code is in the public domain.
 ;;; <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Original author's notice
+
+(define-with-docs golden-section-search
+"The Golden Section Search algorithm finds minima of functions
+which are expensive to compute or for which derivatives are not
+available.  Although optimum for the general case, convergence is
+slow, requiring nearly 100 iterations for the example (x^3-2x-5).
+
+If the derivative is available, Newton-Raphson is probably a better
+choice.  If the function is inexpensive to compute, consider
+approximating the derivative.
+
+@var{x0} and @var{x1} are real numbers.  The (single argument)
+procedure @var{func} is unimodal over the open interval (@var{x0},
+@var{x1}).  That is, there is exactly one point in the interval for
+which the derivative of @var{func} is zero.
+
+It returns a pair (@var{x} . @var{func}(@var{x})) where @var{func}(@var{x})
+is the minimum.  The @var{prec} parameter is the stop criterion.  If
+@var{prec} is a positive number, then the iteration continues until
+@var{x} is within @var{prec} from the true value.  If @var{prec} is
+a negative integer, then the procedure will iterate @var{-prec}
+times or until convergence.  If @var{prec} is a procedure of seven
+arguments, @var{x0}, @var{x1}, @var{a}, @var{b}, @var{fa}, @var{fb},
+and @var{count}, then the iterations will stop when the procedure
+returns @code{#t}.
+
+Analytically, the minimum of x^3-2x-5 is 0.816497.
+@example
+ (define func (lambda (x) (+ (* x (+ (* x x) -2)) -5)))
+ (golden-section-search func 0 1 (/ 10000))
+      ==> (816.4883855245578e-3 . -6.0886621077391165)
+ (golden-section-search func 0 1 -5)
+      ==> (819.6601125010515e-3 . -6.088637561916407)
+ (golden-section-search func 0 1
+                       (lambda (a b c d e f g ) (= g 500)))
+      ==> (816.4965933140557e-3 . -6.088662107903635)
+@end example"
   (let ((gss 'golden-section-search:)
 	(r (/ (- (sqrt 5) 1) 2)))	; 1 / golden-section
     (lambda (f x0 x1 prec)

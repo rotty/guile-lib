@@ -18,6 +18,10 @@
 ;;; ----------------------------------------------------------------------
 ;; Original SLIB code has no (c) information...
 
+;;; Commentary:
+;; Functions for rationalizing numbers, and finding simple ratios.
+;;; Code:
+
 (define-module (math rationalize)
   #:export (rationalize
             find-ratio))
@@ -27,28 +31,28 @@
 ;;Bawden for contributing this algorithm.
 
 ;;@body
-;;Computes the correct result for exact arguments (provided the
-;;implementation supports exact rational numbers of unlimited precision);
-;;and produces a reasonable answer for inexact arguments when inexact
-;;arithmetic is implemented using floating-point.
-;;
-(define (rationalize x e) (apply / (find-ratio x e)))
+
+(define (rationalize x e) 
+"Returns an exact number that is within @var{e} of @var{x}.  
+Computes the correct result for exact arguments (provided the
+implementation supports exact rational numbers of unlimited precision);
+and produces a reasonable answer for inexact arguments when inexact
+arithmetic is implemented using floating-point."
+  (apply / (find-ratio x e)))
 
 ;;@code{Rationalize} has limited use in implementations lacking exact
 ;;(non-integer) rational numbers.  The following procedures return a list
 ;;of the numerator and denominator.
 
-;;@body
-;;@0 returns the list of the @emph{simplest}
-;;numerator and denominator whose quotient differs from @1 by no more
-;;than @2.
-;;
-;;@format
-;;@t{(find-ratio 3/97 .0001)             @result{} (3 97)
-;;(find-ratio 3/97 .001)              @result{} (1 32)
-;;}
-;;@end format
-(define (find-ratio x e) (find-ratio-between (- x e) (+ x e)))
+(define (find-ratio x e) 
+"Returns the list of the @emph{simplest} numerator and
+denominator whose quotient differs from @var{x} by no more than @var{e}.
+
+@example
+ (find-ratio 3/97 .0001)  @result{} (3 97)
+ (find-ratio 3/97 .001)   @result{} (1 32)
+@end example"
+(find-ratio-between (- x e) (+ x e)))
 
 
 ;;@body

@@ -23,6 +23,31 @@
 ;;; version 1.3, 25 June 2001.
 ;;; ----------------------------------------------------------------------
 
+#!
+;;; Commentary:
+This is a library for execution of other programs from Guile.  It
+also allows communication using pipes (or a pseudo terminal device, but
+that's not currently implemented).  This code originates in the 
+@code{(goosh)} modules, which itself was part of goonix in one of
+Guile's past lives.
+
+The following will hold when starting programs:
+
+@enumerate
+@item If the name of the program does not contain a @code{/} then the
+directories listed in the current @code{PATH} environment variable are
+searched to locate the program.
+@item Unlike for the corresponding primitive exec procedures, e.g.,
+@code{execlp}, the name of the program can not be set independently of
+the path to execute: the zeroth and first members of the argument
+vector are combined into one.
+@end enumerate
+
+All symbols exported with the prefix @code{os:process:} are there in support 
+of macros that use them.  They should be ignored by users of this module.
+;;; Code:
+!#
+
 (define-module (os process))
 
 (export tail-call-program run run-concurrently run-with-pipe)
@@ -71,6 +96,37 @@
     (dup2 error-fdes 2)))
 
 (define (tail-call-program prog . args)
+"Replace the current process image by executing @var{prog} with the
+supplied list of arguments, @var{args}.
+
+This procedure will reset the signal handlers and attempt to set up file
+descriptors as follows:
+
+@enumerate
+@item File descriptor 0 is set from (current-input-port).
+@item File descriptor 1 is set from (current-output-port).
+@item File descriptor 2 is set from (current-error-port).
+@end enumerate
+
+If a port can not be used (e.g., because it's closed or it's a string
+port) then the file descriptor is opened on the file specified by
+@code{*null-device*} instead.
+
+Note that this procedure does not close any ports or flush output
+buffers.  Successfully executing @var{prog} will prevent the normal
+flushing of buffers that occurs when Guile terminates.  Doing otherwise
+would be incorrect after forking a child process, since the buffers
+would be flushed in both parent and child.
+
+Examples:
+@example
+ (tail-call-program \"cat\" \"/etc/passwd\")
+@end example
+@example
+ (with-input-from-file \"/etc/passwd\"
+  (lambda ()
+    (tail-call-program \"cat\")))
+@end example"
   (set-batch-mode?! #t)
   (stdports->stdio)
   (apply execlp (cons prog (cons prog args))))
@@ -95,6 +151,55 @@
 	      (primitive-exit 1))
 	     (else
 	      ,pid)))))
+
+(set-object-property! run-concurrently+ 'documentation
+"Evaluate an expression in a new background process.  If no connection
+terms are specified, then all ports except @code{current-input-port},
+@code{current-output-port} and  @code{current-error-port} will be
+closed in the new process.  The file descriptors
+underlying these ports will not be changed.
+
+The value returned in the parent is the pid of the new process.
+
+When the process terminates its exit status can be collected
+using the @code{waitpid} procedure.
+
+Keywords can be specified before the connection list:
+
+@code{#:slave} causes the new process to be put into a new session.
+If @code{current-input-port} (after redirections) is a tty it will
+be assigned as the controlling terminal.  This option is used when
+controlling a process via a pty.
+
+@code{#:no-auto-close} prevents the usual closing of ports which
+occurs by default.
+
+@code{#:foreground} makes the new process the foreground job of the
+controlling terminal, if the current process is using job control.
+ (not currently implemented).
+The default is to place it into the background
+
+The optional connection list can take several forms:
+
+@code{(port)} usually specifies that a given port not be closed.
+However if @code{#:no-auto-close} is present it specifies instead
+a port which should be closed.
+
+@code{(port 0)}
+specifies that a port be moved to a given file descriptor
+ (e.g., 0) in the new process.  The order of the two components
+is not significant,
+but one must be a number and the other must evaluate to a port.
+If the file descriptor is one of the standard set @code{(0, 1, 2)}
+then the corresponding standard port (e.g., @code{current-input-port})
+will be set to
+the specified port.
+
+Example:
+@example
+ (let ((p (open-input-file \"/etc/passwd\")))
+   (run-concurrently+ (tail-call-program \"cat\") (p 0)))
+@end example")
 
 ;;; generate the code needed to set up redirections for a child process.
 (define (os:process:pipe-make-redir-commands connections portvar)
@@ -231,13 +336,68 @@
 (defmacro run+ (expr . connections)
   `(cdr (waitpid (run-concurrently+ ,expr #:foreground ,@connections))))
 
+(set-object-property! run+ 'documentation
+"Evaluate an expression in a new foreground process and wait for its
+completion.  If no connection terms are specified, then all ports except
+@code{current-input-port}, @code{current-output-port} and
+@code{current-error-port} will be closed in the new process.
+The file descriptors underlying these ports will not be changed.
+
+The value returned is the exit status from the new process as returned
+by the @code{waitpid} procedure.
+
+The @var{keywords} and @var{connections} arguments are optional: see
+@code{run-concurrently+}, which is documented below.
+The @code{#:foreground} keyword is implied.
+
+@example
+ (run+ (begin (write (+ 2 2)) (newline) (quit 0)))
+@end example
+@example
+ (run+ (tail-call-program \"cat\" \"/etc/passwd\"))
+@end example")
+
 (define (run prog . args)
+"Execute @var{prog} in a new foreground process
+and wait for its completion.  The value returned is the exit status 
+of the new process as returned by the @code{waitpid} procedure.
+
+Example:
+@example
+ (run \"cat\" \"/etc/passwd\")
+@end example"
   (run+ (apply tail-call-program prog args)))
 
 (define (run-concurrently . args)
+"Start a program running in a new background process.  The value returned
+is the pid of the new process.
+
+When the process terminates its exit status can be collected
+using the @code{waitpid} procedure.
+
+Example:
+@example
+ (run-concurrently \"cat\" \"/etc/passwd\")
+@end example"
   (run-concurrently+ (apply tail-call-program args)))
 
 (define (run-with-pipe mode prog . args)
+"Start @var{prog} running in a new background process.
+The value returned is a pair: the CAR is the pid of the new process
+and the CDR is either a port or a pair of ports (with the CAR containing
+the input port and the CDR the output port).  The port(s) can
+be used to read from the standard output of the process
+and/or write to its standard input, depending on the @var{mode}
+setting.  The value of @var{mode} should be one of \"r\", \"w\" or \"r+\".
+
+When the process terminates its exit status can be collected using the
+@code{waitpid} procedure.
+
+Example:
+@example
+ (define catport (cdr (run-with-pipe \"r\" \"cat\" \"/etc/passwd\")))
+ (read-line catport)
+@end example"
   (cond ((string=? mode OPEN_READ)
 	 (let* ((upipe (unbuffered-pipe))
 		(pid (run-concurrently+ (apply tail-call-program prog args)
@@ -318,6 +478,31 @@
 			 (next-pid waiting-for result)))))
 	       (else
 		(primitive-exit result)))))))
+
+(set-object-property! tail-call-pipeline+ 'documentation
+"Replace the current process image with a pipeline of connected processes.
+
+Each process is specified by an expression and each pair of processes
+has a connection list with pairs of file descriptors.  E.g.,
+@code{((1 0) (2 0))} specifies that file descriptors 1 and 2 are to be
+connected to file descriptor 0.  This may also be written
+as @code{((1 2 0))}.
+
+The expressions in the pipeline are run in new background processes.
+The foreground process waits for them all to terminate.  The exit
+status is derived from the status of the process at the tail of the
+pipeline: its exit status if it terminates normally, otherwise 128
+plus the number of the signal that caused it to terminate.
+
+The signal handlers will be reset and file descriptors set up as for
+@code{tail-call-program}.  Like @code{tail-call-program} it does not
+close open ports or flush buffers.
+
+Example:
+@example
+ (tail-call-pipeline+ (tail-call-program \"ls\" \"/etc\") ((1 0))
+                      (tail-call-program \"grep\" \"passwd\"))
+@end example")
 
 ;;; create pipes for communication: RHS connection list for a process.
 ;;; the previous set of pipes gets recycled to the LHS.
@@ -444,6 +629,24 @@
 			   (if (null? (cdr rem))
 			       temp
 			       (cons '((1 0)) temp)))))))))
+
+(set-object-property! tail-call-pipeline 'documentation
+"Replace the current process image with a pipeline of connected processes.
+
+The expressions in the pipeline are run in new background processes.
+The foreground process waits for them all to terminate.  The exit
+status is derived from the status of the process at the tail of the
+pipeline: its exit status if it terminates normally, otherwise 128
+plus the number of the signal that caused it to terminate.
+
+The signal handlers will be reset and file descriptors set up as for
+@code{tail-call-program}.  Like @code{tail-call-program} it does not
+close open ports or flush buffers.
+
+Example:
+@example
+ (tail-call-pipeline (\"ls\" \"/etc\") (\"grep\" \"passwd\"))
+@end example")
 
 ; try debugging a macro through a fork some day...
 ;(false-if-exception (delete-file "/tmp/goosh-debug"))

@@ -38,8 +38,16 @@
 ;each case.
 ;;; **********************************************************************
 
+#!
+;;; Commentary:
+This module defines functions related to prime numbers, and prime factorization.
+;;; Code:
+!#
+
 (define-module (math primes)
-  #:export (prime?
+  #:use-module (scheme documentation)
+  #:export (prime:trials
+            prime?
             prime>
             primes>
             prime<
@@ -85,10 +93,11 @@
 	       (- (prime:jacobi-symbol (quotient p 2) q))
 	       (prime:jacobi-symbol (quotient p 2) q))))))
 
-;;@body
-;;@0 the maxinum number of iterations of Solovay-Strassen that will
-;;be done to test a number for primality.
-(define prime:trials 30)
+(define-with-docs prime:trials 
+  "This is the maximum number of iterations of Solovay-Strassen that will
+be done to test a number for primality.  The chance of error (a composite 
+being labelled prime) is @code{(expt 2 (- prime:trials))}."
+30)
 
 ;;; checks if n is prime.  Returns #f if not prime. #t if (probably) prime.
 ;;;   probability of a mistake = (expt 2 (- prime:trials))
@@ -100,7 +109,7 @@
       ((not (and (positive? i)
 		 (= (gcd a n) 1)
 		 (= (modulo (prime:jacobi-symbol a n) n)
-		    (modular:expt n a (quotient (- n 1) 2)))))
+		    (modulo-expt a (quotient (- n 1) 2) n))))
        (if (positive? i) #f #t))))
 
 ;;; prime:products are products of small primes.
@@ -134,11 +143,10 @@
 			   ((not (primes-gcd? nexp comps)) nexp)))))
   (lp 3 '() '(2 3) 5))
 
-;;@args n
-;;Returns @code{#f} if @1 is composite; @code{#t} if @1 is prime.
-;;There is a slight chance @code{(expt 2 (- prime:trials))} that a
-;;composite will return @code{#t}.
 (define (prime? n)
+  "Returns @code{#f} if @var{n} is composite, and @code{t} if it is prime. 
+There is a slight chance, @code{(expt 2 (- prime:trials))}, that a 
+composite will return @code{#t}."
   (set! n (abs n))
   (cond ((< n (uniform-vector-length prime:sieve)) (positive? (uniform-vector-ref prime:sieve n)))
 	((even? n) #f)
@@ -147,16 +155,18 @@
 	(else (Solovay-Strassen-prime? n))))
 
 (define (prime< start)
+  "Return the first prime number less than @var{start}.  It doesn't matter
+if @var{start} is prime or composite.  If no primes are less than @var{start}, 
+@code{#f} will be returned."
   (do ((nbr (+ -1 start) (+ -1 nbr)))
       ((or (negative? nbr) (prime? nbr))
        (if (negative? nbr) #f nbr))))
 
-;;@body
-;;Returns a list of the first @2 prime numbers less than
-;;@1.  If there are fewer than @var{count} prime numbers
-;;less than @var{start}, then the returned list will have fewer than
-;;@var{start} elements.
 (define (primes< start count)
+"Returns a list of the first @var{count} prime numbers less than
+@var{start}.  If there are fewer than @var{count} prime numbers
+less than @var{start}, then the returned list will have fewer than
+@var{start} elements."
   (do ((cnt (+ -2 count) (+ -1 cnt))
        (lst '() (cons prime lst))
        (prime (prime< start) (prime< prime)))
@@ -164,12 +174,13 @@
        (if prime (cons prime lst) lst))))
 
 (define (prime> start)
+  "Return the first prime number greater than @var{start}.  It doesn't matter
+if @var{start} is prime or composite."
   (do ((nbr (+ 1 start) (+ 1 nbr)))
       ((prime? nbr) nbr)))
 
-;;@body
-;;Returns a list of the first @2 prime numbers greater than @1.
 (define (primes> start count)
+  "Returns a list of the first @var{count} prime numbers greater than @var{start}."
   (set! start (max 0 start))
   (do ((cnt (+ -2 count) (+ -1 cnt))
        (lst '() (cons prime lst))
@@ -252,11 +263,10 @@
 	  '()
 	  (prime:fo m))))
 
-;;@body
-;;Returns a list of the prime factors of @1.  The order of the
-;;factors is unspecified.  In order to obtain a sorted list do
-;;@code{(sort! (factor @var{k}) <)}.
 (define (factor k)
+"Returns a list of the prime factors of @var{k}.  The order of the
+factors is unspecified.  In order to obtain a sorted list do
+@code{(sort! (factor @var{k}) <)}."
   (case k
     ((-1 0 1) (list k))
     (else (if (negative? k)
