@@ -74,7 +74,7 @@
 (define (parser-error port message . rest)
   (apply throw 'parser-error port message rest))
 
-(load (%search-load-path "sxml/upstream/input-parse.scm"))
+(load-from-path "sxml/upstream/input-parse.scm")
 
 ;; This version for guile is quite speedy, due to read-delimited (which
 ;; is implemented in C).

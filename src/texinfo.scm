@@ -145,9 +145,9 @@ Unparsed arguments until end of line
 @item EOL-TEXT
 Parsed arguments until end of line
 @item INLINE-ARGS
-Unparsed arguments ending with @code{#\@}}
+Unparsed arguments ending with @code{#\\@}}
 @item INLINE-TEXT
-Parsed arguments ending with @code{#\@}}
+Parsed arguments ending with @code{#\\@}}
 @item ENVIRON
 The tag is an environment tag, expect @code{@@end foo}.
 @item TABLE-ENVIRON

@@ -1,3 +1,12 @@
+2004-08-01  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/sxml/ssax/input-parse.scm: Use (load-from-path ...) instead
+	of (load (%search-load-path ...)), which didn't work with Guile
+	1.7.
+
+	* src/texinfo.scm (texi-command-specs): Fixed \@ occurance in doc
+	string, which caused Guile 1.7 to barf.
+
 2004-07-24  Andy Wingo  <wingo@pobox.com>
 
 	* src/htmlprag.scm: Moved from (sxml htmlprag). Testsuite adjusted
