@@ -5,7 +5,7 @@ include $(makefiles)/install-scm-subdirs.mk
 endif
 
 ifneq ($(cfg__guile_lib_install_dir),default)
-scm-install-dir := $(cfg__guile_lib_install_dir)
+scm-install-dir := $(destdir)$(cfg__guile_lib_install_dir)
 else
 scm-install-dir := $(destdir)$(prefix)/share/guile/site
 endif
