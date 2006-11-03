@@ -310,9 +310,9 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (deftypevar         ENVIRON . (data-type name))
     (deffn              ENVIRON . (category name . arguments))
     (deftypefn          ENVIRON . (category data-type name . arguments))
-    (defspec            ENVIRON . (name arguments))
-    (defmac             ENVIRON . (name arguments))
-    (defun              ENVIRON . (name arguments))
+    (defspec            ENVIRON . (name . arguments))
+    (defmac             ENVIRON . (name . arguments))
+    (defun              ENVIRON . (name . arguments))
     (deftypefun         ENVIRON . (data-type name . arguments))
 
     (table              TABLE-ENVIRON . (formatter))

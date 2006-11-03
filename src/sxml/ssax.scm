@@ -122,10 +122,10 @@
 
 (define-module (sxml ssax)
   #:use-module (sxml ssax input-parse)
-  #:use-module (debugging assert)
   #:use-module (io string)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-13)
+
   #:export     (xml-token? xml-token-kind xml-token-head
                 make-empty-attlist attlist-add
                 attlist-null?
@@ -143,10 +143,14 @@
                 ssax:read-external-id
                 ssax:read-char-data
                 ssax:xml->sxml)
-  
-  ;; Don't export these, we don't want to load up syncase
-  ;; #:export-syntax (ssax:make-parser ssax:make-pi-parser ssax:make-elem-parser)
-  )
+  #:export-syntax (ssax:make-parser ssax:make-pi-parser ssax:make-elem-parser))
+
+;; #:use-syntax doesn't work, see boot-9.scm:1761
+(use-syntax (ice-9 syncase))
+
+;; fuck syncase!!
+(module-use! (module-public-interface (current-module))
+             (current-module))
 
 (define (parser-error port message . rest)
   (apply throw 'parser-error port message rest))
@@ -175,45 +179,41 @@
         (cond
          ((eof-object? sexp))
          ((and (pair? sexp) (memq (car sexp) accept-list))
-          (eval sexp (current-module))
+          (primitive-eval sexp)
           (loop (read)))
          (else
           (loop (read))))))))
 
 ;; if condition is true, execute stmts in turn and return the result of
 ;; the last statement otherwise, return #f
-(define-macro (when condition . stmts)
-  `(and ,condition (begin ,@stmts)))
+(define-syntax when
+  (syntax-rules ()
+    ((when condition . stmts)
+      (and condition (begin . stmts)))))
 
 ;; Execute a sequence of forms and return the result of the _first_ one.
 ;; Like PROG1 in Lisp. Typically used to evaluate one or more forms with
 ;; side effects and return a value that must be computed before some or
 ;; all of the side effects happen.
-(define-macro (begin0 form . forms)
-  (let ((var (gensym)))
-    `(let ((,var ,form)) ,@forms ,var)))
+(define-syntax begin0
+  (syntax-rules ()
+    ((begin0 form form1 ... ) 
+      (let ((val form)) form1 ... val))))
 
 ; Like let* but allowing for multiple-value bindings
-(define-macro (let*-values bindings . body)
-  (if (null? bindings) (cons 'begin body)
-      (apply
-       (lambda (vars initializer)
-	 (let ((cont 
-		(cons 'let*-values
-		      (cons (cdr bindings) body))))
-	   (cond
-	    ((not (pair? vars))		; regular let case, a single var
-	     `(let ((,vars ,initializer)) ,cont))
-	    ((null? (cdr vars))		; single var, see the prev case
-	     `(let ((,(car vars) ,initializer)) ,cont))
-	   (else			; the most generic case
-	    `(call-with-values (lambda () ,initializer)
-	      (lambda ,vars ,cont))))))
-       (car bindings))))
+(define-syntax let*-values
+  (syntax-rules ()
+    ((let*-values () . bodies) (begin . bodies))
+    ((let*-values (((var) initializer) . rest) . bodies)
+      (let ((var initializer))		; a single var optimization
+	(let*-values rest . bodies)))
+    ((let*-values ((vars initializer) . rest) . bodies)
+      (call-with-values (lambda () initializer) ; the most generic case
+	(lambda vars (let*-values rest . bodies))))))
 
-(define ascii->char integer->char)
-
-(load-filtered '(define) "sxml/upstream/SSAX-expanded.scm")
+(load-from-path "sxml/upstream/assert.scm")
+(load-filtered '(define define-syntax ssax:define-labeled-arg-macro)
+               "sxml/upstream/SSAX.scm")
 
 ;;; arch-tag: c30e0855-8f4c-4e8c-ab41-ec24ec391e44
 ;;; ssax.scm ends here

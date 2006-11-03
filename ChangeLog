@@ -1,3 +1,36 @@
+2004-10-05  Andy Wingo  <wingo@pobox.com>
+
+	* examples/sxw2words: New file, extracts words from an OpenOffice
+	document that are not present in the dictionary. An example of the
+	use of (os process) as well as (sxml ssax) with a custom SAX
+	parser.
+
+	* src/sxml/ssax.scm: Modifications to pull in all of SSAX's
+	bindings, including r5rs macros. Export ssax:make-parser,
+	ssax:make-pi-parser, and ssax:make-elem-parser. For some fucked
+	reason, the using module has to have the private module interface
+	in its use list for the macros to work right. For that reason, the
+	public interface uses the private interface, so that code using
+	this module won't have to.
+	(when): Syncase.
+	(begin0): Syncase.
+	(let*-values): Syncase.
+	Load up upstream/assert.scm, then add define-syntax and
+	ssax:define-labeled-arg-macro to the load-filtered list.
+
+	* src/sxml/ssax-simple.scm: New file. The same as the old (sxml
+	ssax).
+
+	* src/sxml/simple.scm: Use (sxml ssax-simple).
+
+	* sxml/upstream/assert.scm: Added, from the SSAX distribution.
+	Defines assert with syncase.
+
+2004-09-11  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo.scm (texi-command-specs): defun, defman, defspec
+	arguments should be rest arguments.
+
 2005-01-21  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* src/unit-test.scm: Added licence header.

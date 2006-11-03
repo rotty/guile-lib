@@ -6,13 +6,12 @@
 
 ;;; Commentary:
 ;;
-;;@c foo :P
-;; A simple interface to XML parsing and serialization.
+;;A simple interface to XML parsing and serialization.
 ;;
 ;;; Code:
 
 (define-module (sxml simple)
-  #:use-module (sxml ssax)
+  #:use-module (sxml ssax-simple)
   #:use-module (sxml transform)
   #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-13)

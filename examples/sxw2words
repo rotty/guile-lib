@@ -1,0 +1,69 @@
+#!/usr/bin/guile -s
+!#
+(use-modules (sxml ssax)
+             (os process)
+             (ice-9 rdelim)
+             (srfi srfi-14))
+
+(or (= (length (program-arguments)) 2)
+    (begin
+      (display "usage: sxw2words SXW-FILE\n" (current-error-port))
+      (exit 1)))
+
+(define sxw-file (cadr (program-arguments)))
+
+(define (get-dict-words)
+  (let ((port (open-input-file "/usr/share/dict/words")))
+    (let lp ((words '()) (line (read-line port)))
+      (if (eof-object? line)
+          (sort! (reverse! words) string-ci<?)
+          (lp (cons line words) (read-line port))))))
+
+(define (uniq l)
+  (let lp ((last-word "") (in l) (out '()))
+    (cond ((null? in) (reverse! out))
+          ((string-ci=? last-word (car in)) (lp last-word (cdr in) out))
+          (else (lp (car in) (cdr in) (cons (car in) out))))))
+
+(define trim-char-set (char-set-complement char-set:letter))
+(define (get-sxw-words)
+  ((ssax:make-parser
+    NEW-LEVEL-SEED 
+    (lambda (elem-gi attributes namespaces
+                     expected-content seed)
+      seed)
+    
+    FINISH-ELEMENT
+    (lambda (elem-gi attributes namespaces parent-seed seed)
+      seed)
+
+    CHAR-DATA-HANDLER
+    (lambda (string1 string2 seed)
+      (let* ((strs (map
+                    (lambda (x) (string-trim-both x trim-char-set))
+                    (remove!
+                     string-null? 
+                     (append-map
+                      (lambda (x) (string-split x #\space))
+                      (string-split string1 #\newline)))))
+             (seed (append! strs seed)))
+        (if (string-null? string2) seed
+            (cons string2 seed)))))
+   (cdr (run-with-pipe ; "r" for read-only
+         "r" "unzip" "-p" sxw-file "content.xml"))
+   '()))
+
+(let lp ((words (uniq (sort! (get-sxw-words) string-ci<?)))
+         (dict-words (get-dict-words))
+         (out '()))
+  (cond
+   ((null? words)
+    (for-each (lambda (x) (display x) (newline)) (reverse! out)))
+   ((string-ci=? (car words) (car dict-words))
+    (lp (cdr words) (cdr dict-words) out))
+   ((string-ci>? (car words) (car dict-words))
+    (lp words (cdr dict-words) out))
+   (else
+    (lp (cdr words) dict-words (cons (car words) out)))))
+
+;;; arch-tag: 6c2617d3-32a4-4a4d-8914-48c7ee1b5ad8
