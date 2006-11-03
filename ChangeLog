@@ -1,6 +1,6 @@
 2006-11-03  Andy Wingo  <wingo@pobox.com>
 
-	* dev-environ (this_dir): Fix to avoid realpath.
+	* dev-environ (this_dir): Fix to avoid realpath. (BPB)
 
 	Merge from lcourtes@laas.fr--2005-libre/guile-lib--dev--0:
 	
