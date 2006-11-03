@@ -123,6 +123,7 @@
 
 (define-module (statprof)
   #:use-module (scheme documentation)
+  #:autoload   (ice-9 format) (format)
   #:export (statprof-active?
             statprof-start
             statprof-stop
@@ -151,8 +152,6 @@
 
             with-statprof))
 
-(use-modules (ice-9 slib))
-(require 'stdio)
 
 ;; This profiler tracks two numbers for every function called while
 ;; it's active.  It tracks the total number of calls, and the number
@@ -198,7 +197,8 @@
   (vector-set! cd 3 (1+ (vector-ref cd 3))))
 
 (define-macro (accumulate-time stop-time)
-  `(set! accumulated-time (+ accumulated-time (- ,stop-time last-start-time))))
+  `(set! accumulated-time
+         (+ accumulated-time 0.0 (- ,stop-time last-start-time))))
 
 (define (get-call-data proc)
   (or (hashq-ref procedure-data proc)
@@ -424,15 +424,15 @@ none is available."
          (num-calls (and %count-calls? (statprof-call-data-calls call-data))))
 
     (vector proc-name
-            (* (/ self-samples all-samples) 100)
-            (* cum-samples secs-per-sample)
-            (* self-samples secs-per-sample)
+            (* (/ self-samples all-samples) 100.0)
+            (* cum-samples secs-per-sample 1.0)
+            (* self-samples secs-per-sample 1.0)
             num-calls
             (and num-calls ;; maybe we only sampled in children
                  (if (zero? self-samples) 0.0
-                     (/ (* self-samples secs-per-sample) num-calls)))
+                     (/ (* self-samples secs-per-sample) 1.0 num-calls)))
             (and num-calls ;; cum-samples must be positive
-                 (/ (* cum-samples secs-per-sample) num-calls)))))
+                 (/ (* cum-samples secs-per-sample) 1.0 num-calls)))))
 
 (define (statprof-stats-proc-name stats) (vector-ref stats 0))
 (define (statprof-stats-%-time-in-proc stats) (vector-ref stats 1))
@@ -471,14 +471,14 @@ optional @var{port} argument is passed, uses the current output port."
 
       (define (display-stats-line stats)
         (if %count-calls?
-            (fprintf port "%6.2f %9.2f %9.2f %8lu %8.2f %8.2f  "
+            (format  port "~6,2f ~9,2f ~9,2f ~8r ~8,2f ~8,2f  "
                      (statprof-stats-%-time-in-proc stats)
                      (statprof-stats-cum-secs-in-proc stats)
                      (statprof-stats-self-secs-in-proc stats)
                      (statprof-stats-calls stats)
                      (* 1000 (statprof-stats-self-secs-per-call stats))
                      (* 1000 (statprof-stats-cum-secs-per-call stats)))
-            (fprintf port "%6.2f %9.2f %9.2f  "
+            (format  port "~6,2f ~9,2f ~9,2f  "
                      (statprof-stats-%-time-in-proc stats)
                      (statprof-stats-cum-secs-in-proc stats)
                      (statprof-stats-self-secs-in-proc stats)))
@@ -487,14 +487,14 @@ optional @var{port} argument is passed, uses the current output port."
     
       (if %count-calls?
           (begin
-            (fprintf port "%5.5s %10.10s   %7.7s %8.8s %8.8s %8.8s  %-8.8s\n"
+            (format  port "~5a ~10a   ~7a ~8a ~8a ~8a  ~8@a\n"
                      "%  " "cumulative" "self" "" "self" "total" "")
-            (fprintf port "%5.5s  %9.9s  %8.8s %8.8s %8.8s %8.8s  %-8.8s\n"
+            (format  port "~5a  ~9a  ~8a ~8a ~8a ~8a  ~8@a\n"
                      "time" "seconds" "seconds" "calls" "ms/call" "ms/call" "name"))
           (begin
-            (fprintf port "%5.5s %10.10s   %7.7s  %-8.8s\n"
-                     "%  " "cumulative" "self" "")
-            (fprintf port "%5.5s  %9.9s  %8.8s  %-8.8s\n"
+            (format  port "~5a ~10a   ~7a  ~8@a\n"
+                     "%" "cumulative" "self" "")
+            (format  port "~5a  ~10a  ~7a  ~8@a\n"
                      "time" "seconds" "seconds" "name")))
 
       (for-each display-stats-line sorted-stats)
@@ -570,7 +570,6 @@ Whether to instrument each function call (expensive)
 
 default: @code{#f}
 @end table"
-@table @code
   (define (kw-arg-ref kw args def)
     (cond
      ((null? args) (error "Invalid macro body"))
