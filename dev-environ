@@ -2,8 +2,7 @@
 
 # arch-tag: 36b2efee-c150-4a9b-af28-8fe7266a5379
 
-this_dir=`dirname $0`
-this_dir=`realpath $this_dir`
+this_dir=$(cd (dirname $0) && pwd)
 
 export GUILE_LOAD_PATH=$this_dir/src:$GUILE_LOAD_PATH
 
