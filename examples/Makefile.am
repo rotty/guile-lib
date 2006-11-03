@@ -1,0 +1,1 @@
+EXTRA_DIST=sxw2words document-module.scm

@@ -1,0 +1,29 @@
+dnl -*- Autoconf -*-
+
+AC_INIT(guile-lib, 0.1.3)
+AC_CONFIG_SRCDIR(src/md5.scm)
+AM_INIT_AUTOMAKE
+
+AM_MAINTAINER_MODE
+
+AC_SUBST(ACLOCAL_FLAGS,$ACLOCAL_FLAGS)
+
+GUILE_PROGS
+GUILE_FLAGS
+
+GUILE_MODULE_AVAILABLE(HAVE_SRFI_34, [(srfi srfi-34)])
+GUILE_MODULE_AVAILABLE(HAVE_SRFI_35, [(srfi srfi-35)])
+
+AM_CONDITIONAL(HAVE_SRFI_34, test "$HAVE_SRFI_34" = yes)
+AM_CONDITIONAL(HAVE_SRFI_35, test "$HAVE_SRFI_35" = yes)
+
+AC_CONFIG_FILES([
+Makefile
+src/Makefile
+doc/Makefile
+new-doc/Makefile
+examples/Makefile
+unit-tests/Makefile
+])
+
+AC_OUTPUT
