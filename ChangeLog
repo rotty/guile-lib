@@ -1,3 +1,11 @@
+2006-11-03  Andy Wingo  <wingo@pobox.com>
+
+	* autogen.sh:
+	* autogen-support.sh:
+	* Makefile.am:
+	* configure.ac: Put in a more normal autotools build setup.
+	Removed the previous Makefile.in and PLUGIN bits.
+
 2004-10-05  Andy Wingo  <wingo@pobox.com>
 
 	* unit-tests/sxml.ssax.scm (test-ssax): Reject define-syntax and

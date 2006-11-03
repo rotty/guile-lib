@@ -1,5 +1,0 @@
-string		guile-lib-install-dir default
-	Where should guile-lib be installed to?
-
-binary		install-guile-lib yes
-	If true, guile-lib will be installed
