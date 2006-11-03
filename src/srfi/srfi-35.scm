@@ -1,10 +1,6 @@
 (define-module (srfi srfi-35)
   #:use-module (oop goops)
-  #:use-module (oop goops util)
   #:use-module (srfi srfi-1)
-
-  ;; (oop goops util) and (srfi srfi-1) both define any, every
-  ;; #:duplicates last ; inhibits the warning, but Guile 1.7 only
 
   #:export (make-condition-type
             condition-type? condition-has-type?
@@ -186,13 +182,13 @@
                (list (car entry) (list 'unquote (cadr entry))))
              (cdr form))))
        forms))))
-  
+
 (define-method (condition-types (condition &condition))
   (let ((own-class (class-of condition)))
     (cons own-class (class-direct-supers own-class))))
 
 (define-method (condition-types (condition &compound-condition))
-  (mapappend condition-types (slot-ref condition '%components)))
+  (append-map condition-types (slot-ref condition '%components)))
 
 (define-condition-type &message &condition
   message-condition?

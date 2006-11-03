@@ -1,5 +1,18 @@
 2006-11-03  Andy Wingo  <wingo@pobox.com>
 
+	Merge from lcourtes@laas.fr--2005-libre/guile-lib--dev--0:
+	
+	* src/srfi/srfi-35.scm: Don't use `(oop goops util)'.
+	(condition-types): Use `append-map' (from SRFI 1) rather than
+	`mapappend'.
+
+	* src/statprof.scm (accumulate-time): Make inexact computations.
+	(statprof-call-data->stats): Likewise.
+	(statprof-display): Use `format' instead of `fprintf'.
+	(with-statprof): Removed dangling line.
+
+2006-11-03  Andy Wingo  <wingo@pobox.com>
+
 	* unit-tests/statprof.scm (test-call-frequencies): Use a
 	variance-related criteria for passing the test, takes increasing
 	computer speeds into account.
