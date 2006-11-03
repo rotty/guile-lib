@@ -35,6 +35,8 @@
              (sxml ssax)
              (ice-9 pretty-print))
 
+(use-syntax (ice-9 syncase))
+
 (define-class <test-ssax> (<test-case>))
 
 (define-macro (import module . symbols)
@@ -57,25 +59,17 @@
         ssax:S-chars
         ssax:skip-S
         ssax:ncname-starting-char?
-        when
-        equal_?
+        ;when
         make-xml-token
         nl
-        unesc-string
+        ;unesc-string
         parser-error
         ascii->char
         char->ascii
         char-newline
         char-return
         char-tab
-        name-compare
-        ;; weird stuff below. it's expansion-specific.
-        _eqv?_7
-        _cons_23
-        _append_24
-        _list_25
-        _vector_26
-        _list->vector_27)
+        name-compare)
 
 (define pp pretty-print)
 
@@ -104,16 +98,14 @@
         (cond
          ((eof-object? sexp))
          ((and (pair? sexp) (not (memq (car sexp) reject-list)))
-          (eval sexp (current-module))
+          (primitive-eval sexp)
           (loop (read)))
          (else
           (loop (read))))))))
 
 (define-method (test-ssax (self <test-ssax>))
-  (load-rejecting '(define)
-                  (%search-load-path "sxml/upstream/SSAX-expanded.scm")))
-
-(test-ssax (make <test-ssax>))
+  (load-rejecting '(define define-syntax ssax:define-labeled-arg-macro)
+                  (%search-load-path "sxml/upstream/SSAX.scm")))
 
 (exit-with-summary (run-all-defined-test-cases))
 

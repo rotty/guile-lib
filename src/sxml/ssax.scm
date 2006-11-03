@@ -211,6 +211,10 @@
       (call-with-values (lambda () initializer) ; the most generic case
 	(lambda vars (let*-values rest . bodies))))))
 
+;; needed for some dumb reason
+(define inc 1+)
+(define dec 1-)
+
 (load-from-path "sxml/upstream/assert.scm")
 (load-filtered '(define define-syntax ssax:define-labeled-arg-macro)
                "sxml/upstream/SSAX.scm")

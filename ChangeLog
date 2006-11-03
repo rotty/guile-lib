@@ -1,5 +1,16 @@
 2004-10-05  Andy Wingo  <wingo@pobox.com>
 
+	* unit-tests/sxml.ssax.scm (test-ssax): Reject define-syntax and
+	ssax:define-labeled-arg-macro as well.
+	(load-rejecting): Use primitive-eval instead of normal eval.
+	Prevents some weird syncase error about not being at toplevel when
+	making definitions.
+	(import): Remove expanded symbols from this list.
+	Use (ice-9 syncase).
+
+	* src/sxml/ssax.scm (inc): Define here. It's used by
+	ssax:string-whitespace?.
+
 	* examples/sxw2words: New file, extracts words from an OpenOffice
 	document that are not present in the dictionary. An example of the
 	use of (os process) as well as (sxml ssax) with a custom SAX
