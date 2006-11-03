@@ -1,5 +1,14 @@
 2006-11-03  Andy Wingo  <wingo@pobox.com>
 
+	* unit-tests/statprof.scm (test-call-frequencies): Use a
+	variance-related criteria for passing the test, takes increasing
+	computer speeds into account.
+
+	* unit-tests/Makefile.am (EXTRA_DIST): Dist the tests.
+
+	* configure.ac: Drop the version down to 0.1.2.1 so we can do a
+	prerelease.
+	
 	* autogen.sh:
 	* autogen-support.sh:
 	* Makefile.am:

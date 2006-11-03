@@ -23,3 +23,5 @@ TESTS_ENVIRONMENT=$(top_srcdir)/dev-environ guile -s
 
 %.check: %
 	$(TESTS_ENVIRONMENT) $*
+
+EXTRA_DIST=$(TESTS)

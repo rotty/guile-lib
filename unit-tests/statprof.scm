@@ -53,7 +53,6 @@
   (define (func-c n) (do ((i 0 (+ i 1))) ((= 200 i)) (+ i i)))
   
   (let ((num-calls 333)
-        (max-allowed-drift 0.1)
         (func func-a))
 
     ;; Run test.
@@ -77,6 +76,7 @@
            (samples (map statprof-call-data-cum-samples
                          (list a-data b-data c-data)))
            (average (/ (apply + samples) 3))
+           (max-allowed-drift (/ (sqrt average) average))
            ;;
            (diffs (map (lambda (x) (abs (- x average)))
                        samples))
@@ -89,8 +89,8 @@
              (* 100 drift-fraction))
             (simple-format 
              #t
-             "  call-frequencies: within tolerance ~A%\n"
-             (* 100 drift-fraction)))))))
+             "  call-frequencies: within tolerance ~A<~A%\n"
+             (* 100 drift-fraction) (* 100 max-allowed-drift)))))))
 
 (define-method (test-call-counts (self <test-statprof>))
   ;; Test to see that if we call a function N times while the profiler
