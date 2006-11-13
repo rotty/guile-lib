@@ -1,16 +1,19 @@
-CLEANFILES=texi-stamp html-stamp
+clean: clean-am
+	rm -f $(doc).texi
+	rm -f $(doc).info
+	rm -f html-stamp
+	rm -rf html
 
-texi: texi-stamp
-texi-stamp: $(scm-module-files)
-	$(top_srcdir)/dev-environ guile -l $(srcdir)/index.scm \
-	   -c '(make-texinfo)'
-	touch $@
+doc=guile-library
 
-html: html-stamp
+$(doc).texi: $(doc).scm
+	$(top_srcdir)/dev-environ $(srcdir)/make-texinfo.scm $(doc).scm >$@
+
+info_TEXINFOS=guile-library.texi
+guile_library_TEXINFOS=fdl.texi
+
+html: html-stamp $(package).scm
 html-stamp: $(scm-module-files)
-	$(top_srcdir)/dev-environ guile -l $(srcdir)/index.scm \
-	   -c '(make-html)'
+	$(top_srcdir)/dev-environ $(srcdir)/make-html.scm $(doc).scm
 	touch $@
-
-# arch-tag: 90a459b2-5a89-41d2-8a0a-6832d1276aaf
 

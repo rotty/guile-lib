@@ -1,5 +1,21 @@
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
+	* autogen.sh: Support automake 1.8. Fake out automake, making it
+	think we have a guile-library.texi when we don't.
+
+	* new-doc/Makefile.am: Add rules to make the docs.
+
+	* new-doc/fdl.texi: New file, included by the generated docs. Not
+	sure that we should be using FDL though; the actual docs are GPL.
+
+	* new-doc/guile-library.scm: New file, configures documentation
+	generation. Needed by make-texinfo and make-html. These files
+	replace the old index.scm.
+
+	* new-doc/make-texinfo.scm: New script, makes texinfo
+	documentation.
+	* new-doc/make-html.scm: New script, makes HTML documentation.
+
 	* src/texinfo/serialize.scm (include): Support writing out include
 	statements. 
 	(inline-text): Support the *braces* "command". The counterpart to

@@ -7,6 +7,10 @@ srcfile=src/md5.scm
 
 . ./autogen-support.sh
 
+# fool automake
+echo '@setfilename guile-library.info' > new-doc/guile-library.texi
+touch -d 'jan 23 1980' new-doc/guile-library.texi
+
 CONFIGURE_DEF_OPT='--enable-maintainer-mode'
 
 autogen_options $@
@@ -15,8 +19,8 @@ echo -n "+ check for build tools"
 if test ! -z "$NOCHECK"; then echo ": skipped version checks"; else  echo; fi
 version_check "autoconf" "$AUTOCONF autoconf autoconf-2.59" \
               "ftp://ftp.gnu.org/pub/gnu/autoconf/" 2 59 || DIE=1
-version_check "automake" "$AUTOMAKE automake automake-1.9" \
-              "ftp://ftp.gnu.org/pub/gnu/automake/" 1 9 || DIE=1
+version_check "automake" "$AUTOMAKE automake automake-1.8 automake-1.9" \
+              "ftp://ftp.gnu.org/pub/gnu/automake/" 1 8 || DIE=1
 
 die_check $DIE
 
