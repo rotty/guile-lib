@@ -1,3 +1,9 @@
+2006-11-13  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/apply-templates.scm (sxml): Avoid guile 1.8 warnings by
+	not importing `filter' from (sxml xpath). I don't think the ssax
+	import is needed, though.
+
 2006-11-03  Andy Wingo  <wingo@pobox.com>
 
 	* dev-environ (this_dir): Fix to avoid realpath. (BPB)
