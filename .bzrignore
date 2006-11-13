@@ -21,3 +21,7 @@ src/Makefile
 src/Makefile.in
 unit-tests/Makefile
 unit-tests/Makefile.in
+*.tar.gz
+new-doc/guile-library.info
+new-doc/guile-library.texi
+new-doc/texinfo.tex
