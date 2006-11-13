@@ -237,6 +237,9 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (syncodeindex       EOL-ARGS . all)
     (contents           EOL-ARGS . ())
     (insertcopying      EOL-ARGS . ())
+    (dircategory        EOL-ARGS . (category))
+    (top		EOL-ARGS . (title))
+    (printindex		EOL-ARGS . (type))
 
     ;; EOL text commands
     (*ENVIRON-ARGS*     EOL-TEXT)
@@ -281,8 +284,14 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (ifhtml             ENVIRON . ())
     (ifxml              ENVIRON . ())
     (ifplaintext        ENVIRON . ())
+    (ifnotinfo          ENVIRON . ())
+    (ifnottex           ENVIRON . ())
+    (ifnothtml          ENVIRON . ())
+    (ifnotxml           ENVIRON . ())
+    (ifnotplaintext     ENVIRON . ())
     (titlepage          ENVIRON . ())
     (menu               ENVIRON . ())
+    (direntry           ENVIRON . ())
     (copying            ENVIRON . ())
     (example            ENVIRON . ())
     (smallexample       ENVIRON . ())
@@ -1109,7 +1118,8 @@ stexi tree. The parsing will start at the @code{@@settitle} and end at
              (error "expected a constant to define for @set" in)))
         ((value)
          (loop (fold-right cons (cdr in)
-                           (or (cdr (assoc (cadr (assq 'key (cdadar in))) state))
+                           (or (and=>
+                                (assoc (cadr (assq 'key (cdadar in))) state) cdr)
                                (error "unknown value" (cdadar in) state)))
                out
                state #f sig-ws?))

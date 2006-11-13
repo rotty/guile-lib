@@ -1,5 +1,11 @@
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
+	* src/texinfo.scm (texi-command-specs): Add command specs for
+	dircategory, top, printindex, ifnotinfo, ifnottex, ifnothtml,
+	ifnotxml, ifnotplaintext, and direntry. We don't parse these well,
+	but we do support writing them out via (texinfo serialize).
+	(postprocess): Have a nicer error if a @value{} is undefined.
+
 	* src/sxml/apply-templates.scm (sxml): Avoid guile 1.8 warnings by
 	not importing `filter' from (sxml xpath). I don't think the ssax
 	import is needed, though.
