@@ -1,9 +1,20 @@
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
+	* src/texinfo/reflection.scm (module-stexi-documentation): Change
+	to name module nodes as `foo bar' instead of `(foo bar)', and
+	symbols as `foo bar baz' instead of `foo-bar-baz'.
+	(package-stexi-documentation): New procedure, outputs a stexi
+	document for a set of modules released together. Pretty generic,
+	except there are some helpers to make standard GNU documents:
+	(package-stexi-standard-copying)
+	(package-stexi-standard-titlepage)
+	(package-stexi-standard-menu): 
+	(package-stexi-standard-prologue): Helpers to make GNU-style
+	documents.
+
 	* src/texinfo/html.scm: Fix links to correspond to what (texinfo
 	reflection) will output.
-	(tag-replacements): Serialize *fragment* as
-	a div.
+	(tag-replacements): Serialize *fragment* as a div.
 
 	* src/texinfo.scm (texi-command-specs): Add command specs for
 	dircategory, top, printindex, ifnotinfo, ifnottex, ifnothtml,
