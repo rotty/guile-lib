@@ -1,5 +1,10 @@
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
+	* src/texinfo/html.scm: Fix links to correspond to what (texinfo
+	reflection) will output.
+	(tag-replacements): Serialize *fragment* as
+	a div.
+
 	* src/texinfo.scm (texi-command-specs): Add command specs for
 	dircategory, top, printindex, ifnotinfo, ifnottex, ifnothtml,
 	ifnotxml, ifnotplaintext, and direntry. We don't parse these well,
