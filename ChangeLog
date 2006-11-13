@@ -1,5 +1,12 @@
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
+	* src/texinfo/serialize.scm (include): Support writing out include
+	statements. 
+	(inline-text): Support the *braces* "command". The counterpart to
+	representing @{ as a command.
+	(environ): Write out a @setfilename for texinfo, if possible.
+	(fragment): Support writing out fragments.
+
 	* src/texinfo/reflection.scm (module-stexi-documentation): Change
 	to name module nodes as `foo bar' instead of `(foo bar)', and
 	symbols as `foo bar baz' instead of `foo-bar-baz'.

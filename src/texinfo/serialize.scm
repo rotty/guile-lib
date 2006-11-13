@@ -59,13 +59,24 @@
             ((null? (car in)) (lp (cdr in) out))
             (else (lp (cdr in) (cons (car in) out)))))))
 
+(define (include exp lp command type formals args accum)
+  (list* "\n"
+         (list-intersperse
+          args
+          " ")
+         " " command "@" accum))
+
 (define (empty-command exp lp command type formals args accum)
   (list* " " command "@" accum))
 
 (define (inline-text exp lp command type formals args accum)
-  (list* "}"
-         (append-map (lambda (x) (lp x '())) (reverse (cdr exp)))
-         "{" command "@" accum))
+  (if (not (string=? command "*braces*")) ;; fixme :(
+      (list* "}"
+             (append-map (lambda (x) (lp x '())) (reverse (cdr exp)))
+             "{" command "@" accum)
+      (list* "@}"
+             (append-map (lambda (x) (lp x '())) (reverse (cdr exp)))
+             "@{" accum)))
 
 (define (inline-args exp lp command type formals args accum)
   (list* "}"
@@ -111,7 +122,11 @@
      (list* "@bye\n"
             (append-map (lambda (x) (lp x '())) (reverse (cddr exp)))
             "\n@c %**end of header\n\n"
-            (assq-ref args 'title) "@settitle "
+            (reverse (assq-ref args 'title)) "@settitle "
+            (or (and=> (assq-ref args 'filename)
+                       (lambda (filename)
+                         (cons "\n" (reverse (cons "@setfilename " filename)))))
+                "")
             "\\input texinfo   @c -*-texinfo-*-\n@c %**start of header\n"
             accum))
     (else
@@ -164,6 +179,12 @@
          "@item "
          accum))
 
+(define (fragment exp lp command type formals args accum)
+  (list* "\n@c %end of fragment\n"
+         (append-map (lambda (x) (lp x '())) (reverse (cdr exp)))
+         "\n@c %start of fragment\n\n"
+         accum))
+
 (define serializers
   `((EMPTY-COMMAND . ,empty-command)
     (INLINE-TEXT . ,inline-text)
@@ -175,7 +196,9 @@
     (TABLE-ENVIRON . ,table-environ)
     (ENTRY . ,entry)
     (ITEM . ,item)
-    (PARAGRAPH . ,paragraph)))
+    (PARAGRAPH . ,paragraph)
+    (FRAGMENT . ,fragment)
+    (#f . ,include))) ; support writing include statements
 
 (define (serialize exp lp command type formals args accum)
   ((or (assq-ref serializers type)
@@ -210,8 +233,15 @@
                         (symbol->string (car in))
                         (cadr command-spec)
                         (filter* symbol? (cddr command-spec))
-                        (and (pair? (cdr in)) (pair? (cadr in))
-                             (eq? (caadr in) '%) (cdadr in))
+                        (cond
+                         ((and (pair? (cdr in)) (pair? (cadr in))
+                               (eq? (caadr in) '%))
+                          (cdadr in))
+                         ((not (cadr command-spec))
+                          ;; include
+                          (cdr in))
+                         (else
+                          #f))
                         out))))
       (else
        (error "Invalid stexi" in))))))
