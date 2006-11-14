@@ -175,6 +175,7 @@
                          (arguments ,@(get-proc-args object)))))
      ((is-a? object <generic>)
       (make-def 'defop `((name ,name)
+                         (class "object") ;; we need more info here
                          (category "Generic"))))
      (else
       (make-def 'defvar `((name ,name)))))))

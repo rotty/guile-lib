@@ -48,7 +48,7 @@ destination (for example, a disk file).  A single Logger can send
 messages through multiple Log Handlers, effectively multicasting logs
 to multiple destinations.
 
-@item Log Hondlers
+@item Log Handlers
 Log Handlers actually route text to a destination.  One or more handlers
 must be attached to a logger for any text to actually appear in a log.
 

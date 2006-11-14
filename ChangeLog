@@ -1,3 +1,15 @@
+2006-11-14  Andy Wingo  <wingo@pobox.com>
+
+	* src/logging/logger.scm: Fix a typo.
+
+	* new-doc/make-texinfo.scm: Run with --debug.
+
+	* new-doc/guile-library.scm (*modules*): Put in alphabetic order,
+	and add (logging logger) to the mix.
+
+	* src/texinfo/reflection.scm (object-stexi-documentation): Make
+	sure that defop has all of the arguments it needs.
+
 2006-11-13  Andy Wingo  <wingo@pobox.com>
 
 	* autogen.sh: Support automake 1.8. Fake out automake, making it

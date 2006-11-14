@@ -1,5 +1,5 @@
 #!/bin/sh
-exec guile -s $0 "$@"
+exec guile --debug -s $0 "$@"
 !#
 
 (use-modules (texinfo reflection)
