@@ -1,3 +1,17 @@
+2006-11-16  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo.scm (index, sxml->node-name): Generate valid anchor
+	names for index entries.
+
+	* src/logging/rotating-log.scm (<rotating-log>): 
+	* src/logging/port-log.scm (<port-log>): Fix xrefs.
+
+	* new-doc/guile-library.scm (*modules*): Add (logging port-log)
+	and (logging rotating-log).
+
+	* new-doc/Makefile.am: Attempt to make the docs rebuild
+	automagically. Sortof works.
+
 2006-11-14  Andy Wingo  <wingo@pobox.com>
 
 	* src/logging/logger.scm: Fix a typo.

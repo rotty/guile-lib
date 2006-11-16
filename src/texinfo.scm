@@ -789,6 +789,15 @@ Examples:
         (error "no file listed")
         x))) ;; fixme: should expand @value{} references
 
+(define (sxml->node-name sxml)
+  "Turn some sxml string into a valid node name."
+  (let loop ((in (string->list (sxml->string sxml))) (out '()))
+    (if (null? in)
+        (apply string (reverse out))
+        (if (memq (car in) '(#\{ #\} #\@ #\,))
+            (loop (cdr in) out)
+            (loop (cdr in) (cons (car in) out))))))
+
 (define (index command arguments fdown fup parent-seed)
   (case command
     ((deftp defcv defivar deftypeivar defop deftypeop defmethod
@@ -800,8 +809,8 @@ Examples:
             (fdown 'anchor args 'INLINE-ARGS '()))))
     ((cindex findex vindex kindex pindex tindex)
      (let ((args `((name ,(string-append (symbol->string command) "-"
-                                         (sxml->string
-                                          (assq-ref arguments 'entry)))))))
+                                         (sxml->node-name
+                                          (assq 'entry arguments)))))))
        (fup 'anchor args parent-seed
             (fdown 'anchor args 'INLINE-ARGS '()))))
     (else parent-seed)))

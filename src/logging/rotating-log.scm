@@ -56,7 +56,7 @@ file is always ``@var{NAME}.1''.
 
 @item #:formatter
 Allows the user to provide a function to use as the log formatter for
-this handler.  @xref{log handler class}, for details.
+this handler.  @xref{logging logger <log-handler>}, for details.
 @end table
 
 Example of creating a @code{<rotating-log>}:
