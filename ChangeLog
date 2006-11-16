@@ -1,5 +1,8 @@
 2006-11-16  Andy Wingo  <wingo@pobox.com>
 
+	* doc/NamingConventions.texi: Add back doc from old docs; not used
+	currently tho.
+
 	* doc/Makefile.am: Fiddle to dist properly.
 
 	* configure.ac: 

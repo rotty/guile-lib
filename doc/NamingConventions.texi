@@ -1,0 +1,21 @@
+@node Naming Conventions, Copying This Manual, xml ssax, Top
+
+@table @asis
+
+@item Class Names
+Class names will take the form @samp{<class-name>}.  That is, lowercase words separated by
+dashes, and enclosed in angle-brackets.
+
+@item Function Names
+Where function names describe an operation, they will be verb-first.
+For example, @code{colorize-string} instead of @code{string-colorize}.
+
+Functions that modify their arguments should have a name that ends in
+@samp{!}.  Methods that change their objects in user-visible ways should
+also end in @samp{!}.
+
+@end table
+
+@ignore
+   arch-tag: a96a407f-b2d6-4836-9054-83a3ba2a4f7a
+@end ignore
