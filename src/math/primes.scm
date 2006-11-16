@@ -40,6 +40,11 @@
 
 #!
 ;;; Commentary:
+@cindex prime number
+@cindex numbers, prime
+@cindex numbers, prime factors of
+@cindex prime factors
+@cindex factors, prime
 This module defines functions related to prime numbers, and prime factorization.
 ;;; Code:
 !#

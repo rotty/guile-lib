@@ -20,7 +20,7 @@
 #!
 ;;; Commentary:
 Module @samp{(string transform)} provides functions for modifying
-blah blah blah strings beyond that which is provided in the guile core and
+strings beyond that which is provided in the guile core and
 @samp{(srfi srfi-13)}.  
 ;;; Code:
 !#

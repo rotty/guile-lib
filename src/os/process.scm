@@ -25,6 +25,11 @@
 
 #!
 ;;; Commentary:
+@cindex Goosh module
+@cindex process, Operating System
+@cindex process chain
+@cindex pipeline, process
+
 This is a library for execution of other programs from Guile.  It
 also allows communication using pipes (or a pseudo terminal device, but
 that's not currently implemented).  This code originates in the 

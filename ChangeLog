@@ -1,5 +1,16 @@
 2006-11-16  Andy Wingo  <wingo@pobox.com>
 
+	* src/string/transform.scm: Fix docs.
+
+	* src/term/ansi-color.scm: 
+	* src/os/process.scm: 
+	* src/math/primes.scm: Add some cindexes.
+
+	* new-doc/guile-library.scm (*modules*): Add (math primes), (os
+	process), (search basic), (search basic), (string completion,
+	(string soundex), (string transform), (string wrap), and (term
+	ansi-color).
+
 	* new-doc/guile-library.scm (*modules*): Add (math minima).
 
 	* src/texinfo/serialize.scm (eol-text): Fix serialization of

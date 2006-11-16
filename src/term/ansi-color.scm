@@ -19,6 +19,9 @@
 
 #!
 ;;; Commentary:
+@cindex terminals, ANSI color codes for
+@cindex ANSI color codes
+@cindex color codes, ANSI
 The @samp{(term ansi-color)} module generates ANSI escape
 sequences for colors.  Here is an example of the module's use:
 
