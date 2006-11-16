@@ -100,10 +100,12 @@
   (list* "\n"
          (append-map (lambda (x) (lp x '()))
                      (reverse (if args (cddr exp) (cdr exp))))
-         (list-intersperse
-          (append-map (lambda (x) (lp (assq-ref args x) '()))
-                      (reverse formals))
-          " ")
+         (append-map
+          (lambda (x)
+            (append-map
+             (lambda (x) (lp x '()))
+             (reverse (assq-ref args x))))
+          (reverse formals))
          " " command "@" accum))
 
 (define (eol-args exp lp command type formals args accum)

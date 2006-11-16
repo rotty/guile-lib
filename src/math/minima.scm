@@ -18,6 +18,10 @@
 ;;; ----------------------------------------------------------------------
 
 ;;; Commentary:
+;;@cindex golden section
+;;@cindex section, golden
+;;@cindex minimum, of a mathematical function
+;;
 ;; This module contains functions for computing the minimum values of mathematical
 ;; expressions on an interval.
 ;;; Code:

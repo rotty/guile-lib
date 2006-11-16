@@ -1,5 +1,12 @@
 2006-11-16  Andy Wingo  <wingo@pobox.com>
 
+	* new-doc/guile-library.scm (*modules*): Add (math minima).
+
+	* src/texinfo/serialize.scm (eol-text): Fix serialization of
+	@cindex et al.
+
+	* src/math/minima.scm: Add cindex entries from the texi.
+
 	* src/texinfo.scm (index, sxml->node-name): Generate valid anchor
 	names for index entries.
 
