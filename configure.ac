@@ -21,7 +21,6 @@ AC_CONFIG_FILES([
 Makefile
 src/Makefile
 doc/Makefile
-new-doc/Makefile
 examples/Makefile
 unit-tests/Makefile
 ])

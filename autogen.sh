@@ -8,8 +8,8 @@ srcfile=src/md5.scm
 . ./autogen-support.sh
 
 # fool automake
-echo '@setfilename guile-library.info' > new-doc/guile-library.texi
-touch -d 'jan 23 1980' new-doc/guile-library.texi
+echo '@setfilename guile-library.info' > doc/guile-library.texi
+touch -d 'jan 23 1980' doc/guile-library.texi
 
 CONFIGURE_DEF_OPT='--enable-maintainer-mode'
 
