@@ -1,5 +1,7 @@
 2006-11-16  Andy Wingo  <wingo@pobox.com>
 
+	* doc/: Remove, being replaced with new docs.
+
 	* src/string/transform.scm: Fix docs.
 
 	* src/term/ansi-color.scm: 
