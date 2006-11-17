@@ -1,4 +1,5 @@
 #!/bin/sh
+# -*- scheme -*-
 exec guile --debug -s $0 "$@"
 !#
 
@@ -35,8 +36,7 @@ exec guile --debug -s $0 "$@"
                (h2 (@ (class "centered")) ,title)
                ,@body)
           (div (@ (id "footer"))
-               "powered by "
-               (a (@ (href ,scm-url)) "sxml"))))))
+               "powered by sxml")))))
 
 (define xhtml-doctype
   (string-append

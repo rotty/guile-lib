@@ -1,29 +1,26 @@
-clean: clean-am
-	rm -f $(doc).texi
-	rm -f $(doc).info
-	rm -f scmfiles
-	rm -f html-stamp
-	rm -rf html
-
-EXTRA_DIST=guile-library.scm make-texinfo.scm make-html.scm base.css
-DISTCLEANFILES=guile-library.texi scmfiles
-
 doc=guile-library
 
-scmfiles:
-	guile --debug --use-srfi=13 -l $(srcdir)/guile-library.scm \
-	 -c '(for-each (lambda (m) (format #t "~a.scm\n" (string-join (map symbol->string m) "/"))) (map car *modules*))' \
-	 > $@
-depfiles=$(addprefix $(top_srcdir)/src/,$(shell test ! -f scmfiles || cat scmfiles))
-
-$(doc).texi: $(srcdir)/$(doc).scm scmfiles $(depfiles)
-	$(top_srcdir)/dev-environ $(srcdir)/make-texinfo.scm $(srcdir)/$(doc).scm >$@
+include docs.mk
 
 info_TEXINFOS=guile-library.texi
 guile_library_TEXINFOS=fdl.texi
 
-html: html-stamp $(srcdir)/$(doc).scm $(depfiles)
-html-stamp: $(scm-module-files)
-	$(top_srcdir)/dev-environ $(srcdir)/make-html.scm $(srcdir)/$(doc).scm
-	touch $@
+www: html guile-library.pdf clean-www
+	find www -name 'index.scm' -print \
+	  | while read f; do \
+              guile -l "$$f" -c '(make-index)' \
+	        > `echo $$f | sed -e s,\.scm,\.html,`; \
+	    done
+	cp -a html www/doc/ref
+	cp guile-library.pdf www/doc/
 
+www-commit: www
+	svn import www svn+ssh://wingo@svn.gna.org/svn/guile-lib
+
+clean-www:
+	find www -name 'index.html' -print \
+	  | while read f; do rm -f "$$f"; done
+	rm -rf www/doc/ref
+	rm -f www/doc/guile-library.pdf
+
+clean: clean-docs clean-www

@@ -42,7 +42,7 @@ License\".")
     (printindex (% (type "fn")))))
 
 ;; HTML foo
-(define *html-relative-root-path* "../")
+(define *html-relative-root-path* "../../")
 
 ;; The modules to document
 (define *modules*
