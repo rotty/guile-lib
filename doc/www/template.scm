@@ -31,7 +31,7 @@
     (body
      (div (@ (id "body"))
           (div (@ (id "heading"))
-               (h1 (a (@ ,(href "")) "guile-gnome"))
+               (h1 (a (@ ,(href "")) "guile-lib"))
                ,(make-navbar))
           (div (@ (id "text"))
                ,@body)

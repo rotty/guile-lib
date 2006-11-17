@@ -124,7 +124,9 @@ License\".")
     ((texinfo reflection)
      "Enable texinfo across Guile's help system")
     ((text parse-lalr)
-     "A LALR(1) parser written in Scheme")))
+     "A LALR(1) parser written in Scheme")
+    ((unit-test)
+     "A JUnit-style unit testing framework")))
     ;; link to literate programming article
 
 (define *module-sources*
