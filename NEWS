@@ -2,8 +2,19 @@ Guile-Lib NEWS -- history of user-visible changes.
 
 Version 0.1.3
 
-  - Work has been started to extract all documentation directly from
-    the source code, see new-doc/=README for details.
+  - Statprof fixes for guile 1.8's numbers
+
+  - 2-year-old SSAX updates merged, finally
+    + you can make custom parsers now
+
+  - Package is autotooled
+
+  - Texinfo parser bugfixes
+
+  - All documentation is now extracted directly from the source code.
+
+    + Folded this functionality into (texinfo reflect); see
+      doc/Makefile.am for how this is done
 
   - New modules, written by Andy Wingo <wingo@pobox.com>:
   
@@ -17,7 +28,7 @@ Version 0.1.3
   - (srfi srfi-35) now adds condition field names as init-keywords
     to the classes created by make-condition-type.
 
-  - "make test" now exits with a non-zero exit code upon error.
+  - "make check" now exits with a non-zero exit code upon error.
 
 Version 0.1.2
 

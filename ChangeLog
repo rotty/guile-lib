@@ -1,5 +1,13 @@
 2006-11-17  Andy Wingo  <wingo@pobox.com>
 
+	* == released guile-lib version 0.1.3 ==
+
+	* NEWS: Updated.
+
+	* configure.ac: Bump version to 0.1.3
+
+	* README: Remove bitrotten readme.
+
 	* src/text/parse-lalr.scm: Remove syntactically invalid sp
 	elements. Remove bad xref.
 

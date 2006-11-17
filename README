@@ -5,23 +5,3 @@ Guile-Lib is intended as an accumulation place for pure-scheme Guile
 modules, allowing for people to cooperate integrating their generic
 Guile modules into a coherent library. Think "a down-scaled,
 limited-scope CPAN for Guile".
-
-Installing
-==========
-
-After unpacking the tarball, create a build directory, and run
-configure, "make" and "make install":
-
-$ tar -xzf guile-lib-0.1.2.tar.gz
-$ cd guile-lib-0.1.2
-$ mkdir build
-$ cd build
-$ ../src/configure
-$ make
-$ make install
-
-Note that you can use the --prefix={where} option to tell configure
-where to install Guile-Lib. For a list of options, use
-../src/configure --help.
-
-;; arch-tag: d319a470-d421-4869-8e73-eb95b6855c6f
