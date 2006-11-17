@@ -265,16 +265,17 @@ Here is an example of the usage of this procedure:
  \"Standard GPL permissions blurb goes here\")
 @end smallexample
 "
-  `(titlepage
-    (title ,name)
-    (subtitle "version " ,version ", updated " ,updated)
-    ,@(map (lambda (pair)
-             `(author ,(car pair)
-                      " (" (email ,(cdr pair)) ")"))
-           authors)
-    (page)
-    (vskip (% (all "0pt plus 1filll")))
-    (insertcopying)))
+  `(;(setchapternewpage (% (all "odd"))) makes manuals too long
+    (titlepage
+     (title ,name)
+     (subtitle "version " ,version ", updated " ,updated)
+     ,@(map (lambda (pair)
+              `(author ,(car pair)
+                       " (" (email ,(cdr pair)) ")"))
+            authors)
+     (page)
+     (vskip (% (all "0pt plus 1filll")))
+     (insertcopying))))
 
 (define (package-stexi-standard-menu name modules module-descriptions
                                      extra-entries)
@@ -284,23 +285,25 @@ by makeinfo."
     `("* " ,node "::"
       ,(make-string (max (- 21 (string-length node)) 2) #\space)
       ,@description "\n"))
-  `(ifnottex
-    (node (% (name "Top")))
-    (top (% (title ,name)))
-    (insertcopying)
-    (menu
-     ,@(apply
-        append
-        (map
-         (lambda (module description)
-           (make-entry (module-name->node-name module) description))
-         modules module-descriptions))
-     ,@(if extra-entries
-           (cons "\n" 
-                 (apply append (map make-entry
-                                    (map car extra-entries)
-                                    (map cdr extra-entries))))
-           '()))))
+  `((ifnottex
+     (node (% (name "Top")))
+     (top (% (title ,name)))
+     (insertcopying)
+     (menu
+      ,@(apply
+         append
+         (map
+          (lambda (module description)
+            (make-entry (module-name->node-name module) description))
+          modules module-descriptions))
+      ,@(if extra-entries
+            (cons "\n" 
+                  (apply append (map make-entry
+                                     (map car extra-entries)
+                                     (map cdr extra-entries))))
+            '())))
+    (iftex
+     (shortcontents))))
 
 (define (package-stexi-standard-prologue name filename category
                                          description copying titlepage
@@ -320,8 +323,8 @@ package-stexi-standard-menu,package-stexi-standard-menu}."
     (dircategory (% (category ,category)))
     (direntry
      "* " ,name ": (" ,filename ").  " ,description ".")
-    ,titlepage
-    ,menu))
+    ,@titlepage
+    ,@menu))
 
 (define (package-stexi-documentation-helper sym-name)
   ;; returns a list of forms

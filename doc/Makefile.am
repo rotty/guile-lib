@@ -15,7 +15,8 @@ www: html guile-library.pdf clean-www
 	cp guile-library.pdf www/doc/
 
 www-commit: www
-	svn import www svn+ssh://wingo@svn.gna.org/svn/guile-lib
+	svn rm -m 'make www in guile-lib/docs' svn+ssh://wingo@svn.gna.org/svn/guile-lib/website
+	svn import -m 'make www in guile-lib/docs' www svn+ssh://wingo@svn.gna.org/svn/guile-lib/website
 
 clean-www:
 	find www -name 'index.html' -print \

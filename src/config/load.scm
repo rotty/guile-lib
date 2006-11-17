@@ -18,6 +18,11 @@
 ;;; ----------------------------------------------------------------------
 ;;;   Copyright (C) 2003-2004 Andreas Rottmann
 ;;; ----------------------------------------------------------------------
+
+;;; Commentary:
+;; This module needs to be documented.
+;;; Code:
+
 (define-module (config load)
   #:use-module (oop goops)
   #:use-module (ice-9 safe)

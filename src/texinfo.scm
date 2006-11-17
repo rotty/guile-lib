@@ -236,6 +236,8 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (vskip              EOL-ARGS . all)
     (syncodeindex       EOL-ARGS . all)
     (contents           EOL-ARGS . ())
+    (shortcontents      EOL-ARGS . ())
+    (summarycontents    EOL-ARGS . ())
     (insertcopying      EOL-ARGS . ())
     (dircategory        EOL-ARGS . (category))
     (top		EOL-ARGS . (title))

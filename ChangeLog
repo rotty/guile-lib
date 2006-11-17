@@ -1,5 +1,27 @@
 2006-11-17  Andy Wingo  <wingo@pobox.com>
 
+	* src/text/parse-lalr.scm: Remove syntactically invalid sp
+	elements. Remove bad xref.
+
+	* src/texinfo/reflection.scm (package-stexi-standard-titlepage)
+	(package-stexi-standard-menu): Return lists of forms instead of
+	just one form. In the menu, add a contents section for texi
+	output.
+	(package-stexi-standard-prologue): Interpret the menu and
+	titlepage as lists.
+
+	* src/texinfo.scm (texi-command-specs): Add @shortcontents and
+	@summarycontents.
+
+	* src/config/load.scm: Needs documenting, I have no idea what this
+	module does.
+
+	* doc/guile-library.scm (*modules*): Add a few more modules. We
+	might want to cull some of these before committing to supporting
+	them.
+
+	* doc/Makefile.am (www-commit): Fix www-commit target.
+
 	* .bzrignore: Ignore some more.
 
 	* doc/base.css: Remove old css.

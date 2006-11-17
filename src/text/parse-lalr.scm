@@ -10,10 +10,10 @@ Scheme. In contrast to other such parser generators, this one
 implements a more efficient algorithm for computing the lookahead sets.
 The algorithm is the same as used in Bison (GNU yacc) and is described 
 in the following paper:                                                
-@sp                                                                       
+
 "Efficient Computation of LALR(1) Look-Ahead Set", F. DeRemer and   
 T. Pennello, TOPLAS, vol. 4, no. 4, october 1982.                      
-@sp                                                                       
+
 As a consequence, it is not written in a fully functional style.       
 In fact, much of the code is a direct translation from C to Scheme     
 of the Bison sources.                                                  
@@ -28,8 +28,7 @@ The module @code{(text parse-lalr)} declares a macro called @code{lalr-parser}:
 This macro, when given appropriate arguments, generates an LALR(1)     
 syntax analyzer.  The macro accepts at least two arguments. The first  
 is a list of symbols which represent the terminal symbols of the       
-grammar. The remaining arguments are the grammar production rules. See 
-section @ref{"The grammar format"} for further details.               
+grammar. The remaining arguments are the grammar production rules.
                                                                        
 @section Running the parser
                                                                        
