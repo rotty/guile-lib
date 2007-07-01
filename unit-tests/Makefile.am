@@ -17,6 +17,7 @@ TESTS= \
 	sxml.xpath.scm			\
 	term.ansi-color.scm		\
 	texinfo.scm			\
+	texinfo.serialize.scm		\
 	text.parse-lalr.scm
 
 TESTS_ENVIRONMENT=$(top_srcdir)/dev-environ guile -s

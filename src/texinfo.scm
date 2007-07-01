@@ -741,7 +741,7 @@ Examples:
   (or (and (token? token)
            (eq? kind (token-kind token))
            (equal? name (token-head token)))
-      (parser-error #f "Expecting @end for " command ", got " token)))
+      (parser-error #f "Expecting @end for " name ", got " token)))
 
 ;;========================================================================
 ;;		Highest-level parsers: Texinfo to SXML

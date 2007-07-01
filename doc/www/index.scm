@@ -16,4 +16,4 @@ SRFI-35.")))
 (load "template.scm")
 
 (define (make-index)
-  (output-html page "guile-gnome" "guile-gnome" ""))
+  (output-html page "guile-lib" "guile-lib" ""))

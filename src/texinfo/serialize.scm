@@ -115,7 +115,7 @@
                  (drop-while not
                              (map (lambda (x) (assq-ref args x))
                                   (reverse formals))))
-          " ")
+          ", ")
          " " command "@" accum))
 
 (define (environ exp lp command type formals args accum)
@@ -132,19 +132,22 @@
             "\\input texinfo   @c -*-texinfo-*-\n@c %**start of header\n"
             accum))
     (else
-     (list* "\n\n" command "\n@end "
+     (list* "\n\n" command "@end "
+            ;; assumes we are left on a newline
             (append-map (lambda (x) (lp x '()))
                         (reverse (if args (cddr exp) (cdr exp))))
             "\n"
-            (list-intersperse
-             (append-map (lambda (x) (lp x '()))
-                         (apply append
-                                (map
-                                 reverse
-                                 (drop-while
-                                  not (map (lambda (x) (assq-ref args x))
-                                           (reverse formals))))))
-             " ")
+            (apply
+             append
+             (list-intersperse
+              (map (lambda (x) (lp x '()))
+                   (apply append
+                          (map
+                           reverse
+                           (drop-while
+                            not (map (lambda (x) (assq-ref args x))
+                                     (reverse formals))))))
+              '(" ")))
             " " command "@" accum))))
 
 (define (table-environ exp lp command type formals args accum)

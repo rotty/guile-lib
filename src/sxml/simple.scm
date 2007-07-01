@@ -32,6 +32,7 @@ into a form suitable for XML serialization by @code{(sxml transform)}'s
      ((*default* . ,(lambda (attr-key . value) ((enattr attr-key) value))))
      . ,(lambda (trigger . value) (list '@ value)))
     (*ENTITY*    . ,(lambda (tag name) (list "&" name ";")))
+    (*PI*    . ,(lambda (pi tag str) (list "<?" tag " " str "?>")))
     ;; Is this right for entities? I don't have a reference for
     ;; public-id/system-id at the moment...
     (*default*   . ,(lambda (tag . elems) (apply (entag tag) elems)))
