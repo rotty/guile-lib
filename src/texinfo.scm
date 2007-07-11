@@ -1041,9 +1041,9 @@ resultant stexi tree. The head of the tree will be the special command,
 @code{*fragment*}."
   (define (parse port)
     (postprocess (car ((make-dom-parser) '*fragment* port '()))))
-  (if (input-port? string)
-      (parse string)
-      (call-with-input-string string parse)))
+  (if (input-port? string-or-port)
+      (parse string-or-port)
+      (call-with-input-string string-or-port parse)))
 
 ;; procedure: texi->stexi PORT
 ;;

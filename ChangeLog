@@ -2,6 +2,8 @@
 
 	* src/texinfo.scm (texi-fragment->stexi): Allow ports as well as
 	strings.
+	(texi-fragment->stexi): Fix brokenness introduced in the last
+	commit.
 
 	* src/texinfo/serialize.scm (environ): 
 	* unit-tests/texinfo.serialize.scm (test-serialize): Fix
