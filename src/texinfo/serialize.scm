@@ -133,9 +133,14 @@
             accum))
     (else
      (list* "\n\n" command "@end "
-            ;; assumes we are left on a newline
-            (append-map (lambda (x) (lp x '()))
-                        (reverse (if args (cddr exp) (cdr exp))))
+            (let ((body (append-map (lambda (x) (lp x '()))
+                                    (reverse (if args (cddr exp) (cdr exp))))))
+              (if (or (null? body)
+                      (eqv? (string-ref (car body)
+                                        (1- (string-length (car body))))
+                            #\newline))
+                  body
+                  (cons "\n" body)))
             "\n"
             (apply
              append

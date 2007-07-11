@@ -163,9 +163,13 @@ zzzzz
 
 ")
 
+  (assert-serialize '(verbatim "foo")
+                    "@verbatim 
+foo
+@end verbatim
+
+")
+
   )
 
 (exit-with-summary (run-all-defined-test-cases))
-
-;;; arch-tag: f98bded1-c044-457c-b358-7df6a397d648
-;;; xml.texinfo.scm ends here

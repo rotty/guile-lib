@@ -1,3 +1,12 @@
+2007-07-11  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo.scm (texi-fragment->stexi): Allow ports as well as
+	strings.
+
+	* src/texinfo/serialize.scm (environ): 
+	* unit-tests/texinfo.serialize.scm (test-serialize): Fix
+	serialization of environments when we need to newline before @end.
+
 2007-07-01  Andy Wingo  <wingo@pobox.com>
 
 	* src/texinfo/serialize.scm (environ): Don't newline before @end.

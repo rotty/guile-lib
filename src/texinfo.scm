@@ -1035,14 +1035,15 @@ Examples:
 ;; The procedure returns an SXML tree headed by the special tag,
 ;; *fragment*.
 
-(define (texi-fragment->stexi string)
-  "Parse the texinfo commands in @var{string}, and return the resultant
-stexi tree. The head of the tree will be the special command,
+(define (texi-fragment->stexi string-or-port)
+  "Parse the texinfo commands in @var{string-or-port}, and return the
+resultant stexi tree. The head of the tree will be the special command,
 @code{*fragment*}."
-  (let ((parser (make-dom-parser)))
-    (call-with-input-string string
-      (lambda (port)
-        (postprocess (car (parser '*fragment* port '())))))))
+  (define (parse port)
+    (postprocess (car ((make-dom-parser) '*fragment* port '()))))
+  (if (input-port? string)
+      (parse string)
+      (call-with-input-string string parse)))
 
 ;; procedure: texi->stexi PORT
 ;;
