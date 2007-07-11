@@ -1,5 +1,9 @@
 2007-07-11  Andy Wingo  <wingo@pobox.com>
 
+	* doc/guile-library.scm (*extra-html-entry-files*): 
+	* doc/make-html.scm: Add support for including extra entries in
+	the HTML index. Changes pulled from Guile-Present.
+
 	* src/texinfo.scm (texi-fragment->stexi): Allow ports as well as
 	strings.
 	(texi-fragment->stexi): Fix brokenness introduced in the last

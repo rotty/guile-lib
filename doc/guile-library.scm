@@ -43,6 +43,8 @@ License\".")
 
 ;; HTML foo
 (define *html-relative-root-path* "../../")
+(define *extra-html-entry-files*
+  '())
 
 ;; The modules to document
 (define *modules*

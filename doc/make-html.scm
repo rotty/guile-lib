@@ -3,7 +3,8 @@
 exec guile --debug -s $0 "$@"
 !#
 
-(use-modules (texinfo reflection)
+(use-modules (texinfo)
+             (texinfo reflection)
              (texinfo html)
              (sxml simple)
              (sxml transform)
@@ -31,7 +32,7 @@ exec guile --debug -s $0 "$@"
     (body
      (div (@ (id "body"))
           (h1 (@ (id "heading"))
-              (a (@ (href ,root-path)) "guile-lib"))
+              (a (@ (href ,root-path)) ,*name*))
           (div (@ (id "text"))
                (h2 (@ (class "centered")) ,title)
                ,@body)
@@ -47,6 +48,8 @@ exec guile --debug -s $0 "$@"
   (call-with-output-string (lambda (p) (display scm p))))
 (define (module->ustr scm)
   (string-append (string-join (map symbol->string scm) ".") "/"))
+(define (extra-entry->ustr str)
+  (string-append (string-join (string-split str #\space) ".") "/"))
 
 (define (make-html-index)
   (with-output-to-file "html/index.html"
@@ -70,7 +73,18 @@ exec guile --debug -s $0 "$@"
                        (uref (% (url ,(module->ustr module))
                                 (title ,(module->str module))))))
                    ,@description))
-               (map car *modules*) (map cdr *modules*)))))
+               (map car *modules*) (map cdr *modules*))
+            ,@(map
+               (lambda (args)
+                 (apply
+                  (lambda (filename label . description)
+                    `(entry
+                      (% (heading
+                          (uref (% (url ,(extra-entry->ustr label))
+                                   (title ,label)))))
+                      ,@description))
+                  args))
+               *extra-html-entry-files*))))
         `((html . ,(lambda (tag attrs head body)
                      (wrap-html
                       *name*
@@ -102,10 +116,34 @@ exec guile --debug -s $0 "$@"
         port)))
    (map car *modules*)))
 
+(define (make-html-extra-pages)
+  (for-each
+   (lambda (filename label)
+     (let* ((ustr (string-append "./html/" (extra-entry->ustr label)))
+            (port (begin
+                    (makedirs ustr)
+                    (open-output-file (string-append ustr "index.html")))))
+       (display xhtml-doctype port)
+       (sxml->xml
+        (pre-post-order
+         (stexi->shtml (call-with-input-file filename texi-fragment->stexi))
+         `((html . ,(lambda (tag attrs head body)
+                      (wrap-html
+                       label
+                       (string-append "../" *html-relative-root-path*)
+                       "../index.scm"
+                       (cdr body)))) ;; cdr past the 'body tag
+           (*text* . ,(lambda (tag text) text))
+           (*default* . ,(lambda args args))))
+        port)))
+   (map car *extra-html-entry-files*)
+   (map cadr *extra-html-entry-files*)))
+
 (define (main config-scm)
   (load config-scm)
   (makedirs "./html")
   (make-html-index)
-  (make-html-module-pages))
+  (make-html-module-pages)
+  (make-html-extra-pages))
 
 (apply main (cdr (command-line)))
