@@ -1,3 +1,8 @@
+2007-07-12  Andy Wingo  <wingo@pobox.com>
+
+	* doc/make-html.scm (resolve-ref): Add a ref resolver that
+	actually works, so that interpage links work.
+
 2007-07-11  Andy Wingo  <wingo@pobox.com>
 
 	* doc/guile-library.scm (*extra-html-entry-files*): 

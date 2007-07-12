@@ -94,6 +94,38 @@ exec guile --debug -s $0 "$@"
           (*text* . ,(lambda (tag text) text))
           (*default* . ,(lambda args args))))))))
 
+(define (append-map proc l)
+  (let lp ((in l))
+    (if (null? in)
+        '()
+        (append (proc (car in)) (lp (cdr in))))))
+(define (string-split* s . chars)
+  (let lp ((chars (cdr chars)) (out (string-split s (car chars))))
+    (if (null? chars)
+        out
+        (append-map
+         (lambda (x)
+           (lp (cdr chars) (string-split x (car chars))))
+         out))))
+
+(define (resolve-ref node manual)
+  (and (or (not manual) (string=? manual *name*))
+       (let* ((split (string-split* node #\space #\newline))
+              (symbols (map string->symbol split))
+              (last (car (last-pair symbols)))
+              (except-last (reverse (cdr (reverse symbols)))))
+         (cond
+          ((member symbols (map car *modules*))
+           (string-append "../" (module->ustr symbols)))
+          ((member except-last (map car *modules*))
+           (string-append "../" (module->ustr except-last)
+                          "#" (string-join split "-")))
+          ((member node (map cadr *extra-html-entry-files*))
+           (string-append "../" (extra-entry->ustr node)))
+          (else
+           #f)))))
+(add-ref-resolver! resolve-ref)
+      
 (define (make-html-module-pages)
   (for-each
    (lambda (module)
