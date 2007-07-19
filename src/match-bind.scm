@@ -200,7 +200,7 @@ Here are some examples:
 global search-and-replace on an input string.
 
 The @var{pat} and @var{subst} arguments are as in the non-global
-@code{s///}. @xref{match-bind s///,,s///}, for more information.
+@code{s///}. @xref{match-bind s---,,s///}, for more information.
 
 @code{s///g} differs from @code{s///} in that it does a global search
 and replace, not stopping at the first match.

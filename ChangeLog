@@ -1,5 +1,7 @@
 2007-07-19  Andy Wingo  <wingo@pobox.com>
 
+	* src/match-bind.scm: Fix docs.
+	
 	* src/match-bind.scm: New file, exports some nifty procedures for
 	dealing regular expressions.
 
