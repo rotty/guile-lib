@@ -1,3 +1,18 @@
+2007-07-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/match-bind.scm: New file, exports some nifty procedures for
+	dealing regular expressions.
+
+	* src/texinfo/serialize.scm (stexi->texi): Ignore a #f value in
+	serialization.
+
+	* src/texinfo/html.scm (ignore-list): Ignore more tags.
+	(rules): Detag ignortex.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add match-bind to dist and
+	docs.
+
 2007-07-12  Andy Wingo  <wingo@pobox.com>
 
 	* doc/make-html.scm (resolve-ref): Add a ref resolver that

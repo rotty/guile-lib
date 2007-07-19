@@ -16,6 +16,7 @@ nobase_dist_scm_DATA = \
 	math/minima.scm			\
 	math/primes.scm			\
 	math/rationalize.scm		\
+	match-bind.scm			\
 	md5.scm				\
 	os/process.scm			\
 	scheme/documentation.scm	\

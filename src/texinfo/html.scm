@@ -209,7 +209,8 @@ name, @code{#}, and the node name."
 
 (define ignore-list
   '(page setfilename setchapternewpage iftex ifinfo ifplaintext ifxml sp vskip
-    menu ignore syncodeindex comment c))
+    menu ignore syncodeindex comment c dircategory direntry top shortcontents
+    cindex printindex))
 (define (ignored? tag)
   (memq tag ignore-list))
 
@@ -240,6 +241,7 @@ name, @code{#}, and the node name."
     (deftypevr . ,def) (deftypevar . ,def) (deffn . ,def) 
     (deftypefn . ,def) (defmac . ,def) (defspec . ,def) (defun . ,def)
     (deftypefun . ,def)
+    (ifnottex . ,(lambda (tag . body) body))
     (*text*    . ,(lambda (tag x) x))
     (*default* . ,(lambda (tag . body)
                     (let ((subst (assq tag tag-replacements)))

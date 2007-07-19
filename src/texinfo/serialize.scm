@@ -230,7 +230,7 @@
   (string-concatenate-reverse
    (let lp ((in tree) (out '()))
      (cond
-      ((null? in) out)
+      ((or (not in) (null? in)) out)
       ((string? in) (cons (escape in) out))
       ((pair? in)
        (let ((command-spec (assq (car in) texi-command-specs)))
