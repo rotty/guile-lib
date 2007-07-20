@@ -21,6 +21,7 @@ nobase_dist_scm_DATA = \
 	os/process.scm			\
 	scheme/documentation.scm	\
 	scheme/session.scm		\
+	scheme/kwargs.scm		\
 	search/basic.scm		\
 	srfi/srfi-34.scm		\
 	srfi/srfi-35.scm		\

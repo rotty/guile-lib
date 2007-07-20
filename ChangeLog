@@ -1,3 +1,16 @@
+2007-07-20  Andy Wingo  <wingo@pobox.com>
+
+	* src/match-bind.scm (s///g): Fix the cross-reference; it seems
+	it's the html generator that needs to be fixed.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add (scheme kwargs) to dist
+	and docs.
+
+	* src/scheme/kwargs.scm (lambda/kwargs, define/kwargs): New
+	module, exporting some useful variants of lambda that support
+	python-style keyword arguments
+
 2007-07-19  Andy Wingo  <wingo@pobox.com>
 
 	* src/match-bind.scm: Fix docs.
