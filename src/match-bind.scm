@@ -177,9 +177,6 @@ Here are some examples:
  ((s/// \"zag\" \"bar\") \"foo bar baz qux foo\")
     @result{} \"foo bar baz qux foo\"
 
- ((s/// \"foo\" \"bar\" 'g) \"foo bar baz qux foo\")
-    @result{} \"bar bar baz qux bar\"
-
  ((s/// \"(f(o+)) (zag)?\" \"$1 $2 $3\")
   \"foo bar baz qux foo\")
     @result{} \"foo oo bar baz qux foo\"
@@ -196,8 +193,8 @@ Here are some examples:
             string)))))
 
 (define (s///g pat subst)
-  "Make a procedure that performs perl-like regular expression
-global search-and-replace on an input string.
+  "Make a procedure that performs perl-like global search-and-replace on
+an input string.
 
 The @var{pat} and @var{subst} arguments are as in the non-global
 @code{s///}. @xref{match-bind s///,,s///}, for more information.

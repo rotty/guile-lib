@@ -2,6 +2,7 @@ TESTS= \
 	graph.topological-sort.scm	\
 	htmlprag.scm			\
 	logging.logger.scm		\
+	match-bind.scm			\
 	math.minima.scm			\
 	math.primes.scm			\
 	md5.scm				\

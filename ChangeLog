@@ -1,5 +1,10 @@
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
+	* src/match-bind.scm (s///, s///g): Fix docs.
+
+	* unit-tests/Makefile.am (TESTS): 
+	* unit-tests/match-bind.scm: Add unit tests for (match-bind).
+
 	* unit-tests/Makefile.am (TESTS): 
 	* unit-tests/scheme.kwargs.scm: Add unit tests for (scheme
 	kwargs).
