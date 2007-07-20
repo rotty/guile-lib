@@ -1,5 +1,9 @@
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
+	* unit-tests/Makefile.am (TESTS): 
+	* unit-tests/scheme.kwargs.scm: Add unit tests for (scheme
+	kwargs).
+
 	* src/match-bind.scm (s///g): Fix the cross-reference; it seems
 	it's the html generator that needs to be fixed.
 

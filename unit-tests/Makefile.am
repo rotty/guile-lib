@@ -9,6 +9,7 @@ TESTS= \
 	search.basic.scm		\
 	srfi.srfi-35.scm		\
 	statprof.scm			\
+	scheme.kwargs.scm		\
 	string.completion.scm		\
 	string.transform.scm		\
 	string.wrap.scm			\
