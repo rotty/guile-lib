@@ -1,5 +1,14 @@
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
+	* doc/www/template.scm (templatize): Add news to title bar, and
+	update the copyright dates.
+
+	* doc/www/index.scm: Include the latest news.
+
+	* doc/guile-library.scm (*updated*): Update years, etc.
+
+	* doc/www/news/index.scm (page): New web page.
+
 	== guile-lib 0.1.4 released ==
 	
 	* NEWS: New file.

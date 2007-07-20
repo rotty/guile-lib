@@ -11,9 +11,28 @@ for Guile\".")
     (p "Also, it can be seen as a code staging area for Guile;
 the Guile developers could decide to integrate some of the code
 into guile-core. An example for a possible candidate is
-SRFI-35.")))
+SRFI-35.")
 
-(load "template.scm")
+    (h3 (@ (style "text-align: center")) "latest news")
+
+    (latest-news)
+
+    (h4 (rlink "news/" "older news..."))))
+
+(define this-page page)
+(load "news/index.scm")
+(define news-page page)
+(define page this-page)
+
+(define (news tag args . body)
+  `(div (h4 ,@(assq-ref (cdr args) 'date) ": "
+            ,@(assq-ref (cdr args) 'title))
+        (p ,@body)))
+
+(define (latest-news . body)
+  (cadr news-page))
 
 (define (make-index)
-  (output-html page "guile-lib" "guile-lib" ""))
+  (output-html page "guile-lib" "guile-lib" ""
+               #:transform-rules `((news . ,news)
+                                   (latest-news *macro* . ,latest-news))))

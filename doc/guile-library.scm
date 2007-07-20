@@ -1,15 +1,15 @@
 ;; About the package
 (define *name* "Guile Library")
 (define *description* "Common modules for Guile Scheme")
-(define *version* "0.1.3")
-(define *updated* "16 November 2006")
+(define *version* "0.1.4")
+(define *updated* "20 July 2007")
 (define *authors*
   '(("Andy Wingo" . "wingo at pobox.com")
     ("Richard Todd" . "richardt at vzavenue.net")))
 
 ;; Copying the documentation
 (define *copyright-holder* "Andy Wingo, Richard Todd")
-(define *years* '(2003 2004 2005 2006))
+(define *years* '(2003 2004 2005 2006 2007))
 (define *permissions*
   "Permission is granted to copy, distribute and/or
 modify this document under the terms of the GNU Free
