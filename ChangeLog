@@ -1,5 +1,10 @@
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
+	* doc/make-html.scm (resolve-ref): Urlify some links to fix html
+	docs.
+
+	* src/texinfo/html.scm (texinfo): Export urlify.
+
 	* src/match-bind.scm (s///, s///g): Fix docs.
 
 	* unit-tests/Makefile.am (TESTS): 

@@ -47,9 +47,9 @@ exec guile --debug -s $0 "$@"
 (define (module->str scm)
   (call-with-output-string (lambda (p) (display scm p))))
 (define (module->ustr scm)
-  (string-append (string-join (map symbol->string scm) ".") "/"))
+  (string-append (string-join (map urlify (map symbol->string scm)) ".") "/"))
 (define (extra-entry->ustr str)
-  (string-append (string-join (string-split str #\space) ".") "/"))
+  (string-append (string-join (map urlify (string-split str #\space)) ".") "/"))
 
 (define (make-html-index)
   (with-output-to-file "html/index.html"
@@ -119,7 +119,7 @@ exec guile --debug -s $0 "$@"
            (string-append "../" (module->ustr symbols)))
           ((member except-last (map car *modules*))
            (string-append "../" (module->ustr except-last)
-                          "#" (string-join split "-")))
+                          "#" (string-join (map urlify split) "-")))
           ((member node (map cadr *extra-html-entry-files*))
            (string-append "../" (extra-entry->ustr node)))
           (else

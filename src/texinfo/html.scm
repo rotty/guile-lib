@@ -41,7 +41,7 @@
   :use-module (sxml transform)
   :use-module (scheme documentation)
   :use-module (srfi srfi-13)
-  :export (stexi->shtml add-ref-resolver!))
+  :export (stexi->shtml add-ref-resolver! urlify))
 
 ;; The caller is responsible for carring the returned list.
 (define (arg-ref key %-args)
