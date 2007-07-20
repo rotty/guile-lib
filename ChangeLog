@@ -1,5 +1,9 @@
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
+	== guile-lib 0.1.4 released ==
+	
+	* NEWS: New file.
+
 	* doc/make-html.scm (resolve-ref): Urlify some links to fix html
 	docs.
 
