@@ -14,6 +14,7 @@ TESTS= \
 	string.completion.scm		\
 	string.transform.scm		\
 	string.wrap.scm			\
+	sxml.fold.scm			\
 	sxml.ssax.scm			\
 	sxml.transform.scm		\
 	sxml.xpath.scm			\

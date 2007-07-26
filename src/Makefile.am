@@ -32,6 +32,7 @@ nobase_dist_scm_DATA = \
 	string/transform.scm		\
 	string/wrap.scm			\
 	sxml/apply-templates.scm	\
+	sxml/fold.scm			\
 	sxml/simple.scm			\
 	sxml/ssax/input-parse.scm	\
 	sxml/ssax.scm			\

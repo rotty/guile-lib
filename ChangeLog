@@ -1,3 +1,15 @@
+2007-07-26  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/Makefile.am (TESTS): 
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add new files to docs and
+	dist.
+
+	* unit-tests/sxml.fold.scm: Unit tests for (sxml fold).
+
+	* src/sxml/fold.scm: New module, defines a number of fold-based
+	XML transformation operators.
+
 2007-07-20  Andy Wingo  <wingo@pobox.com>
 
 	* doc/www/template.scm (templatize): Add news to title bar, and
