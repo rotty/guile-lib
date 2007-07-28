@@ -119,6 +119,8 @@ License\".")
     ((texinfo)
      "Parse texinfo files or fragments into " (code "stexi") ", a "
      "scheme representation")
+    ((texinfo docbook)
+     "Transform a subset of docbook into " (code "stexi"))
     ((texinfo html)
      "Transform " (code "stexi") " into HTML")
     ((texinfo indexing)

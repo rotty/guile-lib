@@ -1,3 +1,14 @@
+2007-07-28  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/Makefile.am (TESTS): 
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add to dist and docs.
+
+	* unit-tests/texinfo.docbook.scm: A lone unit test.
+
+	* src/texinfo/docbook.scm: New module, implements parsing a
+	limited subset of docbook into stexi.
+
 2007-07-26  Andy Wingo  <wingo@pobox.com>
 
 	* unit-tests/Makefile.am (TESTS): 

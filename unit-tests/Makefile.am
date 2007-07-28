@@ -20,6 +20,7 @@ TESTS= \
 	sxml.xpath.scm			\
 	term.ansi-color.scm		\
 	texinfo.scm			\
+	texinfo.docbook.scm		\
 	texinfo.serialize.scm		\
 	text.parse-lalr.scm
 

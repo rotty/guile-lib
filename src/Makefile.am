@@ -47,6 +47,7 @@ nobase_dist_scm_DATA = \
 	sxml/xpath.scm			\
 	sxml/ssax-simple.scm		\
 	term/ansi-color.scm		\
+	texinfo/docbook.scm		\
 	texinfo/html.scm		\
 	texinfo/indexing.scm		\
 	texinfo/nodal-tree.scm		\
