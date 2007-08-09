@@ -1,4 +1,5 @@
 TESTS= \
+	container.async-queue.scm	\
 	graph.topological-sort.scm	\
 	htmlprag.scm			\
 	logging.logger.scm		\

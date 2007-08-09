@@ -1,5 +1,9 @@
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* unit-tests/container.async-queue.scm: 
+	* src/container/async-queue.scm: New module, implements 
+	a thread-safe message queue.
+	
 	* unit-tests/texinfo.docbook.scm (test-flatten): Fix paren typo.
 	
 	* unit-tests/statprof.scm (test-call-frequencies): Disabled
