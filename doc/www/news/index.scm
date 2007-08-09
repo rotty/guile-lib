@@ -2,12 +2,20 @@
   '((h2 "news")
 
     (news
+     (@ (date "9 August 2007")
+        (title "guile-lib 0.1.5 available"))
+     (code "guile-lib") " 0.1.5 has been released featuring a "
+     (rlink "doc/ref/container.async-queue/" "new module")
+     " plus a few bugfixes.")
+    
+    (news
      (@ (date "20 July 2007")
         (title "guile-lib 0.1.4 available"))
      (code "guile-lib") " 0.1.4 has been released, featuring two "
      (rlink "doc/ref/match-bind/" "new") " "
      (rlink "doc/ref/scheme.kwargs/" "modules") " "
      " and other bugfixes and improvements.")
+    
     ))
 
 
