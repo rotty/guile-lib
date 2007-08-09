@@ -32,8 +32,8 @@
 
 (define-method (test-flatten (self <test-texinfo-docbook>))
   (assert-equal
-   (sdocbook-flatten '(refsect1 (refsect2 (para "foo")))
-                     '((refsect1) (refsect2) (para "foo"))))
+   (sdocbook-flatten '(refsect1 (refsect2 (para "foo"))))
+   '((refsect1) (refsect2) (para "foo")))
   )
 
 (exit-with-summary (run-all-defined-test-cases))

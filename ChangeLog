@@ -1,5 +1,7 @@
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* unit-tests/texinfo.docbook.scm (test-flatten): Fix paren typo.
+	
 	* unit-tests/statprof.scm (test-call-frequencies): Disabled
 	this rather unreliable test.
 
