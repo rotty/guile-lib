@@ -43,7 +43,7 @@
               (lambda (x) (display " ") (write x))
               args)))))
 
-(define-method (test-call-frequencies (self <test-statprof>))
+(define-method (disabled:test-call-frequencies (self <test-statprof>))
   ;; test to see that if we call 3 identical functions equally, they
   ;; show up equally in the call count +- 10%
   ;; from test-call-frequencies.scm

@@ -1,5 +1,8 @@
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* unit-tests/statprof.scm (test-call-frequencies): Disabled
+	this rather unreliable test.
+
 	* src/os/process.scm, src/srfi/srfi-40.scm:
 	* unit-tests/os.process.scm: In Guile 1.8, READ-LINE no longer
 	is in the core, it has moved into (ice-9 rdelim).
