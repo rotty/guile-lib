@@ -1,5 +1,8 @@
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	* configure.ac: Bump version to 0.1.5.
+	* NEWS: Started NEWS for 0.1.5.
+
 	* unit-tests/container.async-queue.scm: 
 	* src/container/async-queue.scm: New module, implements 
 	a thread-safe message queue.

@@ -6,6 +6,17 @@ modules, allowing for people to cooperate integrating their generic
 Guile modules into a coherent library. Think "a down-scaled,
 limited-scope CPAN for Guile".
 
+guile-lib 0.1.5 -- unreleased
+=============================
+
+* New module (container async-queue).
+
+(container async-queue) implements a simple thread-safe message queue.
+
+* Fixes for Guile 1.8
+
+READ-LINE is now in (ice-9 rdelim) instead of the core.
+
 
 guile-lib 0.1.4 -- 2007-07-20
 =============================
