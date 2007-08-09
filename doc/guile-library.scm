@@ -50,6 +50,8 @@ License\".")
 (define *modules*
   '(((config load)
      "Loading configuration files")
+    ((container async-queue)
+     "A thread-safe message queue")
     ((container nodal-tree)
      "A tree consisting of nodes with attributes")
     ((container delay-tree)
