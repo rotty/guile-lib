@@ -45,7 +45,7 @@
   (assert-equal 25
                 (status:exit-val 
                  (run+ (tail-call-pipeline ("echo" "25") 
-                                           ("guile" "-c" "(exit (string->number (read-line)))"))))))
+                                           ("guile" "-c" "(use-modules (ice-9 rdelim)) (exit (string->number (read-line)))"))))))
 
 (exit-with-summary (run-all-defined-test-cases))
 

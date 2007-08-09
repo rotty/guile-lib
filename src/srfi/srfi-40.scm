@@ -1,5 +1,6 @@
 (define-module (srfi srfi-40)
   #:use-module (ice-9 syncase)
+  #:use-module (ice-9 rdelim)
   #:use-module (oop goops)
 
   #:export

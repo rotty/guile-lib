@@ -400,6 +400,7 @@ When the process terminates its exit status can be collected using the
 
 Example:
 @example
+ (use-modules (ice-9 rdelim)) ; needed by read-line
  (define catport (cdr (run-with-pipe \"r\" \"cat\" \"/etc/passwd\")))
  (read-line catport)
 @end example"
