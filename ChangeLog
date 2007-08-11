@@ -1,3 +1,10 @@
+2007-08-11  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/string/wrap.scm (string->wrapped-lines): Fix for long words
+	when #:break-long-words? is false. See
+	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=437217
+	* unit-tests/string.wrap.scm (test-no-word-break): New testcase covering this bug.
+
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* doc/guile-library.scm (*modules*): Added (container

@@ -207,7 +207,7 @@ the formatted lines.  Valid keyword arguments are discussed with the
 
            ;; well, then is it the first word and we *shouldn't* break long words, then...
            (else
-            (loop (cons (string-append line next-line)
+            (loop (cons (string-append line next-word)
                         ans)
                   (cdr words)
                   (subsequent-indent tw)

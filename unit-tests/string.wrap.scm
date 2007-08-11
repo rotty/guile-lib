@@ -55,6 +55,14 @@ to using the function `set-language-environment'.
 variable should be  set only with M-x customize, which is equivalent to using
 the function `set-language-environment'."))
 
+(define-method (test-no-word-break (tw <test-string-wrapper>))
+  (assert-equal "thisisalongword
+blah
+blah"
+                (fill-string "thisisalongword blah blah"
+                             #:line-width 8
+                             #:break-long-words? #f)))
+
 (exit-with-summary (run-all-defined-test-cases))
 
 ;;; arch-tag: 03aff8ef-c04c-4fdc-99fa-be36a5faaebf
