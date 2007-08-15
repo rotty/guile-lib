@@ -1,6 +1,7 @@
 scmdir=$(prefix)/share/guile/site
 
 nobase_dist_scm_DATA = \
+	apicheck.scm			\
 	config/load.scm			\
 	container/delay-tree.scm	\
 	container/nodal-tree.scm	\

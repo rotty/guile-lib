@@ -1,3 +1,26 @@
+2007-08-15  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/guile-library.api: New file, the result of running
+	make guile-library.api.update in unit-tests/.
+
+	* unit-tests/Makefile.am (guile-library.api.update): New target,
+	regenerates the API description.
+	(TESTS): Add new test of guile-lib's API.
+
+	* src/sxml/ssax/input-parse.scm: Remove next-token-list-based from
+	the export list, it was never defined.
+
+	* src/sxml/ssax.scm: Rework syncase-related hacks to not export
+	the current module, that re-exports all used modules as well.
+	Terrible in any case, though.
+
+	* doc/guile-library.scm (*modules*): 
+	* src/Makefile.am (nobase_dist_scm_DATA): Add to docs and dist.
+
+	* src/apicheck.scm: New module, implements one function to
+	describe a set of modules' API as an s-expression, and one to
+	verify the s-expression against the current API.
+
 2007-08-11  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* src/string/wrap.scm (string->wrapped-lines): Fix for long words

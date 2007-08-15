@@ -46,7 +46,6 @@
             skip-until
             skip-while
             next-token
-            next-token-list-based
             next-token-of
             read-text-line
             read-string))

@@ -1,0 +1,557 @@
+(module-api
+  (version 1 0)
+  ((config load)
+   (uses-interfaces)
+   (typed-exports
+     (&config-error class)
+     (<configuration> class)
+     (config-error-arguments procedure (arity 1 0 #f))
+     (load-config!
+       generic
+       (<configuration> <list> <string>))))
+  ((container delay-tree)
+   (uses-interfaces)
+   (typed-exports
+     (force-ref procedure (arity 2 0 #f))))
+  ((container nodal-tree)
+   (uses-interfaces)
+   (typed-exports
+     (make-node procedure (arity 0 0 #t))
+     (nodal-tree? procedure (arity 1 0 #f))
+     (node-children procedure (arity 1 0 #f))
+     (node-ref procedure (arity 2 0 #f))
+     (node-set! procedure (arity 3 0 #f))))
+  ((debugging assert)
+   (uses-interfaces)
+   (typed-exports
+     (assert macro)
+     (cerr procedure (arity 0 0 #t))
+     (cout procedure (arity 0 0 #t))))
+  ((debugging time)
+   (uses-interfaces)
+   (typed-exports (time macro)))
+  ((graph topological-sort)
+   (uses-interfaces)
+   (typed-exports
+     (topological-sort procedure (arity 1 0 #f))
+     (topological-sortq procedure (arity 1 0 #f))
+     (topological-sortv procedure (arity 1 0 #f))))
+  ((htmlprag)
+   (uses-interfaces)
+   (typed-exports
+     (html->shtml procedure (arity 1 0 #f))
+     (html->sxml procedure (arity 1 0 #f))
+     (html->sxml-0nf procedure (arity 1 0 #f))
+     (html->sxml-1nf procedure (arity 1 0 #f))
+     (html->sxml-2nf procedure (arity 1 0 #f))
+     (make-html-tokenizer procedure (arity 2 0 #f))
+     (parse-html/tokenizer procedure (arity 2 0 #f))
+     (shtml->html procedure (arity 1 0 #f))
+     (shtml-comment-symbol <symbol>)
+     (shtml-decl-symbol <symbol>)
+     (shtml-empty-symbol <symbol>)
+     (shtml-end-symbol <symbol>)
+     (shtml-entity-symbol <symbol>)
+     (shtml-entity-value procedure (arity 1 0 #f))
+     (shtml-named-char-id <string>)
+     (shtml-numeric-char-id <string>)
+     (shtml-pi-symbol <symbol>)
+     (shtml-start-symbol <symbol>)
+     (shtml-text-symbol <symbol>)
+     (shtml-token-kind procedure (arity 1 0 #f))
+     (shtml-top-symbol <symbol>)
+     (sxml->html procedure (arity 1 0 #f))
+     (test-htmlprag procedure (arity 0 0 #f))
+     (tokenize-html procedure (arity 2 0 #f))
+     (write-shtml-as-html procedure (arity 2 0 #f))
+     (write-sxml-html procedure (arity 2 0 #f))))
+  ((io string)
+   (uses-interfaces)
+   (typed-exports
+     (find-string-from-port? procedure (arity 2 0 #t))))
+  ((logging logger)
+   (uses-interfaces)
+   (typed-exports
+     (<log-handler> class)
+     (<logger> class)
+     (accept-log
+       generic
+       (<log-handler> <top> <top> <top>))
+     (add-handler! generic (<logger> <log-handler>))
+     (close-log!
+       generic
+       ()
+       (<log-handler>)
+       (<logger>)
+       (<port-log>)
+       (<rotating-log>))
+     (disable-log-level! procedure (arity 2 0 #f))
+     (emit-log
+       generic
+       (<port-log> <top>)
+       (<rotating-log> <top>))
+     (enable-log-level! procedure (arity 2 0 #f))
+     (flush-log
+       generic
+       ()
+       (<log-handler>)
+       (<logger>)
+       (<port-log>)
+       (<rotating-log>))
+     (log-msg
+       generic
+       (<logger> <top> . <top>)
+       (<symbol> . <top>))
+     (lookup-logger procedure (arity 1 0 #f))
+     (open-log!
+       generic
+       ()
+       (<log-handler>)
+       (<logger>)
+       (<rotating-log>))
+     (register-logger! procedure (arity 2 0 #f))
+     (set-default-logger! procedure (arity 1 0 #f))))
+  ((logging port-log)
+   (uses-interfaces)
+   (typed-exports (<port-log> class)))
+  ((logging rotating-log)
+   (uses-interfaces)
+   (typed-exports (<rotating-log> class)))
+  ((match-bind)
+   (uses-interfaces)
+   (typed-exports
+     (match-bind macro)
+     (s/// procedure (arity 2 0 #f))
+     (s///g procedure (arity 2 0 #f))))
+  ((math minima)
+   (uses-interfaces)
+   (typed-exports
+     (golden-section-search procedure (arity 4 0 #f))))
+  ((math primes)
+   (uses-interfaces)
+   (typed-exports
+     (factor procedure (arity 1 0 #f))
+     (prime:trials <integer>)
+     (prime< procedure (arity 1 0 #f))
+     (prime> procedure (arity 1 0 #f))
+     (prime? procedure (arity 1 0 #f))
+     (primes< procedure (arity 2 0 #f))
+     (primes> procedure (arity 2 0 #f))))
+  ((math rationalize)
+   (uses-interfaces)
+   (typed-exports
+     (find-ratio procedure (arity 2 0 #f))
+     (rationalize procedure (arity 2 0 #f))))
+  ((os process)
+   (uses-interfaces)
+   (typed-exports
+     (os:process:new-comm-pipes
+       procedure
+       (arity 2 0 #f))
+     (os:process:pipe-fork-child macro)
+     (os:process:pipe-make-commands
+       procedure
+       (arity 3 0 #f))
+     (os:process:pipe-make-redir-commands
+       procedure
+       (arity 2 0 #f))
+     (os:process:setup-redirected-port
+       procedure
+       (arity 2 0 #f))
+     (run procedure (arity 1 0 #t))
+     (run+ macro)
+     (run-concurrently procedure (arity 0 0 #t))
+     (run-concurrently+ macro)
+     (run-with-pipe procedure (arity 2 0 #t))
+     (tail-call-pipeline macro)
+     (tail-call-pipeline+ macro)
+     (tail-call-program procedure (arity 1 0 #t))))
+  ((scheme documentation)
+   (uses-interfaces)
+   (typed-exports
+     (define-class-with-docs macro)
+     (define-generic-with-docs macro)
+     (define-macro-with-docs macro)
+     (define-with-docs macro)))
+  ((scheme kwargs)
+   (uses-interfaces)
+   (typed-exports
+     (define/kwargs macro)
+     (lambda/kwargs macro)))
+  ((scheme session)
+   (uses-interfaces)
+   (typed-exports
+     (add-name-help-handler! procedure (arity 1 0 #f))
+     (add-value-help-handler!
+       procedure
+       (arity 1 0 #f))
+     (apropos procedure (arity 1 0 #t))
+     (apropos-fold procedure (arity 4 0 #f))
+     (apropos-fold-accessible
+       procedure
+       (arity 1 0 #f))
+     (apropos-fold-all procedure (arity 2 0 #f))
+     (apropos-fold-exported procedure (arity 2 0 #f))
+     (apropos-internal procedure (arity 1 0 #f))
+     (arity procedure (arity 1 0 #f))
+     (help macro)
+     (module-commentary procedure (arity 1 0 #f))
+     (remove-name-help-handler!
+       procedure
+       (arity 1 0 #f))
+     (remove-value-help-handler!
+       procedure
+       (arity 1 0 #f))
+     (source procedure (arity 1 0 #f))
+     (system-module macro)))
+  ((search basic)
+   (uses-interfaces)
+   (typed-exports
+     (binary-search-sorted-vector
+       procedure
+       (arity 2 0 #t))
+     (breadth-first-search procedure (arity 3 0 #f))
+     (depth-first-search procedure (arity 3 0 #f))))
+  ((statprof)
+   (uses-interfaces)
+   (typed-exports
+     (statprof-accumulated-time
+       procedure
+       (arity 0 0 #f))
+     (statprof-active? procedure (arity 0 0 #f))
+     (statprof-call-data->stats
+       procedure
+       (arity 1 0 #f))
+     (statprof-call-data-calls
+       procedure
+       (arity 1 0 #f))
+     (statprof-call-data-cum-samples
+       procedure
+       (arity 1 0 #f))
+     (statprof-call-data-name
+       procedure
+       (arity 1 0 #f))
+     (statprof-call-data-self-samples
+       procedure
+       (arity 1 0 #f))
+     (statprof-display procedure (arity 0 0 #t))
+     (statprof-display-anomolies
+       procedure
+       (arity 0 0 #f))
+     (statprof-fold-call-data
+       procedure
+       (arity 2 0 #f))
+     (statprof-proc-call-data
+       procedure
+       (arity 1 0 #f))
+     (statprof-reset procedure (arity 3 0 #f))
+     (statprof-sample-count procedure (arity 0 0 #f))
+     (statprof-start procedure (arity 0 0 #f))
+     (statprof-stats-%-time-in-proc
+       procedure
+       (arity 1 0 #f))
+     (statprof-stats-calls procedure (arity 1 0 #f))
+     (statprof-stats-cum-secs-in-proc
+       procedure
+       (arity 1 0 #f))
+     (statprof-stats-cum-secs-per-call
+       procedure
+       (arity 1 0 #f))
+     (statprof-stats-proc-name
+       procedure
+       (arity 1 0 #f))
+     (statprof-stats-self-secs-in-proc
+       procedure
+       (arity 1 0 #f))
+     (statprof-stats-self-secs-per-call
+       procedure
+       (arity 1 0 #f))
+     (statprof-stop procedure (arity 0 0 #f))
+     (with-statprof macro)))
+  ((string completion)
+   (uses-interfaces)
+   (typed-exports
+     (<string-completer> class)
+     (add-strings! generic (<string-completer> <top>))
+     (all-completions procedure (arity 2 0 #f))
+     (case-sensitive-completion?
+       generic
+       (<string-completer>))
+     (complete generic (<string-completer> <top>))))
+  ((string soundex)
+   (uses-interfaces)
+   (typed-exports
+     (soundex procedure (arity 1 0 #f))))
+  ((string transform)
+   (uses-interfaces)
+   (typed-exports
+     (center-string procedure (arity 1 0 #t))
+     (collapse-repeated-chars
+       procedure
+       (arity 1 0 #t))
+     (escape-special-chars procedure (arity 3 0 #f))
+     (expand-tabs procedure (arity 1 0 #t))
+     (left-justify-string procedure (arity 1 0 #t))
+     (right-justify-string procedure (arity 1 0 #t))
+     (transform-string procedure (arity 3 0 #t))))
+  ((string wrap)
+   (uses-interfaces)
+   (typed-exports
+     (<text-wrapper> class)
+     (fill-string
+       generic
+       (<text-wrapper> <top>)
+       (<top> . <top>))
+     (string->wrapped-lines
+       generic
+       (<text-wrapper> <top>)
+       (<top> . <top>))))
+  ((sxml apply-templates)
+   (uses-interfaces)
+   (typed-exports
+     (apply-templates procedure (arity 2 0 #f))))
+  ((sxml fold)
+   (uses-interfaces)
+   (typed-exports
+     (fold procedure (arity 3 0 #f))
+     (fold-layout procedure (arity 5 0 #f))
+     (fold-values procedure (arity 2 0 #t))
+     (foldt procedure (arity 3 0 #f))
+     (foldts procedure (arity 5 0 #f))
+     (foldts* procedure (arity 5 0 #f))
+     (foldts*-values procedure (arity 4 0 #t))))
+  ((sxml simple)
+   (uses-interfaces)
+   (typed-exports
+     (sxml->string procedure (arity 1 0 #f))
+     (sxml->xml procedure (arity 1 0 #t))
+     (universal-sxslt-rules <pair>)
+     (xml->sxml procedure (arity 0 0 #t))))
+  ((sxml ssax)
+   (uses-interfaces)
+   (typed-exports
+     (SSAX:XML->SXML procedure (arity 2 0 #f))
+     (ascii->char procedure (arity 1 0 #f))
+     (assert macro)
+     (assq-values procedure (arity 2 0 #f))
+     (assure macro)
+     (attlist->alist procedure (arity 1 0 #f))
+     (attlist-add procedure (arity 2 0 #f))
+     (attlist-fold procedure (arity 3 0 #f))
+     (attlist-null? procedure (arity 1 0 #f))
+     (attlist-remove-top procedure (arity 1 0 #f))
+     (begin0 macro)
+     (char->ascii procedure (arity 1 0 #f))
+     (char-newline <char>)
+     (char-return <char>)
+     (char-tab <char>)
+     (dec procedure (arity 1 0 #f))
+     (fold procedure (arity 3 0 #f))
+     (fold-right procedure (arity 3 0 #f))
+     (inc procedure (arity 1 0 #f))
+     (input-parse <module>)
+     (let*-values macro)
+     (load-filtered procedure (arity 2 0 #f))
+     (make-empty-attlist procedure (arity 0 0 #f))
+     (make-xml-token procedure (arity 2 0 #f))
+     (name-compare procedure (arity 2 0 #f))
+     (nl <string>)
+     (parser-error procedure (arity 2 0 #t))
+     (run-test macro)
+     (ssax:Prefix-XML <symbol>)
+     (ssax:S-chars <pair>)
+     (ssax:assert-token procedure (arity 4 0 #f))
+     (ssax:complete-start-tag
+       procedure
+       (arity 5 0 #f))
+     (ssax:define-labeled-arg-macro macro)
+     (ssax:handle-parsed-entity
+       procedure
+       (arity 6 0 #f))
+     (ssax:largest-unres-name <pair>)
+     (ssax:make-elem-parser macro)
+     (ssax:make-parser macro)
+     (ssax:make-parser/positional-args macro)
+     (ssax:make-pi-parser macro)
+     (ssax:ncname-starting-char?
+       procedure
+       (arity 1 0 #f))
+     (ssax:predefined-parsed-entities <pair>)
+     (ssax:read-NCName procedure (arity 1 0 #f))
+     (ssax:read-QName procedure (arity 1 0 #f))
+     (ssax:read-attributes procedure (arity 2 0 #f))
+     (ssax:read-cdata-body procedure (arity 3 0 #f))
+     (ssax:read-char-data procedure (arity 4 0 #f))
+     (ssax:read-char-ref procedure (arity 1 0 #f))
+     (ssax:read-external-id procedure (arity 1 0 #f))
+     (ssax:read-markup-token procedure (arity 1 0 #f))
+     (ssax:read-pi-body-as-string
+       procedure
+       (arity 1 0 #f))
+     (ssax:resolve-name procedure (arity 4 0 #f))
+     (ssax:reverse-collect-str
+       procedure
+       (arity 1 0 #f))
+     (ssax:reverse-collect-str-drop-ws
+       procedure
+       (arity 1 0 #f))
+     (ssax:scan-Misc procedure (arity 1 0 #f))
+     (ssax:skip-S procedure (arity 1 0 #f))
+     (ssax:skip-internal-dtd procedure (arity 1 0 #f))
+     (ssax:skip-pi procedure (arity 1 0 #f))
+     (ssax:uri-string->symbol
+       procedure
+       (arity 1 0 #f))
+     (ssax:warn procedure (arity 2 0 #t))
+     (ssax:xml->sxml procedure (arity 2 0 #f))
+     (string-whitespace? procedure (arity 1 0 #f))
+     (ucscode->char procedure (arity 1 0 #f))
+     (when macro)
+     (xml-token-head macro)
+     (xml-token-kind macro)
+     (xml-token? procedure (arity 1 0 #f))))
+  ((sxml ssax input-parse)
+   (uses-interfaces)
+   (typed-exports
+     (assert-curr-char procedure (arity 2 0 #t))
+     (next-token procedure (arity 2 0 #t))
+     (next-token-of procedure (arity 1 0 #t))
+     (peek-next-char procedure (arity 0 0 #t))
+     (read-string procedure (arity 1 0 #t))
+     (read-text-line procedure (arity 0 0 #t))
+     (skip-until procedure (arity 1 0 #t))
+     (skip-while procedure (arity 1 0 #t))))
+  ((sxml transform)
+   (uses-interfaces)
+   (typed-exports
+     (SRV:send-reply procedure (arity 0 0 #t))
+     (foldts procedure (arity 5 0 #f))
+     (post-order procedure (arity 2 0 #f))
+     (pre-post-order procedure (arity 2 0 #f))
+     (replace-range procedure (arity 3 0 #f))))
+  ((sxml xpath)
+   (uses-interfaces)
+   (typed-exports
+     (filter procedure (arity 1 0 #f))
+     (map-union procedure (arity 2 0 #f))
+     (node-closure procedure (arity 1 0 #f))
+     (node-eq? procedure (arity 1 0 #f))
+     (node-equal? procedure (arity 1 0 #f))
+     (node-join procedure (arity 0 0 #t))
+     (node-or procedure (arity 0 0 #t))
+     (node-parent procedure (arity 1 0 #f))
+     (node-pos procedure (arity 1 0 #f))
+     (node-reduce procedure (arity 0 0 #t))
+     (node-reverse procedure (arity 1 0 #f))
+     (node-self procedure (arity 1 0 #f))
+     (node-trace procedure (arity 1 0 #f))
+     (node-typeof? procedure (arity 1 0 #f))
+     (nodeset? procedure (arity 1 0 #f))
+     (select-kids procedure (arity 1 0 #f))
+     (sxpath procedure (arity 1 0 #f))
+     (take-after procedure (arity 1 0 #f))
+     (take-until procedure (arity 1 0 #f))))
+  ((term ansi-color)
+   (uses-interfaces)
+   (typed-exports
+     (color procedure (arity 0 0 #t))
+     (colorize-string procedure (arity 1 0 #t))))
+  ((texinfo)
+   (uses-interfaces)
+   (typed-exports
+     (call-with-file-and-dir procedure (arity 2 0 #f))
+     (stexi->sxml procedure (arity 1 0 #f))
+     (texi->stexi procedure (arity 1 0 #f))
+     (texi-command-depth procedure (arity 2 0 #f))
+     (texi-command-specs <pair>)
+     (texi-fragment->stexi procedure (arity 1 0 #f))))
+  ((texinfo docbook)
+   (uses-interfaces)
+   (typed-exports
+     (*sdocbook->stexi-rules* <pair>)
+     (*sdocbook-block-commands* <pair>)
+     (filter-empty-elements procedure (arity 1 0 #f))
+     (replace-titles procedure (arity 1 0 #f))
+     (sdocbook-flatten procedure (arity 1 0 #f))))
+  ((texinfo html)
+   (uses-interfaces)
+   (typed-exports
+     (add-ref-resolver! procedure (arity 1 0 #f))
+     (stexi->shtml procedure (arity 1 0 #f))
+     (urlify procedure (arity 1 0 #f))))
+  ((texinfo indexing)
+   (uses-interfaces)
+   (typed-exports
+     (stexi-extract-index procedure (arity 3 0 #f))))
+  ((texinfo nodal-tree)
+   (uses-interfaces)
+   (typed-exports
+     (stexi->nodal-tree procedure (arity 2 0 #f))))
+  ((texinfo plain-text)
+   (uses-interfaces)
+   (typed-exports
+     (stexi->plain-text procedure (arity 1 0 #f))))
+  ((texinfo reflection)
+   (uses-interfaces)
+   (typed-exports
+     (module-stexi-documentation
+       procedure
+       (arity 1 0 #f))
+     (object-stexi-documentation
+       procedure
+       (arity 1 0 #t))
+     (package-stexi-documentation
+       procedure
+       (arity 5 0 #f))
+     (package-stexi-standard-copying
+       procedure
+       (arity 6 0 #f))
+     (package-stexi-standard-menu
+       procedure
+       (arity 4 0 #f))
+     (package-stexi-standard-prologue
+       procedure
+       (arity 7 0 #f))
+     (package-stexi-standard-titlepage
+       procedure
+       (arity 4 0 #f))))
+  ((texinfo serialize)
+   (uses-interfaces)
+   (typed-exports
+     (stexi->texi procedure (arity 1 0 #f))))
+  ((text parse-lalr)
+   (uses-interfaces)
+   (typed-exports
+     (lalr-parser macro)
+     (print-states procedure (arity 0 0 #f))))
+  ((unit-test)
+   (uses-interfaces)
+   (typed-exports
+     (<test-case> class)
+     (<test-result> class)
+     (<test-suite> class)
+     (add generic
+          (<test-suite> <test-case>)
+          (<test-suite> <test-suite>))
+     (assert-equal procedure (arity 2 0 #f))
+     (assert-exception macro)
+     (assert-numeric-= procedure (arity 3 0 #f))
+     (assert-true procedure (arity 1 0 #f))
+     (exit-with-summary procedure (arity 1 0 #f))
+     (failure-messages generic (<test-result>))
+     (name generic (<test-case>) (<test-suite>))
+     (run generic
+          (<test-case> <test-result>)
+          (<test-suite> <test-result>))
+     (run-all-defined-test-cases
+       procedure
+       (arity 0 0 #f))
+     (set-up-test generic (<test-case>))
+     (summary generic (<test-result>))
+     (tear-down-test generic (<test-case>))
+     (test-failed generic (<test-result> <string>))
+     (test-started generic (<test-result> <string>))
+     (tests generic (<test-suite>))
+     (tests-failed generic (<test-result>))
+     (tests-log generic (<test-result>))
+     (tests-run generic (<test-result>)))))

@@ -1,8 +1,8 @@
 ;; About the package
 (define *name* "Guile Library")
 (define *description* "Common modules for Guile Scheme")
-(define *version* "0.1.4")
-(define *updated* "20 July 2007")
+(define *version* "0.1.5")
+(define *updated* "15 August 2007")
 (define *authors*
   '(("Andy Wingo" . "wingo at pobox.com")
     ("Richard Todd" . "richardt at vzavenue.net")))
@@ -48,7 +48,9 @@ License\".")
 
 ;; The modules to document
 (define *modules*
-  '(((config load)
+  '(((apicheck)
+     "Describe and verify library programming interfaces")
+    ((config load)
      "Loading configuration files")
     ((container async-queue)
      "A thread-safe message queue")

@@ -1,4 +1,5 @@
 TESTS= \
+	api.scm				\
 	container.async-queue.scm	\
 	graph.topological-sort.scm	\
 	htmlprag.scm			\
@@ -25,9 +26,23 @@ TESTS= \
 	texinfo.serialize.scm		\
 	text.parse-lalr.scm
 
-TESTS_ENVIRONMENT=$(top_srcdir)/dev-environ guile -s
+TESTS_ENVIRONMENT=\
+	API_FILE=$(srcdir)/guile-library.api \
+	DOC_GUILE_LIBRARY_SCM=$(top_srcdir)/doc/guile-library.scm \
+	$(top_srcdir)/dev-environ guile -s
+
+script := '(load (getenv "DOC_GUILE_LIBRARY_SCM"))\
+(for-each \
+(lambda (mod) \
+(display " \"") (write (car mod)) (display "\" ")) \
+ *modules*)'
+
+guile-library.api.update:
+	$(top_srcdir)/dev-environ $(srcdir)/update-api \
+	$(shell DOC_GUILE_LIBRARY_SCM=$(top_srcdir)/doc/guile-library.scm \
+	   guile -c $(script)) > $(srcdir)/guile-library.api
 
 %.check: %
-	$(TESTS_ENVIRONMENT) $*
+	$(TESTS_ENVIRONMENT) $(srcdir)/$*
 
-EXTRA_DIST=$(TESTS)
+EXTRA_DIST=$(TESTS) guile-library.api
