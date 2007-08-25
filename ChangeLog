@@ -1,3 +1,10 @@
+2007-08-25  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/reflection.scm: Order the generated
+	variable/function docs according to the order in which the
+	functions appear in the module source's `#:export' form. No change
+	to interface, but now the docs look a lot better.
+
 2007-08-15  Andy Wingo  <wingo@pobox.com>
 
 	* unit-tests/guile-library.api: New file, the result of running

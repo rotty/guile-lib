@@ -54,15 +54,26 @@
     deftypemethod defopt defvr defvar deftypevr deftypevar deffn
     deftypefn defmac defspec defun deftypefun))
 
-(define (sort-defs . args)
-  (define (priority def)
-    (list-index defs (car def)))
-  (define (name def)
-    (cadr (assq 'name (cdadr def))))
-  (let ((priorities (map priority (map cadr args))))
-    (cond
-     ((not (apply eq? priorities)) (apply < priorities))
-     (else (apply string<=? (map name (map cadr args)))))))
+(define (sort-defs ordering a b)
+  (define (def x)
+    ;; a and b are lists of the form ((anchor ...) (def* ...))
+    (cadr x))
+  (define (name x)
+    (cadr (assq 'name (cdadr (def x)))))
+  (define (priority x)
+    (list-index defs (car (def x))))
+  (define (order x)
+    (or (list-index ordering (string->symbol (name x)))
+        ;; if the def is not in the list, a big number
+        1234567890))
+  (define (compare-in-order proc eq? < . args)
+    (if (not (eq? (proc a) (proc b)))
+        (< (proc a) (proc b))
+        (or (null? args)
+            (apply compare-in-order args))))
+  (compare-in-order order = <
+                    priority = <
+                    name string=? string<=?))
 
 (define (list*-join l infix restfix)
   (let lp ((in l) (out '()))
@@ -183,6 +194,39 @@
 (define (module-name->node-name sym-name)
   (string-join (map symbol->string sym-name) " "))
 
+;; this copied from (ice-9 session); need to find a better way
+(define (module-filename name)
+  (let* ((name (map symbol->string name))
+         (reverse-name (reverse name))
+	 (leaf (car reverse-name))
+	 (dir-hint-module-name (reverse (cdr reverse-name)))
+	 (dir-hint (apply string-append
+                          (map (lambda (elt)
+                                 (string-append elt "/"))
+                               dir-hint-module-name))))
+    (%search-load-path (in-vicinity dir-hint leaf))))
+
+(define (read-module name)
+  (let ((filename (module-filename name)))
+    (if filename
+        (let ((port (open-input-file filename)))
+          (let lp ((out '()) (form (read port)))
+            (if (eof-object? form)
+                (reverse out)
+                (lp (cons form out) (read port)))))
+        '())))
+
+(define (module-export-list sym-name)
+  (define (module-form-export-list form)
+    (and (pair? form)
+         (eq? (car form) 'define-module)
+         (equal? (cadr form) sym-name)
+         (and=> (memq #:export (cddr form)) cadr)))
+  (let lp ((forms (read-module sym-name)))
+    (cond ((null? forms) '())
+          ((module-form-export-list (car forms)) => identity)
+          (else (lp (cdr forms))))))
+
 (define (module-stexi-documentation sym-name)
   "Return documentation for the module named @var{sym-name}. The
 documentation will be formatted as @code{stexi}
@@ -193,7 +237,8 @@ documentation will be formatted as @code{stexi}
          (node-name (module-name->node-name sym-name))
          (name-str (with-output-to-string
                      (lambda () (display sym-name))))
-         (module (resolve-interface sym-name)))
+         (module (resolve-interface sym-name))
+         (export-list (module-export-list sym-name)))
     (define (anchor-name sym)
       (string-append node-name " " (symbol->string sym)))
     (define (make-defs)
@@ -210,7 +255,7 @@ documentation will be formatted as @code{stexi}
                    `(defvar (% (name ,(symbol->string sym)))
                       "[unbound!]")))))
         module)
-       sort-defs))
+       (lambda (a b) (sort-defs export-list a b))))
 
     `(texinfo (% (title ,name-str))
               (node (% (name ,node-name)))
