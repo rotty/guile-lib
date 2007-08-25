@@ -35,6 +35,7 @@
   #:use-module (texinfo)
   #:use-module (texinfo plain-text)
   #:use-module (srfi srfi-13)
+  #:use-module (scheme kwargs)
   #:use-module (scheme session)
   #:use-module (ice-9 documentation)
   #:use-module (ice-9 optargs)
@@ -227,7 +228,9 @@
           ((module-form-export-list (car forms)) => identity)
           (else (lp (cdr forms))))))
 
-(define (module-stexi-documentation sym-name)
+(define/kwargs (module-stexi-documentation sym-name
+                                           (docs-resolver
+                                            (lambda (name def) def)))
   "Return documentation for the module named @var{sym-name}. The
 documentation will be formatted as @code{stexi}
  (@pxref{texinfo,texinfo})."
@@ -247,9 +250,11 @@ documentation will be formatted as @code{stexi}
         (lambda (sym var)
           `((anchor (% (name ,(anchor-name sym))))
             ,(if (variable-bound? var)
-                 (or (object-stexi-documentation (variable-ref var) sym)
-                     `(defvar (% (name ,(symbol->string sym)))
-                        (para "[undocumented]")))
+                 (docs-resolver
+                  sym
+                  (or (object-stexi-documentation (variable-ref var) sym)
+                      `(defvar (% (name ,(symbol->string sym)))
+                         (para "[undocumented]"))))
                  (begin
                    (warn "variable unbound!" sym)
                    `(defvar (% (name ,(symbol->string sym)))
@@ -300,14 +305,14 @@ pairs. All other arguments are strings.
 Here is an example of the usage of this procedure:
 
 @smallexample
-(package-stexi-standard-titlepage
- \"Foolib\"
- \"3.2\"
- \"26 September 2006\"
- '((\"Alyssa P Hacker\" . \"alyssa@@example.com\"))
- '(2004 2005 2006)
- \"Free Software Foundation, Inc.\"
- \"Standard GPL permissions blurb goes here\")
+ (package-stexi-standard-titlepage
+  \"Foolib\"
+  \"3.2\"
+  \"26 September 2006\"
+  '((\"Alyssa P Hacker\" . \"alyssa@@example.com\"))
+  '(2004 2005 2006)
+  \"Free Software Foundation, Inc.\"
+  \"Standard GPL permissions blurb goes here\")
 @end smallexample
 "
   `(;(setchapternewpage (% (all "odd"))) makes manuals too long
@@ -371,10 +376,10 @@ package-stexi-standard-menu,package-stexi-standard-menu}."
     ,@titlepage
     ,@menu))
 
-(define (package-stexi-documentation-helper sym-name)
+(define (package-stexi-documentation-helper sym-name args)
   ;; returns a list of forms
   (pre-post-order
-   (module-stexi-documentation sym-name)
+   (apply module-stexi-documentation sym-name args)
    ;; here taking advantage of the fact that we know what
    ;; module-stexi-documentation outputs
    `((texinfo . ,(lambda (tag attrs node . body)
@@ -384,8 +389,10 @@ package-stexi-standard-menu,package-stexi-standard-menu}."
      (*text* . ,(lambda (tag text) text))
      (*default* . ,(lambda args args)))))
 
-(define (package-stexi-documentation modules name filename prologue
-                                     epilogue)
+(define/kwargs (package-stexi-documentation modules name filename
+                                            prologue epilogue
+                                            (module-stexi-documentation-args
+                                             '()))
   "Create stexi documentation for a @dfn{package}, where a
 package is a set of modules that is released together.
 
@@ -397,7 +404,12 @@ be titled @var{name} and a texinfo filename of @var{filename}.
 will be spliced into the output document before and after the
 generated modules documentation, respectively.
 @xref{texinfo reflection package-stexi-standard-prologue}, to
-create a conventional GNU texinfo prologue."
+create a conventional GNU texinfo prologue.
+
+@var{module-stexi-documentation-args} is an optional argument that, if
+given, will be added to the argument list when
+@code{module-texi-documentation} is called. For example, it might be
+useful to define a @code{#:docs-resolver} argument."
   (define (verify-modules-list l)
     (define (all pred l)
       (and (pred (car l))
@@ -412,7 +424,10 @@ create a conventional GNU texinfo prologue."
     (% (title ,name)
        (filename ,filename))
     ,@prologue
-    ,@(append-map package-stexi-documentation-helper modules)
+    ,@(append-map (lambda (mod)
+                    (package-stexi-documentation-helper
+                     mod module-stexi-documentation-args))
+                  modules)
     ,@epilogue))
 
 ;;; arch-tag: bbe2bc03-e16d-4a9e-87b9-55225dc9836c

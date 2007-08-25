@@ -191,8 +191,21 @@
         (error "Public API has been removed" missing))))
 
 (define (arities-compatible? old new)
-  ;; FIXME: define better
-  (equal? old new))
+  ;; arity := (arity nrequired noptional rest?)
+  (define (required x)
+    (cadr x))
+  (define (optional x)
+    (caddr x))
+  (define (rest? x)
+    (cadddr x))
+  (and (cond ((< (required old) (required new)) #f)
+             ((= (required old) (required new)) #t)
+             (else (or (rest? new)
+                       (<= (- (required old) (required new))
+                           (- (optional new) (optional old))))))
+       (or (<= (required old) (required new))
+           (rest? new))
+       (if (rest? old) (rest? new) #t)))
 
 (define (method-specializers-compatible? old new)
   ;; FIXME: define better

@@ -1,5 +1,10 @@
 (module-api
   (version 1 0)
+  ((apicheck)
+   (uses-interfaces)
+   (typed-exports
+     (apicheck-generate procedure (arity 1 0 #f))
+     (apicheck-validate procedure (arity 2 0 #f))))
   ((config load)
    (uses-interfaces)
    (typed-exports
@@ -9,6 +14,12 @@
      (load-config!
        generic
        (<configuration> <list> <string>))))
+  ((container async-queue)
+   (uses-interfaces)
+   (typed-exports
+     (async-dequeue! procedure (arity 1 0 #f))
+     (async-enqueue! procedure (arity 2 0 #f))
+     (make-async-queue procedure (arity 0 0 #f))))
   ((container delay-tree)
    (uses-interfaces)
    (typed-exports
@@ -330,55 +341,18 @@
   ((sxml ssax)
    (uses-interfaces)
    (typed-exports
-     (SSAX:XML->SXML procedure (arity 2 0 #f))
-     (ascii->char procedure (arity 1 0 #f))
-     (assert macro)
-     (assq-values procedure (arity 2 0 #f))
-     (assure macro)
      (attlist->alist procedure (arity 1 0 #f))
      (attlist-add procedure (arity 2 0 #f))
      (attlist-fold procedure (arity 3 0 #f))
      (attlist-null? procedure (arity 1 0 #f))
      (attlist-remove-top procedure (arity 1 0 #f))
-     (begin0 macro)
-     (char->ascii procedure (arity 1 0 #f))
-     (char-newline <char>)
-     (char-return <char>)
-     (char-tab <char>)
-     (dec procedure (arity 1 0 #f))
-     (fold procedure (arity 3 0 #f))
-     (fold-right procedure (arity 3 0 #f))
-     (inc procedure (arity 1 0 #f))
-     (input-parse <module>)
-     (let*-values macro)
-     (load-filtered procedure (arity 2 0 #f))
      (make-empty-attlist procedure (arity 0 0 #f))
-     (make-xml-token procedure (arity 2 0 #f))
-     (name-compare procedure (arity 2 0 #f))
-     (nl <string>)
-     (parser-error procedure (arity 2 0 #t))
-     (run-test macro)
-     (ssax:Prefix-XML <symbol>)
-     (ssax:S-chars <pair>)
-     (ssax:assert-token procedure (arity 4 0 #f))
      (ssax:complete-start-tag
        procedure
        (arity 5 0 #f))
-     (ssax:define-labeled-arg-macro macro)
-     (ssax:handle-parsed-entity
-       procedure
-       (arity 6 0 #f))
-     (ssax:largest-unres-name <pair>)
      (ssax:make-elem-parser macro)
      (ssax:make-parser macro)
-     (ssax:make-parser/positional-args macro)
      (ssax:make-pi-parser macro)
-     (ssax:ncname-starting-char?
-       procedure
-       (arity 1 0 #f))
-     (ssax:predefined-parsed-entities <pair>)
-     (ssax:read-NCName procedure (arity 1 0 #f))
-     (ssax:read-QName procedure (arity 1 0 #f))
      (ssax:read-attributes procedure (arity 2 0 #f))
      (ssax:read-cdata-body procedure (arity 3 0 #f))
      (ssax:read-char-data procedure (arity 4 0 #f))
@@ -388,25 +362,14 @@
      (ssax:read-pi-body-as-string
        procedure
        (arity 1 0 #f))
-     (ssax:resolve-name procedure (arity 4 0 #f))
-     (ssax:reverse-collect-str
-       procedure
-       (arity 1 0 #f))
      (ssax:reverse-collect-str-drop-ws
        procedure
        (arity 1 0 #f))
-     (ssax:scan-Misc procedure (arity 1 0 #f))
-     (ssax:skip-S procedure (arity 1 0 #f))
      (ssax:skip-internal-dtd procedure (arity 1 0 #f))
-     (ssax:skip-pi procedure (arity 1 0 #f))
      (ssax:uri-string->symbol
        procedure
        (arity 1 0 #f))
-     (ssax:warn procedure (arity 2 0 #t))
      (ssax:xml->sxml procedure (arity 2 0 #f))
-     (string-whitespace? procedure (arity 1 0 #f))
-     (ucscode->char procedure (arity 1 0 #f))
-     (when macro)
      (xml-token-head macro)
      (xml-token-kind macro)
      (xml-token? procedure (arity 1 0 #f))))

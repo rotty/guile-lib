@@ -1,5 +1,26 @@
 2007-08-25  Andy Wingo  <wingo@pobox.com>
 
+	* src/apicheck.scm (arities-compatible?): Flesh out to check
+	compatible arities, necessary because of the extension to (texinfo
+	reflection).
+
+	* unit-tests/guile-library.api: Add (apicheck) and (container
+	async-queue) to the apicheck file. Update to reflect the (sxml
+	ssax) fix on the 15th. 
+
+	* src/texinfo/reflection.scm (module-stexi-documentation): Take a
+	new optional keyword argument, docs-resolver, that can be used to
+	modify or replace documentation, normally from some external
+	source such as C-snarfed docs or external texinfo files.
+	(package-stexi-standard-titlepage): Indent the example so that
+	emacs doesn't get confused.
+	(package-stexi-documentation-helper)
+	(package-stexi-documentation): Optionally pass around a list of
+	extra arguments to pass to module-stexi-documentation.
+
+	* unit-tests/update-api: 
+	* unit-tests/api.scm: Add a couple files I forgot to add before.
+
 	* src/texinfo/reflection.scm: Order the generated
 	variable/function docs according to the order in which the
 	functions appear in the module source's `#:export' form. No change

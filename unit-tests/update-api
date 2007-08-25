@@ -1,0 +1,51 @@
+#!/bin/bash
+# -*- scheme -*-
+exec guile --debug -e main -s "$0" "$@"
+!#
+
+;; guile-lib
+;; Copyright (C) 2007 Andy Wingo <wingo at pobox dot com>
+
+;; This program is free software; you can redistribute it and/or    
+;; modify it under the terms of the GNU General Public License as   
+;; published by the Free Software Foundation; either version 2 of   
+;; the License, or (at your option) any later version.              
+;;                                                                  
+;; This program is distributed in the hope that it will be useful,  
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of   
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+;; GNU General Public License for more details.                     
+;;                                                                  
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, contact:
+;;
+;; Free Software Foundation           Voice:  +1-617-542-5942
+;; 59 Temple Place - Suite 330        Fax:    +1-617-542-2652
+;; Boston, MA  02111-1307,  USA       gnu@gnu.org
+
+;;; Commentary:
+;;
+;; Script to generate a description of the Scheme API exported by a set
+;; of modules.
+;;
+;; Usage: update-api '(module-1)' '(module-2 foo)' ...
+;;
+;; That is to say, the set of modules to be processed is taked from the
+;; arguments passed to the script. Each argument is parsed with `read'.
+;;
+;; The API description will be written to the current output port, as
+;; one scheme form describing all modules in the set. This form may then
+;; be passed to `check-api', a script to verify that no incompatible
+;; changes have been made when releasing a new version of a package.
+;;
+;;; Code:
+
+(use-modules (apicheck)
+             (ice-9 pretty-print))
+
+(define (main args)
+  (pretty-print
+   (apicheck-generate 
+    (map
+     (lambda (s) (call-with-input-string s read))
+     (cdr args)))))
