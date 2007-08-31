@@ -13,6 +13,8 @@
 	"Generic", until we fix multiword argument serialization.
 	(module-stexi-documentation): Handle the case where the stexi
 	documentation is a *fragment*.
+	(string->stexi, object-stexi-documentation): Remove the
+	"[undocumented]" text, it is redundant.
 
 	* src/texinfo/plain-text.scm (tag-handlers, fragment): Serialize
 	*fragment* properly.
