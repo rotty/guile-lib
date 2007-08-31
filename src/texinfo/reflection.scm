@@ -57,7 +57,7 @@
 
 (define (sort-defs ordering a b)
   (define (def x)
-    ;; a and b are lists of the form ((anchor ...) (def* ...))
+    ;; a and b are lists of the form ((anchor ...) (def* ...)...)
     (cadr x))
   (define (name x)
     (cadr (assq 'name (cdadr (def x)))))
@@ -203,7 +203,7 @@
      ((is-a? object <generic>)
       `(*fragment*
         ,(make-def 'deffn `((name ,name)
-                            (category "Generic Function")))
+                            (category "Generic")))
         ,@(map
            (lambda (method)
              (object-stexi-documentation method name #:force force))
@@ -268,15 +268,19 @@ documentation will be formatted as @code{stexi}
        (module-map
         (lambda (sym var)
           `((anchor (% (name ,(anchor-name sym))))
-            ,(if (variable-bound? var)
-                 (docs-resolver
-                  sym
-                  (object-stexi-documentation (variable-ref var) sym
-                                              #:force #t))
-                 (begin
-                   (warn "variable unbound!" sym)
-                   `(defvar (% (name ,(symbol->string sym)))
-                      "[unbound!]")))))
+            ,@((lambda (x)
+                 (if (eq? (car x) '*fragment*)
+                     (cdr x)
+                     (list x)))
+               (if (variable-bound? var)
+                   (docs-resolver
+                    sym
+                    (object-stexi-documentation (variable-ref var) sym
+                                                #:force #t))
+                   (begin
+                     (warn "variable unbound!" sym)
+                     `(defvar (% (name ,(symbol->string sym)))
+                        "[unbound!]"))))))
         module)
        (lambda (a b) (sort-defs export-list a b))))
 

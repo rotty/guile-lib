@@ -9,6 +9,10 @@
 	documented using the generic defvar instead of their type-specific
 	docs.
 	(stexi-help-handler): Force doc generation in (help).
+	(object-stexi-documentation): Name the category via the one word,
+	"Generic", until we fix multiword argument serialization.
+	(module-stexi-documentation): Handle the case where the stexi
+	documentation is a *fragment*.
 
 	* src/texinfo/plain-text.scm (tag-handlers, fragment): Serialize
 	*fragment* properly.
