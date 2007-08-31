@@ -154,21 +154,32 @@
             (texi-fragment->stexi str)))
       `(*fragment* (verbatim ,str))))
 
-(define (object-stexi-documentation object . name)
-  (if (pair? name)
-      (set! name (symbol->string (car name)))
-      (set! name "[unknown]"))
+(define (method-stexi-arguments method)
+  (define (arg-texinfo arg)
+    `(" (" (var ,(symbol->string (car arg))) " "
+      (code ,(symbol->string (cadr arg))) ")"))
+  (let lp ((bindings (cadr (method-source method))) (out '()))
+    (cond
+     ((null? bindings)
+      (reverse out))
+     ((not (pair? (car bindings)))
+      (append (reverse out) (arg-texinfo bindings) (list "...")))
+     (else
+      (lp (cdr bindings)
+          (append (reverse (arg-texinfo (car bindings))) out))))))
+
+(define/kwargs (object-stexi-documentation object (name "[unknown]")
+                                           (force #f))
+  (if (symbol? name)
+      (set! name (symbol->string name)))
   (let ((stexi ((lambda (x)
                   (cond ((string? x) (string->stexi x))
                         ((and (pair? x) (eq? (car x) '*fragment*)) x)
+                        (force `(*fragment* (para "[undocumented]")))
                         (else #f)))
                 (object-documentation object))))
     (define (make-def type args)
       `(,type (% ,@args) ,@(cdr stexi)))
-    ;; An interesting dilemma here: How to document generic
-    ;; functions? Really we are just documenting methods on
-    ;; classes, not operations in general. Let's just document
-    ;; methods with classes. (TODO)
     (cond
      ((not stexi) #f)
      ;; stexi is now a list, headed by *fragment*.
@@ -185,10 +196,18 @@
      ((is-a? object <procedure>)
       (make-def 'defun `((name ,name)
                          (arguments ,@(get-proc-args object)))))
+     ((is-a? object <method>)
+      (make-def 'deffn `((category "Method")
+                         (name ,name)
+                         (arguments ,@(method-stexi-arguments object)))))
      ((is-a? object <generic>)
-      (make-def 'defop `((name ,name)
-                         (class "object") ;; we need more info here
-                         (category "Generic"))))
+      `(*fragment*
+        ,(make-def 'deffn `((name ,name)
+                            (category "Generic Function")))
+        ,@(map
+           (lambda (method)
+             (object-stexi-documentation method name #:force force))
+           (generic-function-methods object))))
      (else
       (make-def 'defvar `((name ,name)))))))
 
@@ -252,9 +271,8 @@ documentation will be formatted as @code{stexi}
             ,(if (variable-bound? var)
                  (docs-resolver
                   sym
-                  (or (object-stexi-documentation (variable-ref var) sym)
-                      `(defvar (% (name ,(symbol->string sym)))
-                         (para "[undocumented]"))))
+                  (object-stexi-documentation (variable-ref var) sym
+                                              #:force #t))
                  (begin
                    (warn "variable unbound!" sym)
                    `(defvar (% (name ,(symbol->string sym)))
@@ -270,8 +288,7 @@ documentation will be formatted as @code{stexi}
               ,@(apply append! (make-defs)))))
 
 (define (stexi-help-handler name value)
-  (and=> (object-stexi-documentation value name)
-         stexi->plain-text))
+  (stexi->plain-text (object-stexi-documentation value name #:force #t)))
 
 (add-value-help-handler! stexi-help-handler)
 

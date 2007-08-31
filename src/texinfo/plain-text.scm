@@ -187,6 +187,9 @@
       (map string-indent (string-split ret #\newline)))
      "\n")))
 
+(define (fragment tag . body)
+  (string-concatenate (map-in-order stexi->plain-text body)))
+
 (define (para tag . body)
   (wrap (stexi->plain-text body)))
 
@@ -276,6 +279,7 @@
     (smallexample ,example)
     (smalllisp    ,example)
     (verbatim     ,verbatim)
+    (*fragment*   ,fragment)
 
     (deftp        ,def)
     (defcv        ,def)

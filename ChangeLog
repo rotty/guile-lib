@@ -1,3 +1,18 @@
+2007-08-31  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/reflection.scm (object-stexi-documentation): Add a
+	new keyword argument, #:force, which if #t will force the creation
+	of docs for the argument. Document generics *and* all of the
+	methods on the generics.
+	(module-stexi-documentation): Force generation of docs for
+	objects; fixes the issue where undocumented values are always
+	documented using the generic defvar instead of their type-specific
+	docs.
+	(stexi-help-handler): Force doc generation in (help).
+
+	* src/texinfo/plain-text.scm (tag-handlers, fragment): Serialize
+	*fragment* properly.
+
 2007-08-25  Andy Wingo  <wingo@pobox.com>
 
 	* src/apicheck.scm (arities-compatible?): Flesh out to check
