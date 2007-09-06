@@ -101,7 +101,7 @@
 
   (assert-equal '(section () EOL-TEXT)
                 (test 'section "foo bar baz bonzerts"))
-  (assert-equal '(deffnx ((category "Function") (name "foo") (arguments)) EOL-TEXT)
+  (assert-equal '(deffnx ((category "Function") (name "foo") (arguments)) EOL-TEXT-ARGS)
                 (test 'deffnx "Function foo"))
   (assert-exception (test 'emph "no brace here"))
   (assert-equal '(emph () INLINE-TEXT)
@@ -375,8 +375,6 @@
               )
              '((deffnx (% (category "Method")
                           (name "foo")
-                          ;; I don't actually think that this extra
-                          ;; space should be here; it's probably a bug.
                           (arguments "bar " (code "baz"))))
                (para "text that should be in a para")))
   )

@@ -108,11 +108,15 @@
                     (reverse formals)))))
     '(" "))))
 
+(define (eol-text-args exp lp command type formals args accum)
+  (list* "\n"
+         (serialize-text-args lp formals args)
+         " " command "@" accum))
+
 (define (eol-text exp lp command type formals args accum)
   (list* "\n"
          (append-map (lambda (x) (lp x '()))
                      (reverse (if args (cddr exp) (cdr exp))))
-         (serialize-text-args lp formals args)
          " " command "@" accum))
 
 (define (eol-args exp lp command type formals args accum)
@@ -197,7 +201,8 @@
     (INLINE-TEXT . ,inline-text)
     (INLINE-ARGS . ,inline-args)
     (EOL-TEXT . ,eol-text)
-    (INDEX . ,eol-text)
+    (EOL-TEXT-ARGS . ,eol-text-args)
+    (INDEX . ,eol-text-args)
     (EOL-ARGS . ,eol-args)
     (ENVIRON . ,environ)
     (TABLE-ENVIRON . ,table-environ)

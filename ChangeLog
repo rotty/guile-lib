@@ -1,3 +1,16 @@
+2007-09-07  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.scm (test-complete-start-command): Fix up a
+	test.
+	(test-texinfo->stexinfo): Remove an incorrect comment.
+
+	* src/texinfo/serialize.scm (eol-text-args, eol-text)
+	(serializers): Fix serialization with the new type of texinfo
+	command.
+
+	* unit-tests/container.async-queue.scm (set-up-test): Fix what
+	presumably is a typo.
+
 2007-09-06  Andy Wingo  <wingo@pobox.com>
 
 	* unit-tests/texinfo.serialize.scm (test-serialize): 

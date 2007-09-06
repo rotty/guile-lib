@@ -29,7 +29,7 @@ exec ${srcdir:-.}/guile-test-env guile -s "$0" "$@"
   (async-enqueue! queue #f))
 
 (define-method (set-up-test (self <test-async-queue>))
-  (slot-set! self 'q (make-async-queue>))
+  (slot-set! self 'q (make-async-queue))
   (slot-set! self 'producer (make-thread producer (slot-ref self 'q))))
 
 (define-method (test-consume (self <test-async-queue>))
