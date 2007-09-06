@@ -177,7 +177,10 @@
                         ((and (pair? x) (eq? (car x) '*fragment*)) x)
                         (force `(*fragment*))
                         (else #f)))
-                (object-documentation object))))
+                (object-documentation
+                 (if (is-a? object <method>)
+                     (method-procedure object)
+                     object)))))
     (define (make-def type args)
       `(,type (% ,@args) ,@(cdr stexi)))
     (cond

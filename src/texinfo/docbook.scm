@@ -55,10 +55,14 @@
     (type code)
     (function code)
     (literal samp)
-    (emphasis em)
+    (emphasis emph)
     (simpara para)
     (programlisting example)
-    (firstterm dfn)))
+    (firstterm dfn)
+    (filename file)
+    (envar env)))
+
+(define ignore-list '())
 
 (define-with-docs *sdocbook->stexi-rules*
   "A stylesheet for use with SSAX's @code{pre-post-order}, which defines
@@ -76,11 +80,19 @@ a number of generic rules for transforming docbook into texinfo."
     (section . ,identity)
     (subsection . ,identity)
     (subsubsection . ,identity)
+    (ulink . ,(lambda (tag attrs . body)
+                `(uref (% ,(assq 'url (cdr attrs))
+                          (title ,@body)))))
     (*text* . ,detag-one)
     (*default* . ,(lambda (tag . body)
                     (let ((subst (assq tag tag-replacements)))
                       (cond
-                       (subst (append (cdr subst) body))
+                       (subst
+                        (if (and (pair? body) (pair? (car body)) (eq? (caar body) '@))
+                            (begin
+                              (warn "Ignoring" tag "attributes" (car body))
+                              (append (cdr subst) (cdr body)))
+                            (append (cdr subst) body)))
                        ((memq tag ignore-list) #f)
                        (else 
                         (warn "Don't know how to convert" tag "to stexi")

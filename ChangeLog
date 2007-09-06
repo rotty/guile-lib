@@ -1,3 +1,30 @@
+2007-09-06  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.serialize.scm (test-serialize): 
+	* unit-tests/texinfo.scm (test-complete-start-command)
+	(test-texinfo->stexinfo): Add tests.
+
+	* src/texinfo/serialize.scm (serialize-text-args): Serializer
+	factored out of the eol-text and environment serializers. Change
+	so that spaces are not automatically inserted except between
+	distinct arguments.
+
+	* src/texinfo/reflection.scm (object-stexi-documentation):
+	Special-case methods: get the object-documentation from their
+	procedures.
+
+	* src/texinfo/docbook.scm (tag-replacements): emphasis should be
+	em, not emph. Add translations for filename and env.
+	(*sdocbook->stexi-rules*): Add ulink, and some warnings.
+
+	* src/texinfo.scm (texi-command-specs): Add new kind of command,
+	EOL-TEXT-ARGS, which has parsed arguments. All of the deffnx*
+	commands are like this. Add commands b, i, r, sansserif, slanted,
+	t, tie, and all of the deffnx family.
+	(complete-start-command, make-command-parser): Handle
+	EOL-TEXT-ARGS.
+	(parse-eol-text-args): Parser for EOL-TEXT-ARGS args.
+
 2007-08-31  Andy Wingo  <wingo@pobox.com>
 
 	* src/texinfo/reflection.scm (object-stexi-documentation): Add a

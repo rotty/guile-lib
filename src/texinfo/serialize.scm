@@ -96,16 +96,23 @@
               ","))
          "{" command "@" accum))
 
+(define (serialize-text-args lp formals args)
+  (apply
+   append
+   (list-intersperse
+    (map (lambda (arg) (append-map (lambda (x) (lp x '())) arg))
+         (map
+          reverse
+          (drop-while
+           not (map (lambda (x) (assq-ref args x))
+                    (reverse formals)))))
+    '(" "))))
+
 (define (eol-text exp lp command type formals args accum)
   (list* "\n"
          (append-map (lambda (x) (lp x '()))
                      (reverse (if args (cddr exp) (cdr exp))))
-         (append-map
-          (lambda (x)
-            (append-map
-             (lambda (x) (lp x '()))
-             (reverse (assq-ref args x))))
-          (reverse formals))
+         (serialize-text-args lp formals args)
          " " command "@" accum))
 
 (define (eol-args exp lp command type formals args accum)
@@ -142,17 +149,7 @@
                   body
                   (cons "\n" body)))
             "\n"
-            (apply
-             append
-             (list-intersperse
-              (map (lambda (x) (lp x '()))
-                   (apply append
-                          (map
-                           reverse
-                           (drop-while
-                            not (map (lambda (x) (assq-ref args x))
-                                     (reverse formals))))))
-              '(" ")))
+            (serialize-text-args lp formals args)
             " " command "@" accum))))
 
 (define (table-environ exp lp command type formals args accum)

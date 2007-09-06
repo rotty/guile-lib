@@ -131,7 +131,7 @@ foo?
 
 ")
 
-  (assert-serialize '(defun (% (name "frob") (arguments "bar" "baz"))
+  (assert-serialize '(defun (% (name "frob") (arguments "bar" " " "baz"))
                        (para "foo?"))
                     "@defun frob bar baz
 foo?
@@ -147,6 +147,10 @@ foo?
 
 @end defun
 
+")
+
+  (assert-serialize '(defunx (% (name "frob") (arguments (var "bar"))))
+                    "@defunx frob @var{bar}
 ")
 
   (assert-serialize '(table (% (formatter (var)))
@@ -168,6 +172,18 @@ zzzzz
 foo
 @end verbatim
 
+")
+
+  (assert-serialize '(deffnx (% (name "foo") (category "bar")))
+                    "@deffnx bar foo
+")
+
+  (assert-serialize '(deffnx (% (name "foo") (category "bar") (arguments "x" " " "y")))
+                    "@deffnx bar foo x y
+")
+
+  (assert-serialize '(deffnx (% (name "foo") (category "bar") (arguments "(" "x" " " (code "int") ")")))
+                    "@deffnx bar foo (x @code{int})
 ")
 
   )

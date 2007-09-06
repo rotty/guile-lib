@@ -157,11 +157,18 @@ For @code{*fragment*}, the command used for parsing fragments of
 texinfo documents.
 @end table
 
-Note that the @code{-TEXT} commands will receive their arguments within
-their bodies, whereas the @code{-ARGS} commands will receive them in
-their attribute list. @code{ENVIRON} commands have both: parsed
-arguments until the end of line, received through their attribute list,
-and parsed text until the @code{@@end}, received in their bodies.
+@code{INLINE-TEXT} commands will receive their arguments within their
+bodies, whereas the @code{-ARGS} commands will receive them in their
+attribute list.
+
+@code{EOF-TEXT} receives its arguments in its body.
+
+@code{ENVIRON} commands have both: parsed arguments until the end of
+line, received through their attribute list, and parsed text until the
+@code{@@end}, received in their bodies.
+
+@code{EOF-TEXT-ARGS} receives its arguments in its attribute list, as in
+@code{ENVIRON}.
 
 There are four @@-commands that are treated specially. @code{@@include}
 is a low-level token that will not be seen by higher-level parsers, so
@@ -213,6 +220,12 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (sc                 INLINE-TEXT)
     (titlefont          INLINE-TEXT)
     (asis               INLINE-TEXT)
+    (b                  INLINE-TEXT)
+    (i                  INLINE-TEXT)
+    (r                  INLINE-TEXT)
+    (sansserif          INLINE-TEXT)
+    (slanted            INLINE-TEXT)
+    (t                  INLINE-TEXT)
 
     ;; Inline args commands
     (value              INLINE-ARGS . (key))
@@ -225,6 +238,7 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (result             INLINE-ARGS . ())
     (bullet             INLINE-ARGS . ())
     (copyright          INLINE-ARGS . ())
+    (tie                INLINE-ARGS . ())
 
     ;; EOL args elements
     (node               EOL-ARGS . (name #:opt next previous up))
@@ -246,7 +260,6 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     ;; EOL text commands
     (*ENVIRON-ARGS*     EOL-TEXT)
     (itemx              EOL-TEXT)
-    (deffnx             EOL-TEXT) ;; FIXME: x commands for all def*
     (set                EOL-TEXT)
     (center             EOL-TEXT)
     (title              EOL-TEXT)
@@ -269,6 +282,26 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (heading            EOL-TEXT)
     (subheading         EOL-TEXT)
     (subsubheading      EOL-TEXT)
+
+    (deftpx             EOL-TEXT-ARGS . (category name . attributes))
+    (defcvx             EOL-TEXT-ARGS . (category class name))
+    (defivarx           EOL-TEXT-ARGS . (class name))
+    (deftypeivarx       EOL-TEXT-ARGS . (class data-type name))
+    (defopx             EOL-TEXT-ARGS . (category class name . arguments))
+    (deftypeopx         EOL-TEXT-ARGS . (category class data-type name . arguments))
+    (defmethodx         EOL-TEXT-ARGS . (class name . arguments))
+    (deftypemethodx     EOL-TEXT-ARGS . (class data-type name . arguments))
+    (defoptx            EOL-TEXT-ARGS . (name))
+    (defvrx             EOL-TEXT-ARGS . (category name))
+    (defvarx            EOL-TEXT-ARGS . (name))
+    (deftypevrx         EOL-TEXT-ARGS . (category data-type name))
+    (deftypevarx        EOL-TEXT-ARGS . (data-type name))
+    (deffnx             EOL-TEXT-ARGS . (category name . arguments))
+    (deftypefnx         EOL-TEXT-ARGS . (category data-type name . arguments))
+    (defspecx           EOL-TEXT-ARGS . (name . arguments))
+    (defmacx            EOL-TEXT-ARGS . (name . arguments))
+    (defunx             EOL-TEXT-ARGS . (name . arguments))
+    (deftypefunx        EOL-TEXT-ARGS . (data-type name . arguments))
 
     ;; Indexing commands
     (cindex             INDEX . entry)
@@ -306,6 +339,7 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (smalllisp          ENVIRON . ())
     (cartouche          ENVIRON . ())
     (quotation          ENVIRON . ())
+
     (deftp              ENVIRON . (category name . attributes))
     (defcv              ENVIRON . (category class name))
     (defivar            ENVIRON . (class name))
@@ -557,7 +591,7 @@ Examples:
 ;; INLINE-TEXT       One character after the #\{.
 ;; INLINE-ARGS       The first character after the #\}.
 ;; EOL-TEXT          The first non-whitespace character after the command.
-;; ENVIRON, TABLE-ENVIRON, EOL-ARGS
+;; ENVIRON, TABLE-ENVIRON, EOL-ARGS, EOL-TEXT
 ;;                   The first character on the next line.
 ;; PARAGRAPH, ITEM, EMPTY-COMMAND
 ;;                   The first character after the command.
@@ -640,6 +674,9 @@ Examples:
       ((EOL-TEXT)
        (skip-horizontal-whitespace port)
        (values command '() type))
+      ((EOL-TEXT-ARGS)
+       (skip-horizontal-whitespace port)
+       (values command (parse-eol-text-args command port) type))
       ((PARAGRAPH EMPTY-COMMAND ITEM FRAGMENT)
        (values command '() type))
       (else ;; INCLUDE shouldn't get here
@@ -837,7 +874,8 @@ Examples:
                 port))
 
           (cond
-           ((memq expected-content '(EMPTY-COMMAND INLINE-ARGS EOL-ARGS INDEX))
+           ((memq expected-content '(EMPTY-COMMAND INLINE-ARGS EOL-ARGS INDEX
+                                     EOL-TEXT-ARGS))
             ;; empty or finished by complete-start-command
             (up seed))
            ((eq? command 'verbatim)
@@ -1028,6 +1066,11 @@ Examples:
                         (acons (car arg-names) (cdar args) out)
                         (cons (list (car arg-names) (car args)) out))))))))))))
    
+(define (parse-eol-text-args command port)
+  ;; perhaps parse-environment-args should be named more
+  ;; generically.
+  (parse-environment-args command port))
+
 ;; procedure: texi-fragment->stexi STRING
 ;;
 ;; A DOM parser for a texinfo fragment STRING.

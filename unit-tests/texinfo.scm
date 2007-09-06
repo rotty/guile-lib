@@ -101,6 +101,8 @@
 
   (assert-equal '(section () EOL-TEXT)
                 (test 'section "foo bar baz bonzerts"))
+  (assert-equal '(deffnx ((category "Function") (name "foo") (arguments)) EOL-TEXT)
+                (test 'deffnx "Function foo"))
   (assert-exception (test 'emph "no brace here"))
   (assert-equal '(emph () INLINE-TEXT)
                 (test 'emph "{foo bar baz bonzerts"))
@@ -361,6 +363,22 @@
                              (para "item two text")
                              (para "includes a paragraph"))
                       (entry (% (heading "three"))))))
+  (test-body (join-lines
+              "@chapter @code{foo} bar"
+              "text that should be in a para"
+              )
+             '((chapter (code "foo") " bar")
+               (para "text that should be in a para")))
+  (test-body (join-lines
+              "@deffnx Method foo bar @code{baz}"
+              "text that should be in a para"
+              )
+             '((deffnx (% (category "Method")
+                          (name "foo")
+                          ;; I don't actually think that this extra
+                          ;; space should be here; it's probably a bug.
+                          (arguments "bar " (code "baz"))))
+               (para "text that should be in a para")))
   )
 
 (exit-with-summary (run-all-defined-test-cases))
