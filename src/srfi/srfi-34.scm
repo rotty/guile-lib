@@ -27,8 +27,8 @@
 ;;; Code:
 
 (define-module (srfi srfi-34)
-  #:export (with-exception-handler
-	    raise)
+  #:export (with-exception-handler)
+  #:replace (raise)
   #:export-syntax (guard))
 
 (cond-expand-provide (current-module) '(srfi-34))

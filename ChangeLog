@@ -1,5 +1,8 @@
 2007-09-24  Andy Wingo  <wingo@pobox.com>
 
+	* src/srfi/srfi-34.scm: Use #:replace instead of #:export for
+	`raise' so that we avoid warnings from Guile's module system.
+
 	* NEWS: Update for 0.1.5.
 
 	* doc/release: New file, reminds me how to do releases.
