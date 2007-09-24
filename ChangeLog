@@ -1,5 +1,16 @@
 2007-09-24  Andy Wingo  <wingo@pobox.com>
 
+	== guile-lib 0.1.6 released ==
+
+	* configure.ac: Bump version to 0.1.6.
+
+	* unit-tests/sxml.fold.scm (@@): 
+	* src/srfi/srfi-34.scm (current-module): Guile 1.6 compat.
+
+	* doc/www/news/index.scm (page): Add news for release.
+
+	* doc/release: Also copy NEWS to the server.
+
 	* doc/guile-library.scm (*updated*): Update date.
 
 	* src/srfi/srfi-34.scm: Use #:replace instead of #:export for

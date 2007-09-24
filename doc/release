@@ -23,7 +23,7 @@ User-visible changes only.
 
 9) Sign and upload tarball:
    gpg -b tarball
-   scp tarball tarball.sig download.gna.org:/upload/guile-lib/
+   scp NEWS tarball tarball.sig download.gna.org:/upload/guile-lib/
 
 10) Make a release note, which should be like this:
 

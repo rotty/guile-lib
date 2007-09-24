@@ -28,8 +28,13 @@
 
 (define-module (srfi srfi-34)
   #:export (with-exception-handler)
-  #:replace (raise)
   #:export-syntax (guard))
+
+;; FIXME: use #:replace in the define-module when we drop 1.6 compat
+((if (defined? 'module-replace!)
+     module-replace!
+     module-export!)
+ (current-module) '(raise))
 
 (cond-expand-provide (current-module) '(srfi-34))
 

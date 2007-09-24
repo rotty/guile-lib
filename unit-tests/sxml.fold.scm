@@ -28,6 +28,9 @@
              (unit-test)
              (sxml fold))
 
+(define-macro (@@ mod var)
+  `(module-ref (resolve-module ',mod) ',var))
+
 (define atom? (@@ (sxml fold) atom?))
 (define (id x) x)
 (define-macro (accept expr)
