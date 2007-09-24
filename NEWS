@@ -11,10 +11,6 @@ Apicheck implements one function to describe a set of modules' API as an
 s-expression, and another to verify the s-expression against the current
 API.
 
-* New module: (container async-queue).
-
-(container async-queue) implements a simple thread-safe message queue.
-
 * New module: (sxml fold).
 
 (sxml fold) defines a number of fold-based XML transformation operators.
@@ -55,8 +51,8 @@ so that there will be no unintentional breakages in the future.
 
 * Bugfixes
 
-See the ChangeLog for details on fixes to (sxml ssax input-parse),
-(string wrap), (os process), and (srfi srfi-40).
+See the ChangeLog for details on fixes to (sxml ssax input-parse) and
+(string wrap).
 
 
 guile-lib 0.1.5 -- 2007-08-09
@@ -68,6 +64,8 @@ guile-lib 0.1.5 -- 2007-08-09
 
 * Fixes for Guile 1.8
 
+READ-LINE is now in (ice-9 rdelim) instead of the core; guile-lib has
+been updated accordingly.
 
 guile-lib 0.1.4 -- 2007-07-20
 =============================
