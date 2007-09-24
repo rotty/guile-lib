@@ -2,7 +2,7 @@
 Guile-Lib NEWS
 
 
-guile-lib 0.1.5 -- 2007-09-24
+guile-lib 0.1.6 -- 2007-09-24
 =============================
 
 * New module: (apicheck).
@@ -57,6 +57,16 @@ so that there will be no unintentional breakages in the future.
 
 See the ChangeLog for details on fixes to (sxml ssax input-parse),
 (string wrap), (os process), and (srfi srfi-40).
+
+
+guile-lib 0.1.5 -- 2007-08-09
+=============================
+
+* New module (container async-queue).
+
+(container async-queue) implements a simple thread-safe message queue.
+
+* Fixes for Guile 1.8
 
 
 guile-lib 0.1.4 -- 2007-07-20

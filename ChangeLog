@@ -5,7 +5,7 @@
 	* src/srfi/srfi-34.scm: Use #:replace instead of #:export for
 	`raise' so that we avoid warnings from Guile's module system.
 
-	* NEWS: Update for 0.1.5.
+	* NEWS: Update for 0.1.6.
 
 	* doc/release: New file, reminds me how to do releases.
 
@@ -130,6 +130,8 @@
 
 2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
 
+	== guile-lib 0.1.5 released ==
+	
 	* doc/guile-library.scm (*modules*): Added (container
 	async-queue).
 
