@@ -1,5 +1,7 @@
 2007-09-24  Andy Wingo  <wingo@pobox.com>
 
+	* doc/guile-library.scm (*updated*): Update date.
+
 	* src/srfi/srfi-34.scm: Use #:replace instead of #:export for
 	`raise' so that we avoid warnings from Guile's module system.
 

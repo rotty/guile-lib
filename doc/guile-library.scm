@@ -2,7 +2,7 @@
 (define *name* "Guile Library")
 (define *description* "Common modules for Guile Scheme")
 (define *version* "0.1.5")
-(define *updated* "15 August 2007")
+(define *updated* "24 September 2007")
 (define *authors*
   '(("Andy Wingo" . "wingo at pobox.com")
     ("Richard Todd" . "richardt at vzavenue.net")))

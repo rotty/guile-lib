@@ -5,7 +5,7 @@ How
 2) Re-autogen and make distcheck to make sure everything works.
 
 3) Figure out the new version. Modify configure.ac to have the new
-   version. Note there are two places that the version comes in.
+   version.
 
 4) Edit the NEWS file, using the ChangeLog as a starting point.
 User-visible changes only.
