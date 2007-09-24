@@ -1,0 +1,50 @@
+How
+---
+1) Stabilize everything, etc.
+
+2) Re-autogen and make distcheck to make sure everything works.
+
+3) Figure out the new version. Modify configure.ac to have the new
+   version. Note there are two places that the version comes in.
+
+4) Edit the NEWS file, using the ChangeLog as a starting point.
+User-visible changes only.
+
+5) Update the README if appropriate.
+
+6) Commit with the new version and NEWS updates. Add a line to Changelog
+   like:
+   == Guile-Lib XXX released ==
+
+7) Re-autogen and make dist.
+
+8) Tag the source tree with the version:
+   bzr tag release-0.1.5
+
+9) Sign and upload tarball:
+   gpg -b tarball
+   scp tarball tarball.sig download.gna.org:/upload/guile-lib/
+
+10) Make a release note, which should be like this:
+
+I am pleased to announce that Guile-Lib N.M.O has been released. It
+may be obtained at:
+
+  http://download.gna.org/guile-lib/guile-lib-XXX.tar.gz
+
+What is Guile-Lib
+-----------------
+
+Guile-Lib is intended as an accumulation place for pure-scheme Guile
+modules, allowing for people to cooperate integrating their generic
+Guile modules into a coherent library. Think "a down-scaled,
+limited-scope CPAN for Guile".
+
+What's new
+----------
+
+ * things from the NEWS, mentioning contributors
+
+Mail the release note to guile-user and guile-lib-dev.
+
+11) Add a news entry on the web site.
