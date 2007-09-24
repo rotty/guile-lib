@@ -1,22 +1,62 @@
-Guile-Lib README
+-*- outline -*-
+Guile-Lib NEWS
 
 
-Guile-Lib is intended as an accumulation place for pure-scheme Guile
-modules, allowing for people to cooperate integrating their generic
-Guile modules into a coherent library. Think "a down-scaled,
-limited-scope CPAN for Guile".
-
-guile-lib 0.1.5 -- 2007-08-09
+guile-lib 0.1.5 -- 2007-09-24
 =============================
 
-* New module (container async-queue).
+* New module: (apicheck).
+
+Apicheck implements one function to describe a set of modules' API as an
+s-expression, and another to verify the s-expression against the current
+API.
+
+* New module: (container async-queue).
 
 (container async-queue) implements a simple thread-safe message queue.
 
-* Fixes for Guile 1.8
+* New module: (sxml fold).
 
-READ-LINE is now in (ice-9 rdelim) instead of the core; guile-lib has
-been updated accordingly.
+(sxml fold) defines a number of fold-based XML transformation operators.
+
+* Improved support for parsing Texinfo.
+
+(texinfo) now parses the arguments of the @deffnx family of commands.
+Added support for parsing the inline commands @b, @i, @r, @sansserif,
+@slanted, @t, and @tie.
+
+* Better automatic documentation via (texinfo reflection).
+
+Generic functions are now documented along with all of their methods.
+Documentation for methods is now taken from their procedure
+implementation.
+
+Documentation produced with `module-stexi-documentation' may now be
+filtered or elided via a user-supplied procedure. This allows procedures
+defined in C to have their documentation supplied from a source that is
+not a docstring or an object property, for example from docs snarfed
+from the C source, or from docs written in a separate texinfo file.
+
+Procedures documented by `module-stexi-documentation' are now ordered in
+the order in which they appear in the module's export list, if it is
+possible to obtain this information.
+
+* Limited support for transforming Docbook to Texinfo.
+
+(texinfo docbook) defines procedures for parsing docbook into SXML,
+flattening that SXML into a form more like STEXI, and a stylesheet for
+transforming a limited subset of that SXML into STEXI. The stylesheet
+may be extended by user code in order to support more docbook elements.
+
+* Guile-Lib now has API regression tests.
+
+Using Apicheck, we now know the exact interface exported by Guile-Lib,
+so that there will be no unintentional breakages in the future.
+
+* Bugfixes
+
+See the ChangeLog for details on fixes to (sxml ssax input-parse),
+(string wrap), (os process), and (srfi srfi-40).
 
 
 guile-lib 0.1.4 -- 2007-07-20

@@ -1,5 +1,7 @@
 2007-09-24  Andy Wingo  <wingo@pobox.com>
 
+	* NEWS: Update for 0.1.5.
+
 	* doc/release: New file, reminds me how to do releases.
 
 2007-09-07  Andy Wingo  <wingo@pobox.com>
