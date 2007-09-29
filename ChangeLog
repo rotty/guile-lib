@@ -1,3 +1,10 @@
+2007-09-29  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/nodal-tree.scm (stexi->nodal-tree): Use
+	define/kwargs, and take an optional initial-depth argument.
+
+	* src/texinfo.scm (texi-command-specs): Add @image.
+
 2007-09-24  Andy Wingo  <wingo@pobox.com>
 
 	== guile-lib 0.1.6 released ==

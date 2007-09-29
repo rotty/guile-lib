@@ -34,6 +34,7 @@
 (define-module (texinfo nodal-tree)
   #:use-module (container nodal-tree)
   #:use-module (sxml simple)
+  #:use-module (scheme kwargs)
   #:use-module (texinfo) ;; texi-command-depth
   #:export (stexi->nodal-tree))
 
@@ -53,7 +54,7 @@
 ;; There has to be a more functional way to do this! Probably involves
 ;; building up from the leaves, instead of building down from the root.
 ;; Thankfully, the ugliness of this code isn't exported.
-(define (stexi->nodal-tree stexi max-depth)
+(define/kwargs (stexi->nodal-tree (stexi #f) (max-depth 4) (initial-depth 0))
   "Break @var{stexi} into a nodal tree. Only break until sectioning
 identifiers of depth @var{max-depth}. The following fields are defined
 for each node:
@@ -85,26 +86,31 @@ section.
            (val '())
            (node (make-node* #f (cadr stexi)))
            (parent #f)
-           (depth 0))
+           (depth initial-depth))
+    ;(pk (or (null? in) (car in)) val node parent depth)
     (cond
      ((null? in)
       (node-set! node 'value (reverse! val))
       (find-parent node))
-     ((and (node? (car in)) (pair? in) (pair? (cdr in))
-           (chunking-section? (cadr in) max-depth))
+     ((or (chunking-section? (car in) max-depth)
+          (and (node? (car in)) (pair? in) (pair? (cdr in))
+               (chunking-section? (cadr in) max-depth)))
       (node-set! node 'value (reverse! val))
-      (let ((new-depth (texi-command-depth (caadr in) max-depth)))
+      (let* ((node-statement (if (node? (car in)) (car in) #f))
+             (in (if node-statement (cdr in) in))
+             (new-depth (texi-command-depth (caar in) max-depth)))
         (let new-parent ((parent node) (diff (- new-depth depth)))
           (cond
              ((not parent) (error "invalid stexi"))
              ((positive? diff)
               (or (eq? diff 1)
                   (error "can only descend by one depth level at a time"
-                         (car in) (cadr in)))
-              (lp (cddr in)
-                  `(,(cadr in) ,(car in)
-                    (% (title ,(sxml->string (cadr in)))) texinfo)
-                  (make-node* parent (cadr in)) parent new-depth))
+                         (car in)))
+              (lp (cdr in)
+                  `(,(car in)
+                    ,@(if node-statement (list node-statement) '())
+                    (% (title ,(sxml->string (car in)))) texinfo)
+                  (make-node* parent (car in)) parent new-depth))
              (else
               (new-parent (node-ref parent 'parent) (1+ diff)))))))
      (else

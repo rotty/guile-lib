@@ -239,6 +239,7 @@ lambda. Only present for @code{INLINE-ARGS}, @code{EOL-ARGS},
     (bullet             INLINE-ARGS . ())
     (copyright          INLINE-ARGS . ())
     (tie                INLINE-ARGS . ())
+    (image              INLINE-ARGS . (file #:opt width height alt-text extension))
 
     ;; EOL args elements
     (node               EOL-ARGS . (name #:opt next previous up))
