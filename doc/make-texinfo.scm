@@ -1,4 +1,5 @@
 #!/bin/sh
+# -*- scheme -*-
 exec guile --debug -s $0 "$@"
 !#
 
@@ -22,9 +23,9 @@ exec guile --debug -s $0 "$@"
        *name* *version* *updated* *years* *copyright-holder* *permissions*)
       (package-stexi-standard-titlepage
        *name* *version* *updated* *authors*)
-      (package-stexi-standard-menu
-       *name* (map car *modules*) (map cdr *modules*)
-       *extra-texinfo-menu-entries*))
-     *texinfo-epilogue*))))
+      (package-stexi-extended-menu
+       *name* *modules* *scripts* *extra-texinfo-menu-entries*))
+     *texinfo-epilogue*
+     #:scripts (map car *scripts*)))))
 
 (apply main (cdr (command-line)))

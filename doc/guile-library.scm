@@ -151,4 +151,6 @@ License\".")
     ((sxml ssax input-parse) . "http://ssax.sourceforge.net/")
     ((htmlprag) . "http://neilvandyke.org/htmlprag/")))
 
+(define *scripts* '())
+
 ;; arch-tag: e493ad42-ad58-451c-a2d6-b17ba6c1d1d0

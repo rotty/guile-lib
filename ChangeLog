@@ -1,3 +1,18 @@
+2007-10-04  Andy Wingo  <wingo@pobox.com>
+
+	* doc/guile-library.scm (*scripts*): Define a *scripts*.
+
+	* doc/make-texinfo.scm (main): Document *scripts*.
+
+	* src/texinfo/reflection.scm (script-stexi-documentation): New
+	export, documents a script based on its commentary.
+	(package-stexi-generic-menu): New export, a generic menu.
+	(package-stexi-standard-menu): Refactored to use the generic menu.
+	(package-stexi-extended-menu): New export, like -standard-menu but
+	also documents scripts.
+	(package-stexi-documentation): New optional argument, scripts,
+	which if given puts scripts in the docs as well.
+
 2007-09-29  Andy Wingo  <wingo@pobox.com>
 
 	* src/texinfo/nodal-tree.scm (stexi->nodal-tree): Use

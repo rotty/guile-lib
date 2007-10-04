@@ -42,10 +42,13 @@
   #:use-module ((sxml transform)
                 #:select (pre-post-order))
   #:export (module-stexi-documentation
+            script-stexi-documentation
             object-stexi-documentation
             package-stexi-standard-copying
             package-stexi-standard-titlepage
+            package-stexi-generic-menu
             package-stexi-standard-menu
+            package-stexi-extended-menu
             package-stexi-standard-prologue
             package-stexi-documentation))
 
@@ -294,6 +297,19 @@ documentation will be formatted as @code{stexi}
               (section "Usage")
               ,@(apply append! (make-defs)))))
 
+(define (script-stexi-documentation scriptpath)
+  "Return documentation for given script. The documentation will be
+taken from the script's commentary, and will be returned in the
+@code{stexi} format (@pxref{texinfo,texinfo})."
+  (let ((commentary (file-commentary scriptpath)))
+    `(texinfo (% (title ,(basename scriptpath)))
+              (node (% (name ,(basename scriptpath))))
+              ,@(if commentary
+                    (cdr
+                     (string->stexi
+                      (string-trim-both commentary #\newline)))
+                    '()))))
+
 (define (stexi-help-handler name value)
   (stexi->plain-text (object-stexi-documentation value name #:force #t)))
 
@@ -351,10 +367,10 @@ Here is an example of the usage of this procedure:
      (vskip (% (all "0pt plus 1filll")))
      (insertcopying))))
 
-(define (package-stexi-standard-menu name modules module-descriptions
-                                     extra-entries)
-  "Create a standard top node and menu, suitable for processing
-by makeinfo."
+(define (package-stexi-generic-menu name entries)
+  "Create a menu from a generic alist of entries, the car of which
+should be the node name, and the cdr the description. As an exception,
+an entry of @code{#f} will produce a separator."
   (define (make-entry node description)
     `("* " ,node "::"
       ,(make-string (max (- 21 (string-length node)) 2) #\space)
@@ -367,17 +383,45 @@ by makeinfo."
       ,@(apply
          append
          (map
-          (lambda (module description)
-            (make-entry (module-name->node-name module) description))
-          modules module-descriptions))
-      ,@(if extra-entries
-            (cons "\n" 
-                  (apply append (map make-entry
-                                     (map car extra-entries)
-                                     (map cdr extra-entries))))
-            '())))
+          (lambda (entry)
+            (if entry
+                (make-entry (car entry) (cdr entry))
+                '("\n")))
+          entries))))
     (iftex
      (shortcontents))))
+
+
+(define (package-stexi-standard-menu name modules module-descriptions
+                                     extra-entries)
+  "Create a standard top node and menu, suitable for processing
+by makeinfo."
+  (package-stexi-generic-menu
+   name
+   (let ((module-entries (map cons
+                              (map module-name->node-name module)
+                              module-descriptions))
+         (separate-sections (lambda (x) (if (null? x) x (cons #f x)))))
+     `(,@module-entries
+       ,@(separate-sections extra-entries)))))
+
+(define (package-stexi-extended-menu name module-pairs script-pairs
+                                     extra-entries)
+  "Create an \"extended\" menu, like the standard menu but with a
+section for scripts."
+  (package-stexi-generic-menu
+   name
+   (let ((module-entries (map cons
+                              (map module-name->node-name
+                                   (map car module-pairs))
+                              (map cdr module-pairs)))
+         (script-entries (map cons
+                              (map basename (map car script-pairs))
+                              (map cdr script-pairs)))
+         (separate-sections (lambda (x) (if (null? x) x (cons #f x)))))
+     `(,@module-entries
+       ,@(separate-sections script-entries)
+       ,@(separate-sections extra-entries)))))
 
 (define (package-stexi-standard-prologue name filename category
                                          description copying titlepage
@@ -400,12 +444,9 @@ package-stexi-standard-menu,package-stexi-standard-menu}."
     ,@titlepage
     ,@menu))
 
-(define (package-stexi-documentation-helper sym-name args)
-  ;; returns a list of forms
+(define (stexi->chapter stexi)
   (pre-post-order
-   (apply module-stexi-documentation sym-name args)
-   ;; here taking advantage of the fact that we know what
-   ;; module-stexi-documentation outputs
+   stexi
    `((texinfo . ,(lambda (tag attrs node . body)
                    `(,node
                      (chapter ,@(assq-ref (cdr attrs) 'title))
@@ -416,7 +457,8 @@ package-stexi-standard-menu,package-stexi-standard-menu}."
 (define/kwargs (package-stexi-documentation modules name filename
                                             prologue epilogue
                                             (module-stexi-documentation-args
-                                             '()))
+                                             '())
+                                            (scripts '()))
   "Create stexi documentation for a @dfn{package}, where a
 package is a set of modules that is released together.
 
@@ -449,9 +491,14 @@ useful to define a @code{#:docs-resolver} argument."
        (filename ,filename))
     ,@prologue
     ,@(append-map (lambda (mod)
-                    (package-stexi-documentation-helper
-                     mod module-stexi-documentation-args))
+                    (stexi->chapter
+                     (apply module-stexi-documentation
+                            mod module-stexi-documentation-args)))
                   modules)
+    ,@(append-map (lambda (script)
+                    (stexi->chapter
+                     (script-stexi-documentation script)))
+                  scripts)
     ,@epilogue))
 
 ;;; arch-tag: bbe2bc03-e16d-4a9e-87b9-55225dc9836c
