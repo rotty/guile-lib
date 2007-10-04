@@ -1,5 +1,7 @@
 2007-10-04  Andy Wingo  <wingo@pobox.com>
 
+	* doc/make-html.scm: Update to deal with *scripts*.
+
 	* doc/guile-library.scm (*scripts*): Define a *scripts*.
 
 	* doc/make-texinfo.scm (main): Document *scripts*.

@@ -47,9 +47,11 @@ exec guile --debug -s $0 "$@"
 (define (module->str scm)
   (call-with-output-string (lambda (p) (display scm p))))
 (define (module->ustr scm)
-  (string-append (string-join (map urlify (map symbol->string scm)) ".") "/"))
+  (string-append (string-join (map symbol->string scm) ".") "/"))
 (define (extra-entry->ustr str)
-  (string-append (string-join (map urlify (string-split str #\space)) ".") "/"))
+  (string-append (string-join (string-split str #\space) ".") "/"))
+(define (script->ustr str)
+  (string-append str "/"))
 
 (define (make-html-index)
   (with-output-to-file "html/index.html"
@@ -74,6 +76,14 @@ exec guile --debug -s $0 "$@"
                                 (title ,(module->str module))))))
                    ,@description))
                (map car *modules*) (map cdr *modules*))
+            ,@(map
+               (lambda (script description)
+                 `(entry
+                   (% (heading
+                       (uref (% (url ,(script->ustr script))
+                                (title ,script)))))
+                   ,@description))
+               (map basename (map car *scripts*)) (map cdr *scripts*))
             ,@(map
                (lambda (args)
                  (apply
@@ -107,10 +117,13 @@ exec guile --debug -s $0 "$@"
          (lambda (x)
            (lp (cdr chars) (string-split x (car chars))))
          out))))
+(define (negate pred)
+  (lambda (x) (not (pred x))))
 
 (define (resolve-ref node manual)
   (and (or (not manual) (string=? manual *name*))
-       (let* ((split (string-split* node #\space #\newline))
+       (let* ((split (filter (negate string-null?)
+                             (string-split* node #\space #\newline)))
               (symbols (map string->symbol split))
               (last (car (last-pair symbols)))
               (except-last (reverse (cdr (reverse symbols)))))
@@ -119,10 +132,13 @@ exec guile --debug -s $0 "$@"
            (string-append "../" (module->ustr symbols)))
           ((member except-last (map car *modules*))
            (string-append "../" (module->ustr except-last)
-                          "#" (string-join (map urlify split) "-")))
+                          "#" (string-join split "-")))
+          ((member node (map car *scripts*))
+           (string-append "../" (script->ustr node)))
           ((member node (map cadr *extra-html-entry-files*))
            (string-append "../" (extra-entry->ustr node)))
           (else
+           (warn "dangling reference" split)
            #f)))))
 (add-ref-resolver! resolve-ref)
       
@@ -147,6 +163,29 @@ exec guile --debug -s $0 "$@"
            (*default* . ,(lambda args args))))
         port)))
    (map car *modules*)))
+
+(define (make-html-script-pages)
+  (for-each
+   (lambda (scriptpath)
+     (let* ((script (basename scriptpath))
+            (ustr (string-append "./html/" (script->ustr script)))
+            (port (begin
+                    (makedirs ustr)
+                    (open-output-file (string-append ustr "index.html")))))
+       (display xhtml-doctype port)
+       (sxml->xml
+        (pre-post-order
+         (stexi->shtml (script-stexi-documentation scriptpath))
+         `((html . ,(lambda (tag attrs head body)
+                      (wrap-html
+                       script
+                       (string-append "../" *html-relative-root-path*)
+                       "../index.scm"
+                       (cdr body)))) ;; cdr past the 'body tag
+           (*text* . ,(lambda (tag text) text))
+           (*default* . ,(lambda args args))))
+        port)))
+   (map car *scripts*)))
 
 (define (make-html-extra-pages)
   (for-each
@@ -176,6 +215,7 @@ exec guile --debug -s $0 "$@"
   (makedirs "./html")
   (make-html-index)
   (make-html-module-pages)
+  (make-html-script-pages)
   (make-html-extra-pages))
 
 (apply main (cdr (command-line)))
