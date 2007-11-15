@@ -60,9 +60,16 @@
     (programlisting example)
     (firstterm dfn)
     (filename file)
+    (quote cite)
+    (application cite)
+    (symbol code)
+    (note cartouche)
     (envar env)))
 
 (define ignore-list '())
+
+(define (stringify exp)
+  (with-output-to-string (lambda () (write exp))))
 
 (define-with-docs *sdocbook->stexi-rules*
   "A stylesheet for use with SSAX's @code{pre-post-order}, which defines
@@ -75,6 +82,11 @@ a number of generic rules for transforming docbook into texinfo."
                         `(item ,@body))))
                  . ,(lambda (tag . body)
                       `(enumerate ,@body)))
+    (itemizedlist ((listitem
+                    . ,(lambda (tag . body)
+                         `(item ,@body))))
+                  . ,(lambda (tag . body)
+                       `(itemize ,@body)))
     (term . ,detag-one)
     (informalexample . ,detag-one)
     (section . ,identity)
@@ -96,7 +108,7 @@ a number of generic rules for transforming docbook into texinfo."
                        ((memq tag ignore-list) #f)
                        (else 
                         (warn "Don't know how to convert" tag "to stexi")
-                        body)))))))
+                        `(c (% (all ,(stringify (cons tag body))))))))))))
 
 ;;     (variablelist
 ;;      ((varlistentry
@@ -113,7 +125,8 @@ a number of generic rules for transforming docbook into texinfo."
 each other. @xref{texinfo docbook sdocbook-flatten,,sdocbook-flatten},
 for more information." 
   '(para programlisting informalexample indexterm variablelist
-    orderedlist refsect1 refsect2 refsect3 refsect4 title))
+    orderedlist refsect1 refsect2 refsect3 refsect4 title example
+    note itemizedlist))
 
 (define (inline-command? command)
   (not (memq command *sdocbook-block-commands*)))
