@@ -1,5 +1,8 @@
 2007-12-06  Andy Wingo  <wingo@pobox.com>
 
+	* src/texinfo/docbook.scm (tag-replacements): Replace
+	`replaceable' with `var'.
+
 	* src/texinfo/reflection.scm (package-stexi-standard-menu): Fix
 	typo.
 

@@ -52,6 +52,7 @@
 
 (define tag-replacements
   '((parameter var)
+    (replaceable var)
     (type code)
     (function code)
     (literal samp)
