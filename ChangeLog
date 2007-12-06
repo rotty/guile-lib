@@ -1,3 +1,8 @@
+2007-12-06  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/reflection.scm (package-stexi-standard-menu): Fix
+	typo.
+
 2007-11-15  Andy Wingo  <wingo@pobox.com>
 
 	* src/texinfo/docbook.scm (tag-replacements): Add translations for

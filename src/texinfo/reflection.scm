@@ -399,7 +399,7 @@ by makeinfo."
   (package-stexi-generic-menu
    name
    (let ((module-entries (map cons
-                              (map module-name->node-name module)
+                              (map module-name->node-name modules)
                               module-descriptions))
          (separate-sections (lambda (x) (if (null? x) x (cons #f x)))))
      `(,@module-entries
