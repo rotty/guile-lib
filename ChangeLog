@@ -1,3 +1,13 @@
+2008-02-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/statprof.scm (with-statprof): Rewrite to return the value of
+	the containing expression, at least in the non-looping case.
+
+	* src/match-bind.scm (regex:count): New function, so we can
+	compile how many matches we expect to see out of a regexp.
+	(match-bind): Rewrite to do more compilation. Also fix the problem
+	where we expected users to already have (ice-9 regex).
+
 2007-12-06  Andy Wingo  <wingo@pobox.com>
 
 	* src/texinfo/docbook.scm (tag-replacements): Replace

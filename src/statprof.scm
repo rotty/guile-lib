@@ -584,22 +584,23 @@ default: @code{#f}
         (hz (kw-arg-ref #:hz args 20))
         (count-calls? (kw-arg-ref #:count-calls? args #f))
         (body (kw-arg-ref #f args #f)))
-    `(begin
-       (,statprof-reset ,(inexact->exact (floor (/ 1 hz)))
-                        ,(inexact->exact (* 1e6 (- (/ 1 hz)
-                                                   (floor (/ 1 hz)))))
-                        ,count-calls?)
-       (,dynamic-wind
-           ,statprof-start
-           (lambda ()
-             ,(if loop
-                  (let ((lp (gensym "statprof ")) (x (gensym)))
-                    `(let ,lp ((,x ,loop))
-                          (if (,not (,zero? ,x))
-                              (begin ,@body (,lp (,1- ,x))))))
-                  `(begin ,@body)))
-           ,statprof-stop)
-       (,statprof-display)
-       (,(lambda () (set! procedure-data #f))))))
+    `(,dynamic-wind
+         ,(lambda ()
+            (statprof-reset (inexact->exact (floor (/ 1 hz)))
+                            (inexact->exact (* 1e6 (- (/ 1 hz)
+                                                      (floor (/ 1 hz)))))
+                            count-calls?)
+            (statprof-start))
+         (lambda ()
+           ,(if loop
+                (let ((lp (gensym "statprof ")) (x (gensym)))
+                  `(let ,lp ((,x ,loop))
+                        (if (,not (,zero? ,x))
+                            (begin ,@body (,lp (,1- ,x))))))
+                `(begin ,@body)))
+         ,(lambda ()
+            (statprof-stop)
+            (statprof-display)
+            (set! procedure-data #f)))))
 
 ;;; arch-tag: 83969178-b576-4c52-a31c-6a9c2be85d10
