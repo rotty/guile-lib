@@ -1,3 +1,15 @@
+2008-02-26  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/upstream/SSAX.scm (ssax:xml->sxml):
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:xml->sxml): Replace
+	reverse-collect-str-drop-ws with reverse-collect-str in
+	ssax:xml->sxml. The rationale is that if a procedure is called
+	xml->sxml, it should follow the XML recommendation instead of
+	trying to be clever. Tests were adapted as well.
+
+	* src/sxml/ssax-simple.scm (ssax:reverse-collect-str): As long as
+	we're exporting the drop-ws version, export this one too.
+
 2008-02-24  Andy Wingo  <wingo@pobox.com>
 
 	* src/statprof.scm (with-statprof): Rewrite to return the value of

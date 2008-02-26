@@ -4045,7 +4045,7 @@
                                                                                             _attrs_78)
                                                                                       _seed_77)))
                                                                         _parent-seed_75))
-                                                                (ssax:reverse-collect-str-drop-ws
+                                                                (ssax:reverse-collect-str
                                                                   _seed_76)
                                                                 (attlist-fold
                                                                   (lambda (_attr_77
@@ -4104,7 +4104,7 @@
                                                                                                 _attrs_78)
                                                                                           _seed_77)))
                                                                             _parent-seed_75))
-                                                                    (ssax:reverse-collect-str-drop-ws
+                                                                    (ssax:reverse-collect-str
                                                                       _seed_76)
                                                                     (attlist-fold
                                                                       (lambda (_attr_77
@@ -4186,7 +4186,7 @@
                                                                                                                             _attrs_87)
                                                                                                                       _seed_86)))
                                                                                                         _parent-seed_84))
-                                                                                                (ssax:reverse-collect-str-drop-ws
+                                                                                                (ssax:reverse-collect-str
                                                                                                   _seed_85)
                                                                                                 (attlist-fold
                                                                                                   (lambda (_attr_86

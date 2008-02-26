@@ -2851,7 +2851,7 @@
    
 	     FINISH-ELEMENT
 	     (lambda (elem-gi attributes namespaces parent-seed seed)
-	       (let ((seed (ssax:reverse-collect-str-drop-ws seed))
+	       (let ((seed (ssax:reverse-collect-str seed))
 		     (attrs
 		      (attlist-fold
 		       (lambda (attr accum)
@@ -2945,15 +2945,15 @@
 ;    (test "<T1><T2>it&apos;s%r%nand   that%n</T2>%r%n%r%n%n</T1>" '()
 ;	  '(*TOP* (T1 (T2 "it's%nand   that%n") "%n%n%n")))
     (test "<T1><T2>it&apos;s%r%nand   that%n</T2>%r%n%r%n%n</T1>" '()
-	  `(*TOP* (T1 (T2 ,(unesc-string "it's%nand   that%n")))))
+	  `(*TOP* (T1 (T2 ,(unesc-string "it's%nand   that%n")) ,(unesc-string "%n%n%n"))))
     (test "<T1><T2>it&apos;s%rand   that%n</T2>%r%n%r%n%n</T1>" '()
-	  `(*TOP* (T1 (T2 ,(unesc-string "it's%nand   that%n")))))
+	  `(*TOP* (T1 (T2 ,(unesc-string "it's%nand   that%n")) ,(unesc-string "%n%n%n"))))
     (test "<!DOCTYPE T SYSTEM 'system1' ><!-- comment -->%n<T/>" '()
 	  '(*TOP* (T)))
     (test "<?xml version='1.0'?>%n<WEIGHT unit=\"pound\">%n<NET certified='certified'> 67 </NET>%n<GROSS> 95 </GROSS>%n</WEIGHT>" '()
-	  '(*TOP* (*PI* xml "version='1.0'") (WEIGHT (@ (unit "pound"))
-                (NET (@ (certified "certified")) " 67 ")
-                (GROSS " 95 "))
+	  `(*TOP* (*PI* xml "version='1.0'") (WEIGHT (@ (unit "pound"))
+                ,nl (NET (@ (certified "certified")) " 67 ") ,nl
+                (GROSS " 95 ") ,nl)
 		  ))
 ;     (test "<?xml version='1.0'?>%n<WEIGHT unit=\"pound\">%n<NET certified='certified'> 67 </NET>%n<GROSS> 95 </GROSS>%n</WEIGHT>" '()
 ; 	  '(*TOP* (*PI* xml "version='1.0'") (WEIGHT (@ (unit "pound"))
@@ -2972,10 +2972,10 @@
            "<!-- the 'taxClass' attribute's  ns http://ecommerce.org/schema -->"
            "<lineItem edi:taxClass='exempt'>Baby food</lineItem>" nl
            "</x>") '()
-	   '(*TOP* 
+	   `(*TOP* 
 	     (x (lineItem
 		 (@ (http://ecommerce.org/schema:taxClass "exempt"))
-            "Baby food"))))
+            "Baby food") ,nl)))
     (test (string-append 
 	   "<x xmlns:edi='http://ecommerce.org/schema'>"
            "<!-- the 'taxClass' attribute's  ns http://ecommerce.org/schema -->"
@@ -3067,7 +3067,7 @@
 	      (HTML:A (@ (HREF "/cgi-bin/ResStatus")) "Check Status")
 	      (DEPARTURE "1997-05-24T07:55:00+1"))))
     ; Part of RDF from the XML Infoset
-        (test (string-concatenate/shared (list-intersperse '(
+        (test (string-concatenate/shared '(
    "<?xml version='1.0' encoding='utf-8' standalone='yes'?>"
    "<!-- this can be decoded as US-ASCII or iso-8859-1 as well,"
    "  since it contains no characters outside the US-ASCII repertoire -->"
@@ -3093,8 +3093,7 @@
    "<rdfs:domain resource='#Element'/>"
    "<rdfs:range resource='#AttributeSet'/>"
    "</rdfs:Property>"
-   "</rdf:RDF>")
-   (string #\newline)))
+   "</rdf:RDF>"))
    '((RDF . "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
      (RDFS . "http://www.w3.org/2000/01/rdf-schema#")
      (ISET . "http://www.w3.org/2001/02/infoset#"))
@@ -3150,27 +3149,28 @@
    '((RDF . "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
      (RSS . "http://my.netscape.com/rdf/simple/0.9/")
      (ISET . "http://www.w3.org/2001/02/infoset#"))
-   '(*TOP* (@ (*NAMESPACES*
+   `(*TOP* (@ (*NAMESPACES*
          (RDF "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
          (RSS "http://my.netscape.com/rdf/simple/0.9/")
          (ISET "http://www.w3.org/2001/02/infoset#")))
        (*PI* xml "version='1.0'")
-       (RDF:RDF (RSS:channel
-                  (RSS:title "Daemon News Mall")
-                  (RSS:link "http://mall.daemonnews.org/")
-                  (RSS:description "Central source for all your BSD needs"))
-                (RSS:item
+       (RDF:RDF ,nl
+                (RSS:channel ,nl
+                  (RSS:title "Daemon News Mall") ,nl
+                  (RSS:link "http://mall.daemonnews.org/") ,nl
+                  (RSS:description "Central source for all your BSD needs") ,nl) ,nl
+                (RSS:item ,nl
                   (RSS:title
-                    "Daemon News Jan/Feb Issue NOW Available! Subscribe $24.95")
+                    "Daemon News Jan/Feb Issue NOW Available! Subscribe $24.95") ,nl
                   (RSS:link
-                    "http://mall.daemonnews.org/?page=shop/flypage&product_id=880"))
-                (RSS:item
+                    "http://mall.daemonnews.org/?page=shop/flypage&product_id=880") ,nl) ,nl
+                (RSS:item ,nl
                   (RSS:title
-                    "The Design and Implementation of the 4.4BSD Operating System $54.95")
+                    "The Design and Implementation of the 4.4BSD Operating System $54.95") ,nl
                   (RSS:link
-                    "http://mall.daemonnews.org/?page=shop/flypage&product_id=912&category_id=1761")))))
+                    "http://mall.daemonnews.org/?page=shop/flypage&product_id=912&category_id=1761") ,nl) ,nl)))
 
-    (test (string-concatenate/shared (list-intersperse 
+    (test (string-concatenate/shared
        '("<Forecasts TStamp='958082142'>"
 	 "<TAF TStamp='958066200' LatLon='36.583, -121.850' BId='724915'"
 	 "  SName='KMRY, MONTEREY PENINSULA'>"
@@ -3185,9 +3185,7 @@
 	 "<PREVAILING>29010KT P6SM SCT200</PREVAILING>"
 	 "<VAR Title='BECMG 0708' TRange='958114800, 958118400'>VRB05KT</VAR>"
 	 "</PERIOD></TAF>"
-	 "</Forecasts>")
-       (string #\newline)
-       ))
+	 "</Forecasts>"))
 	  '()
 	  '(*TOP* (Forecasts
 		   (@ (TStamp "958082142"))

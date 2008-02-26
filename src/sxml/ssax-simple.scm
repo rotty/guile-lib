@@ -32,6 +32,7 @@
                 ssax:skip-internal-dtd
                 ssax:read-pi-body-as-string
                 ssax:reverse-collect-str-drop-ws
+                ssax:reverse-collect-str
                 ssax:read-markup-token
                 ssax:read-cdata-body
                 ssax:read-char-ref
