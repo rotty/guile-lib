@@ -39,6 +39,7 @@ nobase_dist_scm_DATA = \
 	sxml/ssax/input-parse.scm	\
 	sxml/ssax.scm			\
 	sxml/transform.scm		\
+	sxml/unicode.scm		\
 	sxml/upstream/SSAX-expanded.scm	\
 	sxml/upstream/SSAX.scm		\
 	sxml/upstream/SXML-tree-trans.scm \

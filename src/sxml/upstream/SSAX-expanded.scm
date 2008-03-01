@@ -497,7 +497,7 @@
              (begin
                (read-char _port_38)
                (if (integer? _char-code_41)
-                 (ucscode->char _char-code_41)
+                 (ucscode->string _char-code_41)
                  (parser-error
                    _port_38
                    "[wf-Legalchar] broken for '"
@@ -628,8 +628,7 @@
                                       _delimiter_41
                                       _port_42
                                       _entities_43
-                                      (cons (string (ssax:read-char-ref
-                                                      _port_42))
+                                      (cons (ssax:read-char-ref _port_42)
                                             _new-fragments_45)))
                                   (_read-attrib-value_40
                                     _delimiter_41
@@ -2265,8 +2264,7 @@
                                                 (_loop_46
                                                   (_str-handler_43
                                                     _fragment_48
-                                                    (string (ssax:read-char-ref
-                                                              _port_41))
+                                                    (ssax:read-char-ref _port_41)
                                                     _seed_47)))
                                               ((lambda (_name_52)
                                                  (begin

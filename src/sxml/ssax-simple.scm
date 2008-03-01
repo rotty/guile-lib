@@ -19,6 +19,7 @@
 
 (define-module (sxml ssax-simple)
   #:use-module (sxml ssax input-parse)
+  #:use-module (sxml unicode)
   #:use-module (debugging assert)
   #:use-module (io string)
   #:use-module (srfi srfi-1)
@@ -54,12 +55,9 @@
 (define (ssax:warn port msg . args)
   (warn msg port args))
 
-(define ucscode->char
-  (lambda (code)
-    (if (< code 256) ;; should also warn about 128<=x<256, because it's
-		     ;; locale-specific
-        (integer->char code)
-        (error "Guile doesn't support Unicode!" code))))
+;; Well, so this isn't correct for other unicode encodings. Something to
+;; fix in the future, I guess.
+(define ucscode->string unicode->utf-8)
 
 (define char-newline #\newline)
 (define char-return #\return)

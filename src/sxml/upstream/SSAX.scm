@@ -1037,7 +1037,7 @@
 ;  "[Definition: A character reference refers to a specific character
 ;   in the ISO/IEC 10646 character set, for example one not directly
 ;   accessible from available input devices.]"
-; Therefore, we use a ucscode->char function to convert a character
+; Therefore, we use a ucscode->string function to convert a character
 ; code into the character -- *regardless* of the current character
 ; encoding of the input stream.
 
@@ -1048,7 +1048,7 @@
          (name (next-token '() '(#\;) "XML [66]" port))
          (char-code (string->number name base)))
     (read-char port)	; read the terminating #\; char
-    (if (integer? char-code) (ucscode->char char-code)
+    (if (integer? char-code) (ucscode->string char-code)
       (parser-error port "[wf-Legalchar] broken for '" name "'"))))
 
 
@@ -1191,7 +1191,7 @@
 	    ((eqv? (peek-char port) #\#)
 	      (read-char port)
 	      (read-attrib-value delimiter port entities
-		(cons (string (ssax:read-char-ref port)) new-fragments)))
+		(cons (ssax:read-char-ref port) new-fragments)))
 	    (else
 	      (read-attrib-value delimiter port entities
 		(read-named-entity port entities new-fragments)))))
@@ -1896,7 +1896,7 @@
 		      (case (peek-next-char port)
 			((#\#) (read-char port) 
 			 (loop (str-handler fragment
-				       (string (ssax:read-char-ref port))
+				       (ssax:read-char-ref port)
 				       seed)))
 			(else
 			 (let ((name (ssax:read-NCName port)))

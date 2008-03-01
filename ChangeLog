@@ -1,3 +1,26 @@
+2008-03-01  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/upstream/SSAX.scm (ssax:read-char-ref)
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:read-char-ref): Change
+	to call ucscode->string instead of ucscode->char, allowing for
+	UTF-8 character encoding. All of our callers were making strings
+	anyway.
+	* src/sxml/upstream/SSAX.scm (ssax:read-attributes)
+	(ssax:read-char-data)
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:read-char-data)
+	(ssax:read-attributes): Update callers of read-char-ref to expect
+	strings instead of chars.
+
+	* src/sxml/unicode.scm: New module, implements encoding unicode
+	code points into UTF-8.
+
+	* src/sxml/ssax.scm (ucscode->string):
+	* src/sxml/ssax-simple.scm (ucscode->string): Define as
+	unicode->utf-8. Not the most general solution, but it's better
+	than what we had.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): Add (sxml unicode).
+
 2008-02-26  Andy Wingo  <wingo@pobox.com>
 
 	* src/sxml/upstream/SSAX.scm (ssax:xml->sxml):
