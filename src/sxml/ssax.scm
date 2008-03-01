@@ -167,7 +167,7 @@
 
 ;; Well, so this isn't correct for other unicode encodings. Something to
 ;; fix in the future, I guess.
-(define ucscode->string unicode->utf-8)
+(define ucscode->string unichar->utf-8)
 
 (define char-newline #\newline)
 (define char-return #\return)

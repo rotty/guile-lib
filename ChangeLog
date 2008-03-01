@@ -1,5 +1,9 @@
 2008-03-01  Andy Wingo  <wingo@pobox.com>
 
+	* src/sxml/ssax-simple.scm (ucscode->string):
+	* src/sxml/ssax.scm (ucscode->string): It's unichar->utf-8, not
+	unicode->utf-8...
+
 	* src/sxml/upstream/SSAX.scm (ssax:read-char-ref)
 	* src/sxml/upstream/SSAX-expanded.scm (ssax:read-char-ref): Change
 	to call ucscode->string instead of ucscode->char, allowing for
