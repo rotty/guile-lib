@@ -36,6 +36,7 @@
                 ssax:reverse-collect-str
                 ssax:read-markup-token
                 ssax:read-cdata-body
+                ssax:predefined-parsed-entities
                 ssax:read-char-ref
                 ssax:read-attributes
                 ssax:complete-start-tag
