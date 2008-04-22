@@ -124,21 +124,21 @@ formatting."
     (lambda (str)
       (let ((bad-pos (index-cset str 0 bad-chars)))
         (if (not bad-pos) str   ; str had all good chars
-            (let loop ((from 0) (to bad-pos))
-              (cond
-               ((>= from (string-length str)) '())
-               ((not to)
-                (cons (substring str from (string-length str)) '()))
-               (else
-                (let ((quoted-char
-                       (cdr (assv (string-ref str to) char-encoding)))
-                      (new-to
-                       (index-cset str (+ 1 to) bad-chars)))
-                  (if (< from to)
-                      (cons
-                       (substring str from to)
-                       (cons quoted-char (loop (+ 1 to) new-to)))
-                      (cons quoted-char (loop (+ 1 to) new-to))))))))))))
+            (string-concatenate-reverse
+             (let loop ((from 0) (to bad-pos) (out '()))
+               (cond
+                ((>= from (string-length str)) out)
+                ((not to)
+                 (cons (substring str from (string-length str)) out))
+                (else
+                 (let ((quoted-char
+                        (cdr (assv (string-ref str to) char-encoding)))
+                       (new-to
+                        (index-cset str (+ 1 to) bad-chars)))
+                   (loop (1+ to) new-to
+                         (if (< from to)
+                             (cons* (substring str from to) quoted-char out)
+                             (cons quoted-char out)))))))))))
 
 ;; Given a string, check to make sure it does not contain characters
 ;; such as '<' or '&' that require encoding. Return either the original

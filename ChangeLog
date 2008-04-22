@@ -1,3 +1,12 @@
+2008-04-22  Andy Wingo  <wingo@pobox.com>
+
+	* INSTALL: Autotooled update.
+
+	* src/sxml/ssax.scm: Add unicode to the module import list.
+
+	* src/sxml/simple.scm (make-char-quotator): Fix to be
+	tail-recursive.
+
 2008-03-01  Andy Wingo  <wingo@pobox.com>
 
 	* src/sxml/ssax-simple.scm (ucscode->string):

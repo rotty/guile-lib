@@ -122,6 +122,7 @@
 
 (define-module (sxml ssax)
   #:use-module (sxml ssax input-parse)
+  #:use-module (sxml unicode)
   #:use-module (io string)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-13)
