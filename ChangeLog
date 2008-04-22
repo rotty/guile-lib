@@ -1,5 +1,7 @@
 2008-04-22  Andy Wingo  <wingo@pobox.com>
 
+	* src/sxml/simple.scm (make-char-quotator): Fix the fix!
+
 	* INSTALL: Autotooled update.
 
 	* src/sxml/ssax.scm: Add unicode to the module import list.

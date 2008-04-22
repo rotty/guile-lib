@@ -137,8 +137,8 @@ formatting."
                         (index-cset str (+ 1 to) bad-chars)))
                    (loop (1+ to) new-to
                          (if (< from to)
-                             (cons* (substring str from to) quoted-char out)
-                             (cons quoted-char out)))))))))))
+                             (cons* quoted-char (substring str from to) out)
+                             (cons quoted-char out)))))))))))))
 
 ;; Given a string, check to make sure it does not contain characters
 ;; such as '<' or '&' that require encoding. Return either the original
