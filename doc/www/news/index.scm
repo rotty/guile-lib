@@ -2,6 +2,16 @@
   '((h2 "news")
 
     (news
+     (@ (date "26 January 2009")
+        (title "guile-lib moved to savannah, git"))
+     "We've moved to "
+     (a (@ (href "http://savannah.nongnu.org/p/guile-lib/")) "Savannah")
+     ", hosted by the Free Software Foundation. Also our source code is "
+     "now managed in " (a (@ (href "http://git.sv.nongnu.org/gitweb/?p=guile-lib.git")) "git")
+     ". We hope these changes will make it easier for Guile hackers to contribute."
+     " A new release should be coming soon.")
+    
+    (news
      (@ (date "24 September 2007")
         (title "guile-lib 0.1.6 available"))
      (code "guile-lib") " 0.1.6 has been released. Check the "

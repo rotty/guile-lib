@@ -1,4 +1,5 @@
-(define main-archive-url "http://arch.gna.org/guile-lib/guile-lib.bzr")
+(define main-archive-url "git://git.sv.gnu.org/guile-lib.git")
+(define dev-archive-url "ssh://git.sv.gnu.org/srv/git/guile-lib.git")
 
 (define page
   `((h2 "developer information")
@@ -12,10 +13,10 @@
     (h3 "source repository")
 
     (p "Guile-lib is managed with "
-       (a (@ (href "http://bazaar-vcs.org/")) "bzr") ", a distributed "
+       (a (@ (href "http://git-scm.com/")) "git") ", a distributed "
        "version control system. To grab guile-lib, run the following:")
 
-    (pre "bzr get " ,main-archive-url " guile-lib\n"
+    (pre "git clone " ,main-archive-url " guile-lib\n"
          "cd guile-lib\n"
          "./autogen.sh --prefix=... && make")
 
@@ -23,26 +24,36 @@
        (code "make install") ", or run it uninstalled using the "
        (code "dev-environ") " script.")
 
+    (p "Developers with SSH access should check out "
+       (code ,dev-archive-url) " instead.")
+
+    (h3 "web history browser")
+
+    (p "Catch up with what's been happening by visiting "
+       (code "guile-lib") "'s "
+       (a (@ (href "http://git.savannah.nongnu.org/gitweb/?p=guile-lib.git"))
+          "gitweb") ".")
+
     (h3 "patches")
 
-    (p "Send patches to the " (code "guile-lib-dev") " list. "
-       "It's best to send bundles:")
+    (p "Send patches to the " (code "guile-devel") " list. The list "
+       "itself belongs to Guile, but most people that have commit access "
+       "to Guile also have commit access to " (code "guile-lib") ".")
+
+    (p "Git has a little bit of a learning curve. If you aren't comfortable "
+       "with committing, just do a " (code "git diff > mypatch.patch") ". "
+       "Otherwise, send your patches using " (code "git-format-patch") ":")
 
     (pre "# hack hack hack\n"
-         "bzr commit -m 'fixed my thing'\n"
-         "bzr bundle > bundle-file\n"
-         "# then attach the bundle to a mail to the list")
+         "git commit -a -m 'fixed my thing'\n"
+         "git format-patch origin/master..HEAD\n"
+         "# then attach the generated patch files to a mail to the list")
     
-    (p "This will bundle up any commits to your repo that are not
-in upstream, that is, that are not in the place you initially
-pulled your packages from. You can specify other options
-to " (code "bundle") ", see " (code "bzr help commands") ".")
-
-    (h3 "gna project page")
+    (h3 "savannah project page")
 
     (p "We also have
-a " (a (@ (href "http://gna.org/projects/guile-lib")) "page
-on GNA!") ".")))
+a " (a (@ (href "http://savannah.nongnu.org/projects/guile-lib")) "page
+on Savannah") ".")))
 
 (load "../template.scm")
 (define (make-index)

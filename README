@@ -3,5 +3,10 @@ Guile-Lib -- a repository of useful code written in Guile Scheme
 
 Guile-Lib is intended as an accumulation place for pure-scheme Guile
 modules, allowing for people to cooperate integrating their generic
-Guile modules into a coherent library. Think "a down-scaled,
-limited-scope CPAN for Guile".
+Guile modules into a coherent library.
+
+Guile-Lib modules are well-documented and well-supported. Particularly
+good modules might migrate from Guile-Lib into Guile itself, at some
+point.
+
+Think "a down-scaled, limited-scope CPAN for Guile".

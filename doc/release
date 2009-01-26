@@ -19,7 +19,7 @@ User-visible changes only.
 7) Re-autogen and make dist.
 
 8) Tag the source tree with the version:
-   bzr tag release-0.1.5
+   git tag -s release-0.1.7
 
 9) Sign and upload tarball:
    gpg -b tarball

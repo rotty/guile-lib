@@ -1,7 +1,7 @@
 (define page
   '((h2 "guile-lib")
 
-    (p "Guile-Lib is intended as an accumulation place for
+    (p (code "guile-lib") " is intended as an accumulation place for
 pure-scheme Guile modules, allowing for people to cooperate
 integrating their generic Guile modules into a coherent library.
 Think \"a down-scaled,

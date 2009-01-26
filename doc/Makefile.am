@@ -15,8 +15,8 @@ www: html guile-library.pdf clean-www
 	cp guile-library.pdf www/doc/
 
 www-commit: www
-	svn rm -m 'make www in guile-lib/docs' svn+ssh://wingo@svn.gna.org/svn/guile-lib/website
 	svn import -m 'make www in guile-lib/docs' www svn+ssh://wingo@svn.gna.org/svn/guile-lib/website
+	( export CVSDIR=:ext:wingo@cvs.sv.nongnu.org:/sources/guile-lib; cd www; cvs -d $$CVSDIR import -m 'make www in guile-lib/docs' guile-lib gnu $(shell date "+D%Y%m%d%H%M%S"))
 
 clean-www:
 	find www -name 'index.html' -print \
