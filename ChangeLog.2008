@@ -1,0 +1,1268 @@
+2008-04-22  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/simple.scm (make-char-quotator): Fix the fix!
+
+	* INSTALL: Autotooled update.
+
+	* src/sxml/ssax.scm: Add unicode to the module import list.
+
+	* src/sxml/simple.scm (make-char-quotator): Fix to be
+	tail-recursive.
+
+2008-03-01  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/ssax-simple.scm (ucscode->string):
+	* src/sxml/ssax.scm (ucscode->string): It's unichar->utf-8, not
+	unicode->utf-8...
+
+	* src/sxml/upstream/SSAX.scm (ssax:read-char-ref)
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:read-char-ref): Change
+	to call ucscode->string instead of ucscode->char, allowing for
+	UTF-8 character encoding. All of our callers were making strings
+	anyway.
+	* src/sxml/upstream/SSAX.scm (ssax:read-attributes)
+	(ssax:read-char-data)
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:read-char-data)
+	(ssax:read-attributes): Update callers of read-char-ref to expect
+	strings instead of chars.
+
+	* src/sxml/unicode.scm: New module, implements encoding unicode
+	code points into UTF-8.
+
+	* src/sxml/ssax.scm (ucscode->string):
+	* src/sxml/ssax-simple.scm (ucscode->string): Define as
+	unicode->utf-8. Not the most general solution, but it's better
+	than what we had.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): Add (sxml unicode).
+
+2008-02-26  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/upstream/SSAX.scm (ssax:xml->sxml):
+	* src/sxml/upstream/SSAX-expanded.scm (ssax:xml->sxml): Replace
+	reverse-collect-str-drop-ws with reverse-collect-str in
+	ssax:xml->sxml. The rationale is that if a procedure is called
+	xml->sxml, it should follow the XML recommendation instead of
+	trying to be clever. Tests were adapted as well.
+
+	* src/sxml/ssax-simple.scm (ssax:reverse-collect-str): As long as
+	we're exporting the drop-ws version, export this one too.
+
+2008-02-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/statprof.scm (with-statprof): Rewrite to return the value of
+	the containing expression, at least in the non-looping case.
+
+	* src/match-bind.scm (regex:count): New function, so we can
+	compile how many matches we expect to see out of a regexp.
+	(match-bind): Rewrite to do more compilation. Also fix the problem
+	where we expected users to already have (ice-9 regex).
+
+2007-12-06  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/docbook.scm (tag-replacements): Replace
+	`replaceable' with `var'.
+
+	* src/texinfo/reflection.scm (package-stexi-standard-menu): Fix
+	typo.
+
+2007-11-15  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/docbook.scm (tag-replacements): Add translations for
+	quote, application, symbol, and note.
+	(*sdocbook->stexi-rules*): Add transformation for itemizedlist.
+	Completely elide unknown commands, placing them in a @c.
+	(*sdocbook-block-commands*): Add example, note, and itemizedlist.
+
+2007-10-04  Andy Wingo  <wingo@pobox.com>
+
+	* doc/make-html.scm: Update to deal with *scripts*.
+
+	* doc/guile-library.scm (*scripts*): Define a *scripts*.
+
+	* doc/make-texinfo.scm (main): Document *scripts*.
+
+	* src/texinfo/reflection.scm (script-stexi-documentation): New
+	export, documents a script based on its commentary.
+	(package-stexi-generic-menu): New export, a generic menu.
+	(package-stexi-standard-menu): Refactored to use the generic menu.
+	(package-stexi-extended-menu): New export, like -standard-menu but
+	also documents scripts.
+	(package-stexi-documentation): New optional argument, scripts,
+	which if given puts scripts in the docs as well.
+
+2007-09-29  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/nodal-tree.scm (stexi->nodal-tree): Use
+	define/kwargs, and take an optional initial-depth argument.
+
+	* src/texinfo.scm (texi-command-specs): Add @image.
+
+2007-09-24  Andy Wingo  <wingo@pobox.com>
+
+	== guile-lib 0.1.6 released ==
+
+	* configure.ac: Bump version to 0.1.6.
+
+	* unit-tests/sxml.fold.scm (@@): 
+	* src/srfi/srfi-34.scm (current-module): Guile 1.6 compat.
+
+	* doc/www/news/index.scm (page): Add news for release.
+
+	* doc/release: Also copy NEWS to the server.
+
+	* doc/guile-library.scm (*updated*): Update date.
+
+	* src/srfi/srfi-34.scm: Use #:replace instead of #:export for
+	`raise' so that we avoid warnings from Guile's module system.
+
+	* NEWS: Update for 0.1.6.
+
+	* doc/release: New file, reminds me how to do releases.
+
+2007-09-07  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.scm (test-complete-start-command): Fix up a
+	test.
+	(test-texinfo->stexinfo): Remove an incorrect comment.
+
+	* src/texinfo/serialize.scm (eol-text-args, eol-text)
+	(serializers): Fix serialization with the new type of texinfo
+	command.
+
+	* unit-tests/container.async-queue.scm (set-up-test): Fix what
+	presumably is a typo.
+
+2007-09-06  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.serialize.scm (test-serialize): 
+	* unit-tests/texinfo.scm (test-complete-start-command)
+	(test-texinfo->stexinfo): Add tests.
+
+	* src/texinfo/serialize.scm (serialize-text-args): Serializer
+	factored out of the eol-text and environment serializers. Change
+	so that spaces are not automatically inserted except between
+	distinct arguments.
+
+	* src/texinfo/reflection.scm (object-stexi-documentation):
+	Special-case methods: get the object-documentation from their
+	procedures.
+
+	* src/texinfo/docbook.scm (tag-replacements): emphasis should be
+	em, not emph. Add translations for filename and env.
+	(*sdocbook->stexi-rules*): Add ulink, and some warnings.
+
+	* src/texinfo.scm (texi-command-specs): Add new kind of command,
+	EOL-TEXT-ARGS, which has parsed arguments. All of the deffnx*
+	commands are like this. Add commands b, i, r, sansserif, slanted,
+	t, tie, and all of the deffnx family.
+	(complete-start-command, make-command-parser): Handle
+	EOL-TEXT-ARGS.
+	(parse-eol-text-args): Parser for EOL-TEXT-ARGS args.
+
+2007-08-31  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/reflection.scm (object-stexi-documentation): Add a
+	new keyword argument, #:force, which if #t will force the creation
+	of docs for the argument. Document generics *and* all of the
+	methods on the generics.
+	(module-stexi-documentation): Force generation of docs for
+	objects; fixes the issue where undocumented values are always
+	documented using the generic defvar instead of their type-specific
+	docs.
+	(stexi-help-handler): Force doc generation in (help).
+	(object-stexi-documentation): Name the category via the one word,
+	"Generic", until we fix multiword argument serialization.
+	(module-stexi-documentation): Handle the case where the stexi
+	documentation is a *fragment*.
+	(string->stexi, object-stexi-documentation): Remove the
+	"[undocumented]" text, it is redundant.
+
+	* src/texinfo/plain-text.scm (tag-handlers, fragment): Serialize
+	*fragment* properly.
+
+2007-08-25  Andy Wingo  <wingo@pobox.com>
+
+	* src/apicheck.scm (arities-compatible?): Flesh out to check
+	compatible arities, necessary because of the extension to (texinfo
+	reflection).
+
+	* unit-tests/guile-library.api: Add (apicheck) and (container
+	async-queue) to the apicheck file. Update to reflect the (sxml
+	ssax) fix on the 15th. 
+
+	* src/texinfo/reflection.scm (module-stexi-documentation): Take a
+	new optional keyword argument, docs-resolver, that can be used to
+	modify or replace documentation, normally from some external
+	source such as C-snarfed docs or external texinfo files.
+	(package-stexi-standard-titlepage): Indent the example so that
+	emacs doesn't get confused.
+	(package-stexi-documentation-helper)
+	(package-stexi-documentation): Optionally pass around a list of
+	extra arguments to pass to module-stexi-documentation.
+
+	* unit-tests/update-api: 
+	* unit-tests/api.scm: Add a couple files I forgot to add before.
+
+	* src/texinfo/reflection.scm: Order the generated
+	variable/function docs according to the order in which the
+	functions appear in the module source's `#:export' form. No change
+	to interface, but now the docs look a lot better.
+
+2007-08-15  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/guile-library.api: New file, the result of running
+	make guile-library.api.update in unit-tests/.
+
+	* unit-tests/Makefile.am (guile-library.api.update): New target,
+	regenerates the API description.
+	(TESTS): Add new test of guile-lib's API.
+
+	* src/sxml/ssax/input-parse.scm: Remove next-token-list-based from
+	the export list, it was never defined.
+
+	* src/sxml/ssax.scm: Rework syncase-related hacks to not export
+	the current module, that re-exports all used modules as well.
+	Terrible in any case, though.
+
+	* doc/guile-library.scm (*modules*): 
+	* src/Makefile.am (nobase_dist_scm_DATA): Add to docs and dist.
+
+	* src/apicheck.scm: New module, implements one function to
+	describe a set of modules' API as an s-expression, and one to
+	verify the s-expression against the current API.
+
+2007-08-11  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/string/wrap.scm (string->wrapped-lines): Fix for long words
+	when #:break-long-words? is false. See
+	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=437217
+	* unit-tests/string.wrap.scm (test-no-word-break): New testcase covering this bug.
+
+2007-08-09  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	== guile-lib 0.1.5 released ==
+	
+	* doc/guile-library.scm (*modules*): Added (container
+	async-queue).
+
+	* src/container/async-queue.scm: Reworked the interface to use
+	plain procedures instead of methods; clients don't have to use
+	(oop goops) anymore.
+
+	* configure.ac: Bump version to 0.1.5.
+	* NEWS: Started NEWS for 0.1.5.
+
+	* unit-tests/container.async-queue.scm: 
+	* src/container/async-queue.scm: New module, implements 
+	a thread-safe message queue.
+	
+	* unit-tests/texinfo.docbook.scm (test-flatten): Fix paren typo.
+	
+	* unit-tests/statprof.scm (test-call-frequencies): Disabled
+	this rather unreliable test.
+
+	* src/os/process.scm, src/srfi/srfi-40.scm:
+	* unit-tests/os.process.scm: In Guile 1.8, READ-LINE no longer
+	is in the core, it has moved into (ice-9 rdelim).
+
+2007-07-28  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/Makefile.am (TESTS): 
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add to dist and docs.
+
+	* unit-tests/texinfo.docbook.scm: A lone unit test.
+
+	* src/texinfo/docbook.scm: New module, implements parsing a
+	limited subset of docbook into stexi.
+
+2007-07-26  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/Makefile.am (TESTS): 
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add new files to docs and
+	dist.
+
+	* unit-tests/sxml.fold.scm: Unit tests for (sxml fold).
+
+	* src/sxml/fold.scm: New module, defines a number of fold-based
+	XML transformation operators.
+
+2007-07-20  Andy Wingo  <wingo@pobox.com>
+
+	* doc/www/template.scm (templatize): Add news to title bar, and
+	update the copyright dates.
+
+	* doc/www/index.scm: Include the latest news.
+
+	* doc/guile-library.scm (*updated*): Update years, etc.
+
+	* doc/www/news/index.scm (page): New web page.
+
+	== guile-lib 0.1.4 released ==
+	
+	* NEWS: New file.
+
+	* doc/make-html.scm (resolve-ref): Urlify some links to fix html
+	docs.
+
+	* src/texinfo/html.scm (texinfo): Export urlify.
+
+	* src/match-bind.scm (s///, s///g): Fix docs.
+
+	* unit-tests/Makefile.am (TESTS): 
+	* unit-tests/match-bind.scm: Add unit tests for (match-bind).
+
+	* unit-tests/Makefile.am (TESTS): 
+	* unit-tests/scheme.kwargs.scm: Add unit tests for (scheme
+	kwargs).
+
+	* src/match-bind.scm (s///g): Fix the cross-reference; it seems
+	it's the html generator that needs to be fixed.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add (scheme kwargs) to dist
+	and docs.
+
+	* src/scheme/kwargs.scm (lambda/kwargs, define/kwargs): New
+	module, exporting some useful variants of lambda that support
+	python-style keyword arguments
+
+2007-07-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/match-bind.scm: Fix docs.
+	
+	* src/match-bind.scm: New file, exports some nifty procedures for
+	dealing regular expressions.
+
+	* src/texinfo/serialize.scm (stexi->texi): Ignore a #f value in
+	serialization.
+
+	* src/texinfo/html.scm (ignore-list): Ignore more tags.
+	(rules): Detag ignortex.
+
+	* src/Makefile.am (nobase_dist_scm_DATA): 
+	* doc/guile-library.scm (*modules*): Add match-bind to dist and
+	docs.
+
+2007-07-12  Andy Wingo  <wingo@pobox.com>
+
+	* doc/make-html.scm (resolve-ref): Add a ref resolver that
+	actually works, so that interpage links work.
+
+2007-07-11  Andy Wingo  <wingo@pobox.com>
+
+	* doc/guile-library.scm (*extra-html-entry-files*): 
+	* doc/make-html.scm: Add support for including extra entries in
+	the HTML index. Changes pulled from Guile-Present.
+
+	* src/texinfo.scm (texi-fragment->stexi): Allow ports as well as
+	strings.
+	(texi-fragment->stexi): Fix brokenness introduced in the last
+	commit.
+
+	* src/texinfo/serialize.scm (environ): 
+	* unit-tests/texinfo.serialize.scm (test-serialize): Fix
+	serialization of environments when we need to newline before @end.
+
+2007-07-01  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/serialize.scm (environ): Don't newline before @end.
+	Fix spacing if arguments serialized to multiple strings, as in
+	@defun foo @var{bar}.
+
+	* src/texinfo.scm (assert-token): Fix error statement.
+
+	* src/sxml/simple.scm (universal-sxslt-rules): Add a default *PI*
+	serializer.
+
+	* doc/www/index.scm: Correct the name (it's not guile-gnome).
+
+	* unit-tests/Makefile.am (TESTS): 
+	* unit-tests/texinfo.serialize.scm: New test.
+
+	* src/texinfo/serialize.scm (eol-args): Intersperse a comma, so
+	that serializing @node works. Caught by the test suite :)
+
+2006-12-15  Andy Wingo  <wingo@pobox.com>
+
+	* doc/www/index.scm (make-index): It really is guile-lib and not
+	guile-gnome!
+
+2006-11-17  Andy Wingo  <wingo@pobox.com>
+
+	* configure.ac: Bump to 0.1.3.1.
+
+	* doc/guile-library.scm (*modules*): Add (unit-test).
+
+	* doc/www/template.scm (templatize): Er, it's guile-lib, not
+	guile-gnome...
+
+	* == released guile-lib version 0.1.3 ==
+
+	* NEWS: Updated.
+
+	* configure.ac: Bump version to 0.1.3
+
+	* README: Remove bitrotten readme.
+
+	* src/text/parse-lalr.scm: Remove syntactically invalid sp
+	elements. Remove bad xref.
+
+	* src/texinfo/reflection.scm (package-stexi-standard-titlepage)
+	(package-stexi-standard-menu): Return lists of forms instead of
+	just one form. In the menu, add a contents section for texi
+	output.
+	(package-stexi-standard-prologue): Interpret the menu and
+	titlepage as lists.
+
+	* src/texinfo.scm (texi-command-specs): Add @shortcontents and
+	@summarycontents.
+
+	* src/config/load.scm: Needs documenting, I have no idea what this
+	module does.
+
+	* doc/guile-library.scm (*modules*): Add a few more modules. We
+	might want to cull some of these before committing to supporting
+	them.
+
+	* doc/Makefile.am (www-commit): Fix www-commit target.
+
+	* .bzrignore: Ignore some more.
+
+	* doc/base.css: Remove old css.
+
+	* doc/www/index.scm:
+	* doc/www/base.css:
+	* doc/www/template.scm:
+	* doc/www/dev/index.scm:
+	* doc/www/doc/index.scm:
+	* doc/www/download/index.scm: New web site.
+
+	* doc/guile-library.scm (*html-relative-root-path*): Another ../.
+
+	* doc/make-html.scm (wrap-html): Don't link to the sxml, as
+	autogenerated docs don't have such a file.
+
+	* doc/docs.mk:
+	* doc/Makefile.am: Add rules to make the web site. Also factor out
+	some things into docs.mk.
+
+2006-11-16  Andy Wingo  <wingo@pobox.com>
+
+	* doc/NamingConventions.texi: Add back doc from old docs; not used
+	currently tho.
+
+	* doc/Makefile.am: Fiddle to dist properly.
+
+	* configure.ac: 
+	* autogen.sh:
+	* Makefile.am (SUBDIRS): Update autotoolage.
+
+	* doc/: Remove, being replaced with new docs.
+
+	* src/string/transform.scm: Fix docs.
+
+	* src/term/ansi-color.scm: 
+	* src/os/process.scm: 
+	* src/math/primes.scm: Add some cindexes.
+
+	* new-doc/guile-library.scm (*modules*): Add (math primes), (os
+	process), (search basic), (search basic), (string completion,
+	(string soundex), (string transform), (string wrap), and (term
+	ansi-color).
+
+	* new-doc/guile-library.scm (*modules*): Add (math minima).
+
+	* src/texinfo/serialize.scm (eol-text): Fix serialization of
+	@cindex et al.
+
+	* src/math/minima.scm: Add cindex entries from the texi.
+
+	* src/texinfo.scm (index, sxml->node-name): Generate valid anchor
+	names for index entries.
+
+	* src/logging/rotating-log.scm (<rotating-log>): 
+	* src/logging/port-log.scm (<port-log>): Fix xrefs.
+
+	* new-doc/guile-library.scm (*modules*): Add (logging port-log)
+	and (logging rotating-log).
+
+	* new-doc/Makefile.am: Attempt to make the docs rebuild
+	automagically. Sortof works.
+
+2006-11-14  Andy Wingo  <wingo@pobox.com>
+
+	* src/logging/logger.scm: Fix a typo.
+
+	* new-doc/make-texinfo.scm: Run with --debug.
+
+	* new-doc/guile-library.scm (*modules*): Put in alphabetic order,
+	and add (logging logger) to the mix.
+
+	* src/texinfo/reflection.scm (object-stexi-documentation): Make
+	sure that defop has all of the arguments it needs.
+
+2006-11-13  Andy Wingo  <wingo@pobox.com>
+
+	* autogen.sh: Support automake 1.8. Fake out automake, making it
+	think we have a guile-library.texi when we don't.
+
+	* new-doc/Makefile.am: Add rules to make the docs.
+
+	* new-doc/fdl.texi: New file, included by the generated docs. Not
+	sure that we should be using FDL though; the actual docs are GPL.
+
+	* new-doc/guile-library.scm: New file, configures documentation
+	generation. Needed by make-texinfo and make-html. These files
+	replace the old index.scm.
+
+	* new-doc/make-texinfo.scm: New script, makes texinfo
+	documentation.
+	* new-doc/make-html.scm: New script, makes HTML documentation.
+
+	* src/texinfo/serialize.scm (include): Support writing out include
+	statements. 
+	(inline-text): Support the *braces* "command". The counterpart to
+	representing @{ as a command.
+	(environ): Write out a @setfilename for texinfo, if possible.
+	(fragment): Support writing out fragments.
+
+	* src/texinfo/reflection.scm (module-stexi-documentation): Change
+	to name module nodes as `foo bar' instead of `(foo bar)', and
+	symbols as `foo bar baz' instead of `foo-bar-baz'.
+	(package-stexi-documentation): New procedure, outputs a stexi
+	document for a set of modules released together. Pretty generic,
+	except there are some helpers to make standard GNU documents:
+	(package-stexi-standard-copying)
+	(package-stexi-standard-titlepage)
+	(package-stexi-standard-menu): 
+	(package-stexi-standard-prologue): Helpers to make GNU-style
+	documents.
+
+	* src/texinfo/html.scm: Fix links to correspond to what (texinfo
+	reflection) will output.
+	(tag-replacements): Serialize *fragment* as a div.
+
+	* src/texinfo.scm (texi-command-specs): Add command specs for
+	dircategory, top, printindex, ifnotinfo, ifnottex, ifnothtml,
+	ifnotxml, ifnotplaintext, and direntry. We don't parse these well,
+	but we do support writing them out via (texinfo serialize).
+	(postprocess): Have a nicer error if a @value{} is undefined.
+
+	* src/sxml/apply-templates.scm (sxml): Avoid guile 1.8 warnings by
+	not importing `filter' from (sxml xpath). I don't think the ssax
+	import is needed, though.
+
+2006-11-03  Andy Wingo  <wingo@pobox.com>
+
+	* dev-environ (this_dir): Fix to avoid realpath. (BPB)
+
+	Merge from lcourtes@laas.fr--2005-libre/guile-lib--dev--0:
+	
+	* src/srfi/srfi-35.scm: Don't use `(oop goops util)'.
+	(condition-types): Use `append-map' (from SRFI 1) rather than
+	`mapappend'.
+
+	* src/statprof.scm (accumulate-time): Make inexact computations.
+	(statprof-call-data->stats): Likewise.
+	(statprof-display): Use `format' instead of `fprintf'.
+	(with-statprof): Removed dangling line.
+
+2006-11-03  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/statprof.scm (test-call-frequencies): Use a
+	variance-related criteria for passing the test, takes increasing
+	computer speeds into account.
+
+	* unit-tests/Makefile.am (EXTRA_DIST): Dist the tests.
+
+	* configure.ac: Drop the version down to 0.1.2.1 so we can do a
+	prerelease.
+	
+	* autogen.sh:
+	* autogen-support.sh:
+	* Makefile.am:
+	* configure.ac: Put in a more normal autotools build setup.
+	Removed the previous Makefile.in and PLUGIN bits.
+
+2004-10-05  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/sxml.ssax.scm (test-ssax): Reject define-syntax and
+	ssax:define-labeled-arg-macro as well.
+	(load-rejecting): Use primitive-eval instead of normal eval.
+	Prevents some weird syncase error about not being at toplevel when
+	making definitions.
+	(import): Remove expanded symbols from this list.
+	Use (ice-9 syncase).
+
+	* src/sxml/ssax.scm (inc): Define here. It's used by
+	ssax:string-whitespace?.
+
+	* examples/sxw2words: New file, extracts words from an OpenOffice
+	document that are not present in the dictionary. An example of the
+	use of (os process) as well as (sxml ssax) with a custom SAX
+	parser.
+
+	* src/sxml/ssax.scm: Modifications to pull in all of SSAX's
+	bindings, including r5rs macros. Export ssax:make-parser,
+	ssax:make-pi-parser, and ssax:make-elem-parser. For some fucked
+	reason, the using module has to have the private module interface
+	in its use list for the macros to work right. For that reason, the
+	public interface uses the private interface, so that code using
+	this module won't have to.
+	(when): Syncase.
+	(begin0): Syncase.
+	(let*-values): Syncase.
+	Load up upstream/assert.scm, then add define-syntax and
+	ssax:define-labeled-arg-macro to the load-filtered list.
+
+	* src/sxml/ssax-simple.scm: New file. The same as the old (sxml
+	ssax).
+
+	* src/sxml/simple.scm: Use (sxml ssax-simple).
+
+	* sxml/upstream/assert.scm: Added, from the SSAX distribution.
+	Defines assert with syncase.
+
+2004-09-11  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo.scm (texi-command-specs): defun, defman, defspec
+	arguments should be rest arguments.
+
+2005-01-21  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/unit-test.scm: Added licence header.
+	
+	* src/unit-test.scm (lookup-method, slot-accessor): Use srfi-1 any
+	instead of call/cc.
+
+2004-11-10  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/srfi/srfi-35.scm (condition-type-field-supertype): Removed,
+	dead code.
+	
+	* src/srfi/srfi-35.scm (class-supers, list2set): Removed, can use
+	class-precedence-list instead.
+	
+	* unit-tests/srfi.srfi-35.scm: Added simple test-case for the
+	GOOPS interface to conditions.
+
+	* src/srfi/srfi-35.scm (make-condition-type): Allow field names as
+	init-keywords.
+
+2004-10-23  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* unit-tests/all-tests.sh: set -e, so we actually fail.
+
+	* src/logging/logger.scm: Move define-method calls after their
+	corresponding define-generic calls.
+
+2004-10-18  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* doc/Makefile.in (install-doc-info): Add a "mkdir -p", in case
+	we're installing to a not-yet-existing directory.
+
+2004-09-05  Andreas Rottmann  <andy@findus>
+
+	* src/texinfo/reflection.scm (module-stexi-documentation): Get rid
+	of unneeded *fragment* stanza in defvar.
+
+2004-09-02  Andreas Rottmann  <andy@findus>
+
+	* new-doc/Makefile.in: New file, preliminary buildsystem for
+	texinfo and HTML.
+
+	* new-doc/index.scm (maybe-mkdir): Work like "mkdir -p".
+	(make-texinfo): Call (make-texi-module-files).
+	(make-texi-module-files): New procedure.
+	(make-html): Call (maybe-mkdir "./html"), since we must work from
+	empty builddir, too.
+	
+2004-08-28  Andy Wingo  <wingo@pobox.com>
+
+	* new-doc/index.scm: New file, a master document from which to
+	generate HTML, texinfo, etc documentation.
+
+	* examples/document-module.scm: Enable texinfo support.
+
+	* src/texinfo/serialize.scm (inline-args): Fix missing-argument
+	behavior.
+	(table-environ): enumerate can have zero args.
+
+	* src/texinfo/serialize.scm: New file, serializes stexi to plain
+	texinfo.
+
+2004-08-04  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/config/load.scm: Also pass the original exception's key in
+	&config-error.
+
+	* NEWS: Document new API in (unit-test).
+	* unit-tests/texinfo.scm: Moved pass-if-exception to (unit-test), 
+	now named assert-exception. Adapted all uses to new name.
+	* src/unit-test.scm (assert-exception): New macro, code taken from
+	unit-tests/texinfo.scm.
+
+	* README: New file, containing build/install instructions.
+
+	* NEWS: New file, updated for next release 0.1.2.
+	
+	* AUTHORS: Updated (added all the additions from Andy Wingo).
+
+	* unit-tests/texinfo.scm (test-texinfo->stexinfo): Fixed unquoted
+	backslash.
+
+2004-08-01  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/sxml/ssax/input-parse.scm: Use (load-from-path ...) instead
+	of (load (%search-load-path ...)), which didn't work with Guile
+	1.7.
+
+	* src/texinfo.scm (texi-command-specs): Fixed \@ occurance in doc
+	string, which caused Guile 1.7 to barf.
+
+2004-07-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/htmlprag.scm: Moved from (sxml htmlprag). Testsuite adjusted
+	accordingly.
+
+	* src/sxml/ssax/input-parse.scm: Moved from (text lex-simple).
+	Includes the upstream/input-parse.scm, then overrides some
+	functions for speed.
+
+	* src/texinfo.scm: Adapt to (sxml ssax input-parse) name change.
+
+	* src/sxml/upstream/SXML-tree-trans.scm: Upstream for (sxml
+	transform).
+
+	* src/sxml/upstream/SSAX.scm: The main upstream file.
+
+	* src/sxml/upstream/SSAX-expanded.scm: New file. Same as SSAX.scm,
+	but has already been macroexpanded. We include this one so we can
+	avoid loading up syncase, because it's slow.
+
+	* src/sxml/ssax.scm: Updated to SSAX.scm v5.1. No longer includes
+	the body of SSAX.scm here; instead loads files from sxml/upstream.
+	Should be more maintainable. Only exports what PLT exports; also,
+	most names have been lower-cased upstream.
+
+	* src/sxml/simple.scm: Updated to lower-case ssax identifiers.
+
+2004-07-23  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/texinfo.scm (test-texinfo->stexinfo): It is valid to
+	have no @itemize formatter: it should default to @bullet.
+
+	* unit-tests/statprof.scm: Moved from debugging.statprof.scm, and
+	adapted to the new (statprof) name.
+
+	* src/statprof.scm: Moved from (debugging statprof), as per the
+	hierarchy discussions on guile-user.
+
+	* examples/document-module.scm (module-docs): Adjusted to use
+	(texinfo reflection).
+
+	* src/scheme/session.scm (*name-help-handlers*) 
+	(add-name-help-handler!, remove-name-help-handler!) 
+	(try-name-help): Added a hook for "name handlers", which are
+	called with the unevaluated name of the thing to get help on.
+	(add-value-help-handler!): Changed so value handlers are also
+	passed the name of the value. All callers and callees changed.
+
+	Override the (ice-9 session) help with our own using evil methods.
+	Necessary, but I don't know why.
+
+	* src/texinfo/reflection.scm: Renamed from (scheme
+	module-documentation), because it's really part of the (texinfo)
+	package.
+	(object-stexi-documentation): Split out from
+	module-stexi-documentation. Exported.
+	(module-stexi-documentation): Renamed from module-documentation.
+	(stexi-help-handler): Calls object-stexi-documentation.
+	(texi-help-handler): Removed, handled by the stexi handler.
+
+	* src/texinfo/help.scm: Merged into reflection.scm.
+
+2004-07-10  Andy Wingo  <wingo@pobox.com>
+
+	* src/scheme/module-documentation.scm (string->stexi): New
+	function. Parses the string if appropriate and possible, otherwise
+	returns the string in a verbatim tag.
+	(module-documentation): Use string->stexi.
+	(false-if-exception): Like the normal false-if-exception, but
+	doesn't affect the-last-stack.
+
+	* src/container/nodal-tree.scm (make-node): Ensure that nodes have
+	the 'children property defined. Note this in the commentary.
+
+	* examples/document-module.scm (srfi): Use (texinfo), not (sxml
+	texinfo).
+
+	* src/texinfo.scm (index): Create anchors before cindex, etc.
+	(texi-command-specs): Add specs for cindex, etc.
+	(parse-table-args): Allow an empty itemizer, default to @bullet.
+
+	* src/texinfo/indexing.scm: Handle cindex, findex, etc. in
+	addition to the def* commands.
+
+2004-07-07  Andy Wingo  <wingo@pobox.com>
+
+	* src/texinfo/nodal-tree.scm: Was (texinfo named-tree-nodes). This
+	uses the nodal tree mentioned below.
+
+	* src/texinfo*: All the texinfo files are here now. This means the
+	texinfo things are no longer (sxml texinfo), they are (texinfo).
+	This changed was sparked by recent guile-user discussions that
+	ended up promoting flatter hierarchies. The test cases were also
+	changed.
+
+	* src/container/delay-tree.scm: New file, defines "delay tree" as
+	a cousin to nodal trees. Delay trees can have any field, including
+	the 'children field, be a promise created by `delay'.
+
+	* src/container/nodal-tree.scm: New file, defines a "nodal tree"
+	type. See the source for details.
+
+2004-06-30  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo.scm (make-command-parser): Parse verbatim
+	entries also.
+
+2004-06-27  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/*: Adapt to (unit-test).
+
+	* unit-tests/debugging.statprof.scm: Add license block.
+
+2004-06-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/debugging/statprof.scm: Use docstrings where appropriate,
+	and give the module a commentary (snarfed from the original
+	README). Also, the license is LGPL (confirmed by private email
+	with Rob).
+	Remove the old TODO items, they're fixed :) Replace with some new
+	ones.
+
+	* src/sxml/ssax.scm: Don't export
+	SSAX:read-pi-body-as-name-values, it's not defined.
+
+	* src/debugging/statprof.scm (statprof-fold-call-data): Renamed
+	from -called, to match what's exported. Calling functions changed.
+
+2004-06-23  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/xpath.scm: Marked up the commentary.
+
+	* src/sxml/transform.scm (SRV:send-reply): Gave it a happy
+	docstring.
+	Mark up the pre-post-order docs and put them in the commentary.
+
+	* src/sxml/texinfo.scm: Marked up the commentary as texinfo, and
+	added some docstrings.
+
+	* src/sxml/simple.scm: Add some documentation.
+
+	* src/scheme/module-documentation.scm (texi?): Broaden the texi?
+	predicate to include @c.
+
+	* src/sxml/htmlprag.scm: Some of the docs copied to the
+	commentary. This is getting a bit silly -- obviously you're
+	missing out on some of the docs. Perhaps we should just parse all
+	of the comments in a file. A definite FIXME.
+
+	* src/sxml/ssax.scm: Move some elided comments into the
+	commentary, mark them up as texinfo.
+
+	* src/sxml/texinfo/html.scm (table): Don't check for asis, we'll
+	never see it.
+	(tag-replacements): asis -> span.
+
+	* src/sxml/apply-templates.scm: Move comments to the commentary. I
+	was considering moving them to be docstrings, but I decided
+	against it on two reasons: first, neither guile 1.6 nor 1.7 will
+	memoize away the docstring, so every time the procedure is
+	executed, the string will have to be skipped; and second, it's an
+	extensive change to make in code that I didn't write.
+
+	* src/scheme/module-documentation.scm: Only trim newlines from the
+	module commentary.
+
+	* src/sxml/texinfo/html.scm (node): Mozilla gets confused at an
+	empty ("<a .. />") a tag. Put an empty string here to placate the
+	reptile.
+	(def): Use divs on both sides so the top and bottom margins line
+	up.
+
+2004-06-20  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/html.scm (def): Fix some bugs in the definition
+	output.
+
+	* src/sxml/texinfo.scm (read-command-token): Re-enable detection
+	of invalid command tokens.
+
+	* examples/document-module.scm: New file, documents the module
+	given on the command line as html or plain text. texinfo output
+	coming soon.
+
+	* src/scheme/module-documentation.scm: New file, generates stexi
+	documentation for a module.
+
+	* src/sxml/texinfo/plain-text.scm (stexi->plain-text): Use
+	map-in-order.
+	(tag-handlers): Add a handler for @verbatim that doesn't indent
+	the output.
+
+	* src/scheme/session.scm (scheme): Export `module-commentary'.
+
+	* src/sxml/texinfo/html.scm (def): Same bug.
+
+	* src/sxml/texinfo/plain-text.scm (def): Fix bug: defun has
+	category "Function", not deftp.
+
+	* src/text/structured.scm, src/text/structured/*.scm: Removed.
+	These modules are completely replaced by (sxml texinfo ...).
+
+	* src/sxml/texinfo/indexing.scm: New file, generates an index from
+	a stexi.
+
+	* src/sxml/texinfo.scm (index): New function, adds an anchor
+	before an indexing element if necessary. Called by
+	make-command-parser.
+
+	* src/sxml/texinfo/plain-text.scm (wrap-heading): New function to
+	wrap a string and only append one newline.
+
+	* src/sxml/texinfo.scm (texi-fragment->stexi): New function,
+	parses a fragment of a texinfo document. Exported.
+	(parse-environment-args): Fix a bug introduced by conversion to
+	make-dom-parser.
+	(read-char-data): Only feed "\n" to the str-handler if we are
+	preserving ws, otherwise feed " ".
+	(reverse-collect-str-drop-ws): Fix bug regarding interstitial
+	whitespace.
+
+	* unit-tests/sxml.texinfo.scm (test-complete-start-command):
+	Change to accomodate node arguments renaming.
+
+	* src/sxml/texinfo.scm (make-contents): Make sure the contents of
+	@item are in a @para.
+	(make-parser): Removed, just use make-command-parser or
+	make-dom-parser.
+	(make-dom-parser): New function.
+
+	* src/sxml/texinfo/plain-text.scm: New file, outputs one
+	procedure: stexi->plain-text. Works remarkably well!
+
+2004-06-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/simple.scm (sxml->string): Use
+	string-concatenate-reverse.
+
+	* src/sxml/texinfo.scm: Update the comments.
+	(texi-command-specs): Renamed.
+	(texi-command-depth): Renamed.
+
+	* src/sxml/texinfo.scm (texinfo-command-specs): Add entries for
+	the @heading commands.
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi->named-tree-nodes):
+	Include the node and chapter heading in the chunked output.
+
+	* src/sxml/texinfo/html.scm (node): Use 'name, not 'this.
+
+	* src/sxml/texinfo.scm (stexi-command-depth): New function,
+	exported.
+	(make-contents): New function, makes a table of contents.
+	(texinfo-command-specs): The node name argument is now stored as
+	'name, rather than 'this.
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi-command-depth):
+	Renamed from name->depth, and moved to texinfo.scm.
+
+	* src/sxml/texinfo/html.scm (rules): Warn if there's not a rule
+	for converting a given tag to HTML. Fall through to just output
+	the untagged body.
+
+2004-06-17  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/named-tree-nodes.scm (stexi->named-tree-nodes):
+	Make sure that the stexi for each node is headed by 'texinfo with
+	a title.
+
+	* src/sxml/texinfo/html.scm (add-ref-resolver!): New function,
+	exported.
+	(tag-replacements): Fix typo for cartouche.
+	(rules): Add an xmlns on <html>.
+
+	* src/sxml/texinfo.scm (call-with-file-and-dir): Export.
+	(texinfo-command-specs): Add a spec for @ignore.
+
+	* src/sxml/simple.scm (sxml->string): New function, de-tags an
+	sxml tree. Exported.
+
+2004-06-16  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo/named-tree-nodes.scm: New file, chunks a stexi
+	into nodes. Based on the one in text/structured (that will soon go
+	away).
+
+	* src/sxml/texinfo/html.scm (rules): Use *ENTITY*.
+
+	* src/sxml/simple.scm (universal-sxslt-rules): Handle *ENTITY*.
+
+	* src/sxml/texinfo.scm (read-char-data): Newline before a non-@end
+	command should generate a space instead.
+
+	* src/sxml/texinfo/html.scm (stexi->shtml): Rename to
+	stexi->shtml.
+
+	* unit-tests/sxml.texinfo.scm: Adapted to optional args and
+	s/texinfo/texi/.
+
+	* src/sxml/texinfo.scm (make-command-parser): Don't put paras if
+	whitespace is significant.
+
+	* src/sxml/texinfo/html.scm: New file, outputs stexi into shtml.
+	pre-post-order makes things easy!
+
+	* src/sxml/texinfo.scm: I didn't mean for this to be public
+	domain, that header was from SSAX. Change to GPL. Also add some
+	more commentary.
+	(texi->stexi): Name changed from texinfo->stexinfo.
+	(stexi->sxml): Likewise.
+	(texinfo-command-specs): arguments (the cddr) now more reflect
+	lambda formals: #f -> (), #t -> named rest arg, also add #:opt for
+	optional arguments (yay!). I think the format of stexi is stable
+	now, modulo additions of elements I haven't covered. The sxml
+	output needs some fixes, though.
+	(read-command-token): Cleanups. Doesn't validate any more, FBOFW.
+	(read-arguments): Use functions in C instead of rolling our own.
+	Much faster that way.
+	(arguments->attlist): Rewrite for new command formals syntax, and
+	handle optional arguments.
+
+2004-06-14  Andy Wingo  <wingo@pobox.com>
+
+	* src/sxml/texinfo.scm (stexinfo->sxml): New function, replaces %
+	with texinfo-arguments.
+	(texinfo->stexinfo): Change name from texinfo->sxml.
+
+	* src/sxml/simple.scm (enattr, entag): Fix a typo.
+
+	* src/sxml/transform.scm: Whoops, forgot to change the module
+	name.
+
+	* unit-tests/debugging.statprof.scm: Adapted to new API.
+
+	The src/xml directory was moved to src/sxml. That's because only
+	ssax and simple deal with xml, and then only marginally; the rest
+	deal with sxml. Also, the test suites were moved and adjusted
+	accordingly.
+	
+	* src/sxml/ssax.scm: Moved from (xml ssax).
+
+	* src/sxml/texinfo.scm: Moved from (xml texinfo).
+
+	* src/sxml/xpath.scm: Moved from (xml xpath).
+
+	* src/sxml/simple.scm: Moved from (xml simple).
+
+	* src/sxml/htmlprag.scm: Moved from (xml pragmatic). Name change
+	by author's request.
+
+	* src/sxml/apply-templates.scm: Moved from (xml templates).
+	apply-templates seems to make more sense.
+
+2004-06-13  Andy Wingo  <wingo@pobox.com>
+
+	* src/text/lex-simple.scm (next-token, read-text-line): Use (ice-9
+	rdelim). Lots faster! It could be faster if there were a C
+	function to read only characters from a certain charset, instead
+	of reading those not in a charset.
+
+	* src/xml/texinfo.scm (trim-whitespace): Speed improvements.
+
+	* src/debugging/statprof.scm (statprof-start, statprof-stop)
+	(statprof-display): Keep track of the time in GC as well.
+	(make-call-data): Don't profile anonymous functions -- record
+	their time under their calling function. Also, make procedure-data
+	a strong hash.
+	(with-statprof): Removed the #:reject and #:only-named? options.
+	The real problem was that anonymous functions were being profiled.
+
+	* src/debugging/time.scm: New file, implements a macro to time
+	execution of a body of expressions.
+
+	* src/debugging/statprof.scm Reworked to support cumulative and
+	self stats.
+	(profile-signal-handler): More efficient when not trapping
+	apply-frame.
+	(inc-call-data-call-count!, inc-call-data-self-sample-count!)
+	(inc-call-data): New functions, replacing their set- variants.
+	(sample-count-frame, sample-uncount-frame): Gone.
+	(sample-stack-procs): Cut out more frames to avoid counting the
+	profile signal.
+	(count-call): Simplify.
+	(with-statprof): Some new kwargs: #:count-calls?, #:only-named?,
+	#:reject
+	(statprof-reset): Takes another arg, count-calls?.
+	(statprof-call-data->stats): Output the self time and the
+	cumulative time, like gprof.
+
+2004-06-12  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/transform.scm (let*-values): Same.
+
+	* src/xml/texinfo.scm (let*-values): Yikes, srfi-11 uses syncase
+	macros! Go back to a define-macro version.
+
+	* src/debugging/statprof.scm (with-statprof): New macro. It's
+	lisp-style rather than scheme-style, fwiw (implicit lambda).
+
+	* unit-tests/debugging.statprof.scm: New file.
+
+	* src/debugging/statprof.scm: New file, from the guile-statprof
+	guile CVS module. I haven't talked to Rob yet, though!
+
+	* src/xml/texinfo.scm (parse-environment-args): Fix environ args.
+
+	* unit-tests/xml.texinfo.scm: Updates to the SXML representation.
+
+	* src/xml/transform.scm: Use srfi-11's let*-values instead of
+	rolling our own, and export the foldts operator.
+
+	* src/xml/texinfo.scm: Lots of changes -- it finally works right
+	now.
+
+	* src/xml/simple.scm (check-name): New procedure, checks a QName
+	for validity before outputting. Good for detecting errors in
+	generated SXML.
+	(entag, enattr): Use check-name.
+
+	* src/unit-test/guileUnit.scm (assert-equal): Use ice-9's
+	pretty-print instead of `write'.
+
+2004-06-03  Andy Wingo  <wingo@pobox.com>
+
+	* unit-tests/xml.texinfo.scm: New file, texinfo->sxml test suite.
+
+	* src/xml/texinfo.scm: New file, parses texinfo into sxml.
+
+2004-05-24  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/ssax.scm (xml): Fix a typo.
+
+	* src/xml/simple.scm: Add a serializer for XML.
+
+2004-05-23  Andy Wingo  <wingo@pobox.com>
+
+	* src/xml/xpath.scm: Made into a proper guile module.
+
+	* src/xml/pragmatic.scm: Integrated with guile-lib.
+
+	* src/xml/transform.scm: Made into a proper guile module.
+
+	* unit-tests/xml.xpath.scm, unit-tests/xml.transform.scm,
+	unit-tests/xml.pragmatic.scm: New files.
+
+	* src/xml/templates.scm: New file, implements the XSLT-like
+	apply-templates.
+
+	* src/xml/ssax.scm: Typo fix: SLIB->SSAX.
+	
+	* src/xml/ssax.scm: Same.
+
+	* unit-tests/xml.ssax.scm (test-xml->sxml): Re-enabled CR/LF tests
+	(they were only disabled for PLT scheme).
+
+	* doc/xml.ssax.texi: New file, attempting to document SSAX (but
+	incomplete).
+
+	* doc/*.texi: Made to compile, and to include xml.ssax.texi.
+
+	* src/text/lex-simple.scm: Moved from text/lex.scm, and made into
+	a proper guile module.
+
+	* src/xml/ssax.scm: Adapted into a proper guile module.
+
+	* unit-tests/xml.ssax.scm: New file with a boatload of tests for
+	SSAX. Extracted and adapted from SSAX.scm.
+
+	* src/xml/simple.scm: New file to provide a simple DOM interface
+	to SSAX.
+
+	* src/debugging/assert.scm: New file, from SSAX.
+
+	* src/io/string.scm: New file, from SSAX.
+
+	* src/xml/ssax.scm: New file, from SSAX.
+
+	* src/text/lex.scm: New file, from SSAX's input-parse.scm.
+
+2004-05-07  Andy Wingo  <wingo@pobox.com>
+
+	* src/text/structured/plain-text.scm: Add output wrappers for
+	tables, code, and var elements.
+
+	* src/scheme/session.scm: New file. The same as (ice-9 session),
+	but more extensible. Will just re-export (ice-9 session) when
+	upstream gets this change.
+
+	* src/text/structured/help.scm: New file, provides help handlers
+
+	* src/scheme/documentation.scm (define-macro-with-docs): New
+	macro, and use it in the other doc macros.
+
+2004-04-19  Andy Wingo  <wingo@pobox.com>
+
+	* src/scheme/documentation.scm: New module, implements some macros
+	to define things with docstrings.
+	* src/text/structured.scm, src/text/structured/*.scm: New modules.
+	Implements something called structured text, basically texinfo in
+	sexp format. Can convert texinfo to structured text, and from
+	there to a tree of nodes, a gtk text buffer, html, or plain text.
+	Also can index the structured text. I'm not happy with the way it
+	is now, but I'm putting it in anyway! Documentation is only in the
+	modules.
+
+2004-04-16  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* src/unit-test/guileUnit.scm: Now named just unit-test.scm;
+	uppercase is un-schemish ;). All tests adapted.
+
+2003-12-27  Richard Todd  <richardt@vzavenue.net>
+
+	* src/unit-test/guileUnit.scm (assert-numeric-=): new
+	  function... compares numbers with a precision value.
+
+	* src/os/process.scm: obscured all symbols exported just because
+	macros use them.
+
+2003-12-26  Richard Todd  <richardt@vzavenue.net>
+
+	* src/math/primes.scm (prime?): changed SLIB byte-arrays to guile
+	uniform-vectors.
+	(prime:prngs): changed from make-random-state to
+	               seed->random-state, to avoid pulling in more of
+	               SLIB.
+
+2003-12-24  Richard Todd  <richardt@vzavenue.net>>
+
+	* src/unit-test/guileUnit.scm (run): Added messages to screen as
+	tests run.
+	(add): When a <test-case> is added, all the methods of name
+	      matching /^test.*/ are scheduled to run.
+	(test-case-suite): Now only internally used, since (add) will
+	                   perform this operation for <test-case>'s now.
+	(run-all-defined-test-cases): New function...selects all classes
+	                              derived from <test-case> to be run,
+	                              and runs the tests.  This should
+	                              almost always be what the user wants
+	                              to do.
+	(exit-with-summary): New function...displays summary information
+	                     about results.
+
+;;; arch-tag: 1a2c2797-95c9-4371-8baf-a3ee723b45b1
