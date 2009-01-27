@@ -148,11 +148,6 @@
      (prime? procedure (arity 1 0 #f))
      (primes< procedure (arity 2 0 #f))
      (primes> procedure (arity 2 0 #f))))
-  ((math rationalize)
-   (uses-interfaces)
-   (typed-exports
-     (find-ratio procedure (arity 2 0 #f))
-     (rationalize procedure (arity 2 0 #f))))
   ((os process)
    (uses-interfaces)
    (typed-exports
@@ -189,32 +184,6 @@
    (typed-exports
      (define/kwargs macro)
      (lambda/kwargs macro)))
-  ((scheme session)
-   (uses-interfaces)
-   (typed-exports
-     (add-name-help-handler! procedure (arity 1 0 #f))
-     (add-value-help-handler!
-       procedure
-       (arity 1 0 #f))
-     (apropos procedure (arity 1 0 #t))
-     (apropos-fold procedure (arity 4 0 #f))
-     (apropos-fold-accessible
-       procedure
-       (arity 1 0 #f))
-     (apropos-fold-all procedure (arity 2 0 #f))
-     (apropos-fold-exported procedure (arity 2 0 #f))
-     (apropos-internal procedure (arity 1 0 #f))
-     (arity procedure (arity 1 0 #f))
-     (help macro)
-     (module-commentary procedure (arity 1 0 #f))
-     (remove-name-help-handler!
-       procedure
-       (arity 1 0 #f))
-     (remove-value-help-handler!
-       procedure
-       (arity 1 0 #f))
-     (source procedure (arity 1 0 #f))
-     (system-module macro)))
   ((search basic)
    (uses-interfaces)
    (typed-exports
@@ -449,7 +418,7 @@
   ((texinfo nodal-tree)
    (uses-interfaces)
    (typed-exports
-     (stexi->nodal-tree procedure (arity 2 0 #f))))
+     (stexi->nodal-tree procedure (arity 0 0 #t))))
   ((texinfo plain-text)
    (uses-interfaces)
    (typed-exports
@@ -459,13 +428,19 @@
    (typed-exports
      (module-stexi-documentation
        procedure
-       (arity 1 0 #f))
+       (arity 0 0 #t))
      (object-stexi-documentation
        procedure
-       (arity 1 0 #t))
+       (arity 0 0 #t))
      (package-stexi-documentation
        procedure
-       (arity 5 0 #f))
+       (arity 0 0 #t))
+     (package-stexi-extended-menu
+       procedure
+       (arity 4 0 #f))
+     (package-stexi-generic-menu
+       procedure
+       (arity 2 0 #f))
      (package-stexi-standard-copying
        procedure
        (arity 6 0 #f))
@@ -477,7 +452,10 @@
        (arity 7 0 #f))
      (package-stexi-standard-titlepage
        procedure
-       (arity 4 0 #f))))
+       (arity 4 0 #f))
+     (script-stexi-documentation
+       procedure
+       (arity 1 0 #f))))
   ((texinfo serialize)
    (uses-interfaces)
    (typed-exports

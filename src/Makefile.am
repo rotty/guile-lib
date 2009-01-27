@@ -5,7 +5,6 @@ nobase_dist_scm_DATA = \
 	config/load.scm			\
 	container/delay-tree.scm	\
 	container/nodal-tree.scm	\
-	container/queue.scm		\
 	container/async-queue.scm	\
 	debugging/assert.scm		\
 	debugging/time.scm		\
