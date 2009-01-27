@@ -1,8 +1,8 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
-;; Copyright (C) 2001,2002,2003,2004 Oleg Kiselyov <oleg at pobox dot com>
+;; (sxml ssax-simple) -- SSAX, without syncase
+;; Written 2001,2002,2003,2004 by Oleg Kiselyov <oleg at pobox dot com> as SSAX.sxm.
+;; Modified 2004 by Andy Wingo <wingo at pobox dot com>.
 
-;; This file is based on SSAX's SSAX.scm, and is in the public domain.
+;; This file is in the public domain.
 
 ;;; Commentary:
 ;;

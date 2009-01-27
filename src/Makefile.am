@@ -17,17 +17,12 @@ nobase_dist_scm_DATA = \
 	logging/rotating-log.scm	\
 	math/minima.scm			\
 	math/primes.scm			\
-	math/rationalize.scm		\
 	match-bind.scm			\
 	md5.scm				\
 	os/process.scm			\
 	scheme/documentation.scm	\
-	scheme/session.scm		\
 	scheme/kwargs.scm		\
 	search/basic.scm		\
-	srfi/srfi-34.scm		\
-	srfi/srfi-35.scm		\
-	srfi/srfi-40.scm		\
 	statprof.scm			\
 	string/completion.scm		\
 	string/soundex.scm		\

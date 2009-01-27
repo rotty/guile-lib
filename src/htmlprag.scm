@@ -1,17 +1,25 @@
-;; guile-lib
+;; (htmlprag) -- pragmatic parsing of real-world HTML
 ;; Copyright (C) 2003-2004 Neil W. Van Dyke <neil at neilvandyke.org>
+;; Modified 2004 by Andy Wingo to fit in with guile-lib.
 
-;; This program is Free Software; you can redistribute it and/or modify
+;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU Lesser General Public License as
-;; published by the Free Software Foundation; either version 2.1 of the
-;; License, or (at your option) any later version. This program is
-;; distributed in the hope that it will be useful, but without any
-;; warranty; without even the implied warranty of merchantability or
-;; fitness for a particular purpose. See the GNU Lesser General Public
-;; License for more details. For other license options and commercial
-;; consulting, contact the author.
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU Lesser General Public License for more details.
+;;
+;; You should have received a copy of the GNU Lesser General Public
+;; License along with this program.  If not, see
+;; <http://www.gnu.org/licenses/>.
 
-;; This file was modified in 2004 by Andy Wingo to fit in with guile-lib.
+;; The license of the code that this is based on, when it came from Neil
+;; W. Van Dyke, was the LGPL version 2.1. Neil notes that other
+;; licensing options for his code are available; interested parties
+;; should contact him directly.
 
 ;;; Commentary:
 ;;

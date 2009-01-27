@@ -1,15 +1,10 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
+;; (io string) -- input and output with strings
+;; Written 1995, 1996 by Oleg Kiselyov (oleg@acm.org)
+;; Modified 1996, 1997, 1998, 2001 by A. Jaffer (agj@alum.mit.edu)
+;; Modified 2003 by Steve VanDevender (stevev@hexadecimal.uoregon.edu)
+;; Modified 2004 Andy Wingo <wingo at pobox dot com>
 
-;; This file is based SLIB's strsrch.scm.
-
-;; The original copyright:
-;;; "MISCIO" Search for string from port.
-; Written 1995, 1996 by Oleg Kiselyov (oleg@acm.org)
-; Modified 1996, 1997, 1998, 2001 by A. Jaffer (agj@alum.mit.edu)
-; Modified 2003 by Steve VanDevender (stevev@hexadecimal.uoregon.edu)
-;
-; This code is in the public domain.
+;; This file is based SLIB's strsrch.scm, and is in the public domain.
 
 ;;; Commentary:
 ;;

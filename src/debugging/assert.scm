@@ -1,9 +1,9 @@
 ;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
-;; Copyright (C) 2001 Oleg Kiselyov <oleg at pobox dot com>
+;; Written 2001 by Oleg Kiselyov <oleg at pobox dot com>.
+;; Modified 2004 by Andy Wingo <wingo at pobox dot com>.
 
-;; This file is based on SSAX's myenv-scm.scm, written by Oleg Kiselyov
-;; and distributed by Michael Sperber. It is in the public domain.
+;; This file is based on SSAX's myenv-scm.scm, and is in the public
+;; domain.
 
 ;;; Commentary:
 ;;

@@ -1,27 +1,26 @@
-;;; ----------------------------------------------------------------------
-;;;    minima.scm -- finding minima in mathematical functions
-;;;    Copyright (C) 2003 Richard Todd
-;;;
-;;;    This program is free software; you can redistribute it and/or modify
-;;;    it under the terms of the GNU General Public License as published by
-;;;    the Free Software Foundation; either version 2 of the License, or
-;;;    (at your option) any later version.
-;;;
-;;;    This program is distributed in the hope that it will be useful,
-;;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;    GNU General Public License for more details.
-;;;
-;;;    You should have received a copy of the GNU General Public License
-;;;    along with this program; if not, write to the Free Software
-;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-;;; ----------------------------------------------------------------------
+;; (math minima) -- finding minima in mathematical functions
+;; Copyright (C) 2003  Richard Todd
+;; Based on code placed into the public domain by Lars Arvestad.
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 ;;; Commentary:
-;;@cindex golden section
-;;@cindex section, golden
-;;@cindex minimum, of a mathematical function
-;;
+;; @cindex golden section
+;; @cindex section, golden
+;; @cindex minimum, of a mathematical function
+;; 
 ;; This module contains functions for computing the minimum values of mathematical
 ;; expressions on an interval.
 ;;; Code:
@@ -29,12 +28,6 @@
 (define-module (math minima)
   #:use-module (scheme documentation)
   #:export (golden-section-search))
-
-;;; Original author's notice for golden-section-search>>>>>>>>>>>>>>>>
-;;; Author: Lars Arvestad
-;;;
-;;; This code is in the public domain.
-;;; <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<Original author's notice
 
 (define-with-docs golden-section-search
 "The Golden Section Search algorithm finds minima of functions

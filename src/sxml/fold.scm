@@ -1,7 +1,7 @@
-;; guile-lib
-;; Copyright (C) 2007 Andy Wingo <wingo at pobox dot com>
-;;
-;; The author places this file under the public domain.
+;; (sxml fold) -- transformation of sxml via fold operations
+;; Written 2007 by Andy Wingo <wingo at pobox dot com>.
+
+;; This file is in the public domain.
 
 ;;; Commentary:
 ;;

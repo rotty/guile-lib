@@ -1,8 +1,8 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
+;; (sxml simple) -- a simple interface to the SSAX parser
+;; Originally written by Oleg Kiselyov <oleg at pobox dot com> as SXML-to-HTML.scm.
+;; Modified 2004 by Andy Wingo <wingo at pobox dot com>.
 
-;; This file is based on SSAX's SXML-to-HTML.scm and is in the public
-;; domain.
+;; This file is in the public domain.
 
 ;;; Commentary:
 ;;

@@ -1,42 +1,21 @@
-;;; ----------------------------------------------------------------------
-;;;    primes.scm -- functions about prime numbers
-;;;    < <FIXME (C) notice should say what?? >>
-;;;
-;;;    This program is free software; you can redistribute it and/or modify
-;;;    it under the terms of the GNU General Public License as published by
-;;;    the Free Software Foundation; either version 2 of the License, or
-;;;    (at your option) any later version.
-;;;
-;;;    This program is distributed in the hope that it will be useful,
-;;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;    GNU General Public License for more details.
-;;;
-;;;    You should have received a copy of the GNU General Public License
-;;;    along with this program; if not, write to the Free Software
-;;;    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-;;; ----------------------------------------------------------------------
-;;; **********************************************************************
-;;; ORIGINAL SLIB (C) notice....
-;;;; "factor.scm" factorization, prime test and generation
-;;; Copyright (C) 1991, 1992, 1993, 1998 Aubrey Jaffer
-;
-;Permission to copy this software, to modify it, to redistribute it,
-;to distribute modified versions, and to use it for any purpose is
-;granted, subject to the following restrictions and understandings.
-;
-;1.  Any copy made of this software must include this copyright notice
-;in full.
-;
-;2.  I have made no warranty or representation that the operation of
-;this software will be error-free, and I am under no obligation to
-;provide any services, by way of maintenance, update, or otherwise.
-;
-;3.  In conjunction with products arising from the use of this
-;material, there shall be no use of my name in any advertising,
-;promotional, or sales literature without prior written consent in
-;each case.
-;;; **********************************************************************
+;; (math primes) -- factorization, prime test, and generation
+;; Copyright (C) 1991, 1992, 1993, 1998  Aubrey Jaffer
+
+;; Permission to copy this software, to modify it, to redistribute it,
+;; to distribute modified versions, and to use it for any purpose is
+;; granted, subject to the following restrictions and understandings.
+;;
+;; 1.  Any copy made of this software must include this copyright notice
+;; in full.
+;;
+;; 2.  I have made no warranty or representation that the operation of
+;; this software will be error-free, and I am under no obligation to
+;; provide any services, by way of maintenance, update, or otherwise.
+;;
+;; 3.  In conjunction with products arising from the use of this
+;; material, there shall be no use of my name in any advertising,
+;; promotional, or sales literature without prior written consent in
+;; each case.
 
 #!
 ;;; Commentary:

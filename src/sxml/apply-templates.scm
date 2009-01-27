@@ -1,9 +1,8 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
-;; Copyright (C) 2003 Oleg Kiselyov <oleg at pobox dot com>
+;; (sxml apply-templates) -- xslt-like transformation for sxml
+;; Written 2003 by Oleg Kiselyov <oleg at pobox dot com> as apply-templates.scm.
+;; Modified 2004 by Andy Wingo <wingo at pobox dot com>.
 
-;; This file is based on SSAX's apply-templates.scm, and is in the
-;; public domain.
+;; This file is in the public domain.
 
 ;;; Commentary:
 ;;

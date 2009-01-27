@@ -10,7 +10,6 @@ TESTS= \
 	md5.scm				\
 	os.process.scm			\
 	search.basic.scm		\
-	srfi.srfi-35.scm		\
 	statprof.scm			\
 	scheme.kwargs.scm		\
 	string.completion.scm		\

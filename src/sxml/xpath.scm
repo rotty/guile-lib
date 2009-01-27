@@ -1,8 +1,8 @@
-;; guile-lib
-;; Copyright (C) 2004 Andy Wingo <wingo at pobox dot com>
-;; Copyright (C) 2001 Oleg Kiselyov <oleg at pobox dot com>
+;; (sxml xpath) -- SXPath
+;; Written 2001 by Oleg Kiselyov <oleg at pobox dot com> SXPath.scm.
+;; Modified 2004 by Andy Wingo <wingo at pobox dot com>.
 
-;; This file is based on SSAX's SXPath.scm, and is in the public domain.
+;; This file is in the public domain.
 
 ;;; Commentary:
 ;;
