@@ -1696,7 +1696,7 @@ for more details."
 			  (act   (___action i (vector-ref ___atable state))))
 
 		     (if (not (symbol? i))
-			 (errorp "PARSE ERROR: invalid token: " i))
+			 (errorp "PARSE ERROR: invalid token: " input))
 		 
 		     (cond
 		  
@@ -1708,7 +1708,7 @@ for more details."
 		      ((eq? act '*error*)
 		       (if (eq? i '*eoi*)
 			   (errorp "PARSE ERROR : unexpected end of input ")
-			   (errorp "PARSE ERROR : unexpected token : " i)))
+			   (errorp "PARSE ERROR : unexpected token : " input)))
 		  
 		      ;; Shift current token on top of the stack
 		      ((>= act 0)
