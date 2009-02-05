@@ -222,7 +222,7 @@
 
     (set! sample-count (+ sample-count 1))
     ;; Now accumulate stats for the whole stack.
-    (let loop ((frame (stack-ref stack profiling-frames))
+    (let loop ((frame (stack-ref stack 0))
                (procs-seen (make-hash-table 13))
                (self #f))
       (cond
@@ -252,8 +252,7 @@
               (else
                (loop (frame-previous frame) procs-seen self)))))
        (else
-        (loop (frame-previous frame) procs-seen self))))))
-
+        (loop (frame-previous frame) procs-seen self))))
     hit-count-call?))
 
 (define inside-profiler? #f)
