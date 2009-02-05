@@ -119,6 +119,7 @@
 ;; Call graphs?
 
 (define-module (statprof)
+  #:use-module (srfi srfi-1)
   #:use-module (scheme documentation)
   #:autoload   (ice-9 format) (format)
   #:export (statprof-active?
@@ -147,6 +148,9 @@
             statprof-display
             statprof-display-anomolies
 
+            statprof-fetch-stacks
+            statprof-fetch-call-tree
+
             with-statprof))
 
 
@@ -168,6 +172,9 @@
 (define %count-calls? #t)               ; whether to catch apply-frame.
 (define gc-time-taken 0)                ; gc time between statprof-start and
                                         ; statprof-stop.
+(define record-full-stacks? #f)         ; if #t, stash away the stacks
+                                        ; for later analysis.
+(define stacks '())
 
 ;; procedure-data will be a hash where the key is the function object
 ;; itself and the value is the data. The data will be a vector like
@@ -208,47 +215,44 @@
 
 (define (sample-stack-procs stack)
   (let ((stacklen (stack-length stack))
-        (hit-count-call? #f)
-        ;; we need to skip the 5 profile frames: %deliver-signals,
-        ;; profile-signal-handler, if, let*, and make-stack.
-        (profiling-frames 5))
+        (hit-count-call? #f))
 
-    (if (< profiling-frames stacklen)
-        (begin
-          ;; We've got at least one non-profiling frame
-          (set! sample-count (+ sample-count 1))
-          ;; Now accumulate stats for the whole stack.
-          (let loop ((frame (stack-ref stack profiling-frames))
-                     (procs-seen (make-hash-table 13))
-                     (self #f))
-            (cond
-             ((not frame)
-              (hash-fold
-               (lambda (proc val accum)
-                 (inc-call-data-cum-sample-count!
-                  (get-call-data proc)))
-               #f
-               procs-seen)
-              (and=> (and=> self get-call-data)
-                     inc-call-data-self-sample-count!))
-             ((frame-procedure frame)
-              => (lambda (proc)
-                   (cond
-                    ((eq? proc count-call)
-                     ;; We're not supposed to be sampling count-call and
-                     ;; its sub-functions, so loop again with a clean
-                     ;; slate.
-                     (set! hit-count-call? #t)
-                     (loop (frame-previous frame) (make-hash-table 13) #f))
-                    ((procedure-name proc)
-                     (hashq-set! procs-seen proc #t)
-                     (loop (frame-previous frame)
-                           procs-seen
-                           (or self proc)))
-                    (else
-                     (loop (frame-previous frame) procs-seen self)))))
-             (else
-              (loop (frame-previous frame) procs-seen self))))))
+    (if record-full-stacks?
+        (set! stacks (cons stack stacks)))
+
+    (set! sample-count (+ sample-count 1))
+    ;; Now accumulate stats for the whole stack.
+    (let loop ((frame (stack-ref stack profiling-frames))
+               (procs-seen (make-hash-table 13))
+               (self #f))
+      (cond
+       ((not frame)
+        (hash-fold
+         (lambda (proc val accum)
+           (inc-call-data-cum-sample-count!
+            (get-call-data proc)))
+         #f
+         procs-seen)
+        (and=> (and=> self get-call-data)
+               inc-call-data-self-sample-count!))
+       ((frame-procedure frame)
+        => (lambda (proc)
+             (cond
+              ((eq? proc count-call)
+               ;; We're not supposed to be sampling count-call and
+               ;; its sub-functions, so loop again with a clean
+               ;; slate.
+               (set! hit-count-call? #t)
+               (loop (frame-previous frame) (make-hash-table 13) #f))
+              ((procedure-name proc)
+               (hashq-set! procs-seen proc #t)
+               (loop (frame-previous frame)
+                     procs-seen
+                     (or self proc)))
+              (else
+               (loop (frame-previous frame) procs-seen self)))))
+       (else
+        (loop (frame-previous frame) procs-seen self))))))
 
     hit-count-call?))
 
@@ -261,7 +265,10 @@
   ;; stack cut
   (if (positive? profile-level)
       (let* ((stop-time (get-internal-run-time))
-             (stack (make-stack #t))
+             ;; cut down to the signal handler, then we rely on
+             ;; knowledge of guile: it dispatches signal handlers
+             ;; through a thunk, so cut one more procedure
+             (stack (make-stack #t profile-signal-handler 0 1))
              (inside-apply-trap? (sample-stack-procs stack)))
 
         (if (not inside-apply-trap?)
@@ -351,11 +358,13 @@ than @code{statprof-stop}, @code{#f} otherwise."
         (accumulate-time (get-internal-run-time))
         (set! last-start-time #f))))
 
-(define (statprof-reset sample-seconds sample-microseconds count-calls?)
+(define (statprof-reset sample-seconds sample-microseconds count-calls?
+                        full-stacks?)
   "Reset the statprof sampler interval to @var{sample-seconds} and
 @var{sample-microseconds}. If @var{count-calls?} is true, arrange to
 instrument procedure calls as well as collecting statistical profiling
-data.
+data. If @var{full-stacks?} is true, collect all sampled stacks into a
+list for later analysis.
 
 Enables traps and debugging as necessary."
   (if (positive? profile-level)
@@ -371,6 +380,8 @@ Enables traps and debugging as necessary."
       (begin
         (trap-set! apply-frame-handler count-call)
         (trap-enable 'traps)))
+  (set! record-full-stacks? full-stacks?)
+  (set! stacks '())
   (debug-enable 'debug)
   (sigaction SIGPROF profile-signal-handler)
   #t)
@@ -536,18 +547,82 @@ statistics.@code{}"
 (define statprof-call-data-cum-samples call-data-cum-sample-count)
 (define statprof-call-data-self-samples call-data-self-sample-count)
 
-;; Profiles the expressions in its body.
-;;
-;; Keyword arguments:
-;;   #:loop
-;;      execute the body LOOP number of times, or #f for no looping
-;;      default: #f
-;;   #:hz
-;;      sampling rate
-;;      default: 20
-;;   #:count-calls?
-;;      whether to instrument each function call (expensive)
-;;      default: #f
+(define (statprof-fetch-stacks)
+  "Returns a list of stacks, as they were captured since the last call
+to @code{statprof-reset}.
+
+Note that stacks are only collected if the @var{full-stacks?} argument
+to @code{statprof-reset} is true."
+  stacks)
+
+(if (defined? 'compile)
+    (define (procedure=? a b)
+      (cond
+       ((eq? a b))
+       ((and ((@ (system vm program) program?) a)
+             ((@ (system vm program) program?) b))
+        (eq? ((@ (system vm program) program-objcode) a)
+             ((@ (system vm program) program-objcode) b)))
+       ((and (closure? a) (closure? b)
+             (procedure-source a) (procedure-source b))
+        (and (eq? (procedure-name a) (procedure-name b))
+             (equal? (procedure-source a) (procedure-source b))))
+       (else
+        #f)))
+    (define (procedure=? a b)
+      (cond
+       ((eq? a b))
+       ((and (closure? a) (closure? b)
+             (procedure-source a) (procedure-source b))
+        (and (eq? (procedure-name a) (procedure-name b))
+             (equal? (procedure-source a) (procedure-source b))))
+       (else
+        #f))))
+
+;; tree ::= (car n . tree*)
+
+(define (lists->trees lists equal?)
+  (let lp ((in lists) (n-terminal 0) (tails '()))
+    (cond
+     ((null? in)
+      (let ((trees (map (lambda (tail)
+                          (cons (car tail)
+                                (lists->trees (cdr tail) equal?)))
+                        tails)))
+        (cons (apply + n-terminal (map cadr trees))
+              (sort trees
+                    (lambda (a b) (> (cadr a) (cadr b)))))))
+     ((null? (car in))
+      (lp (cdr in) (1+ n-terminal) tails))
+     ((find (lambda (x) (equal? (car x) (caar in)))
+            tails)
+      => (lambda (tail)
+           (lp (cdr in)
+               n-terminal
+               (assq-set! tails
+                          (car tail)
+                          (cons (cdar in) (cdr tail))))))
+     (else
+      (lp (cdr in)
+          n-terminal
+          (acons (caar in) (list (cdar in)) tails))))))
+
+(define (stack->procedures stack)
+  (filter identity
+          (unfold-right (lambda (x) (not x))
+                        frame-procedure
+                        frame-previous
+                        (stack-ref stack 0))))
+
+(define (statprof-fetch-call-tree)
+  "Return a call tree for the previous statprof run.
+
+The return value is a list of nodes, each of which is of the type:
+@code
+ node ::= (@var{proc} @var{count} . @var{nodes})
+@end code"
+  (lists->trees (map stack->procedures stacks) procedure=?))
+
 (define-macro-with-docs (with-statprof . args)
   "Profiles the expressions in its body.
 
@@ -566,6 +641,10 @@ default: @code{20}
 Whether to instrument each function call (expensive)
 
 default: @code{#f}
+@item #:full-stacks?
+Whether to collect away all sampled stacks into a list
+
+default: @code{#f}
 @end table"
   (define (kw-arg-ref kw args def)
     (cond
@@ -580,13 +659,15 @@ default: @code{#f}
   (let ((loop (kw-arg-ref #:loop args #f))
         (hz (kw-arg-ref #:hz args 20))
         (count-calls? (kw-arg-ref #:count-calls? args #f))
+        (full-stacks? (kw-arg-ref #:full-stacks? args #f))
         (body (kw-arg-ref #f args #f)))
     `(dynamic-wind
          (lambda ()
             (statprof-reset (inexact->exact (floor (/ 1 ,hz)))
                             (inexact->exact (* 1e6 (- (/ 1 ,hz)
                                                       (floor (/ 1 ,hz)))))
-                            ,count-calls?)
+                            ,count-calls?
+                            ,full-stacks?)
             (statprof-start))
          (lambda ()
            ,(if loop
