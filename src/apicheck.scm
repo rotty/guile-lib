@@ -216,7 +216,7 @@
             (actual-args (cdr actual)))
         (or (eq? expected-type actual-type)
             (error "API break: export changed type"
-                   expected-type actual-type))
+                   name expected-type actual-type))
         (or (case expected-type
               ((generic)
                (method-specializers-compatible? expected-args actual-args))
