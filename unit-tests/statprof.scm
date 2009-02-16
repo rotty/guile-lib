@@ -56,7 +56,7 @@
         (func func-a))
 
     ;; Run test.
-    (statprof-reset 0 30000 #t)
+    (statprof-reset 0 30000 #t #f)
     (statprof-start)
     (let loop ((x num-calls))
       (cond
@@ -102,7 +102,7 @@
       (simple-format #f "FOO ~A\n" (+ n n)))
     
     ;; Run test.
-    (statprof-reset 0 50000 #t)
+    (statprof-reset 0 50000 #t #f)
     (statprof-start)
     (let loop ((x num-calls))
       (cond
