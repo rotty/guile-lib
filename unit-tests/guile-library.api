@@ -8,7 +8,7 @@
   ((config load)
    (uses-interfaces)
    (typed-exports
-     (&config-error class)
+     (&config-error struct-vtable)
      (<configuration> class)
      (config-error-arguments procedure (arity 1 0 #f))
      (load-config!
@@ -218,13 +218,17 @@
      (statprof-display-anomolies
        procedure
        (arity 0 0 #f))
+     (statprof-fetch-call-tree
+       procedure
+       (arity 0 0 #f))
+     (statprof-fetch-stacks procedure (arity 0 0 #f))
      (statprof-fold-call-data
        procedure
        (arity 2 0 #f))
      (statprof-proc-call-data
        procedure
        (arity 1 0 #f))
-     (statprof-reset procedure (arity 3 0 #f))
+     (statprof-reset procedure (arity 4 0 #f))
      (statprof-sample-count procedure (arity 0 0 #f))
      (statprof-start procedure (arity 0 0 #f))
      (statprof-stats-%-time-in-proc
