@@ -23,9 +23,9 @@
 
 (define-module (container async-queue)
   #:export (make-async-queue async-enqueue! async-dequeue!)
+  #:use-module (ice-9 q)
   #:use-module (ice-9 threads)
-  #:use-module (oop goops)
-  #:use-module (container queue))
+  #:use-module (oop goops))
 
 (define-class <async-queue> ()
   (queue #:init-form (make-queue) #:getter queue)
@@ -40,7 +40,7 @@
 (define (async-enqueue! q elt)
   "Enqueue @var{elt} into @var{q}."
   (with-mutex (mutex q)
-    (enqueue! (queue q) elt)
+    (enq! (queue q) elt)
     (if (> (waiting-threads q) 0)
         (signal-condition-variable (condv q)))))
 
@@ -56,4 +56,4 @@ thread."
                     (wait-condition-variable (condv q) (mutex q))
                     (loop))))
            (set! (waiting-threads q) (- (waiting-threads q) 1))))
-    (dequeue! (queue q))))
+    (deq! (queue q))))
