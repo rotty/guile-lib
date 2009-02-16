@@ -38,15 +38,6 @@
   (key config-error-key)
   (arguments config-error-arguments))
 
-(define-method (write (self &config-error) port)
-  (display "#<" port)
-  (display (class-name (class-of self)) port)
-  (display #\space port)
-  (display (config-error-key self) port)
-  (display #\space port)
-  (display (config-error-arguments self) port)
-  (display ">" port))
-
 (define-method (cfg-include (cfg <configuration>) (file-name <string>) env)
   (let ((old-dir (getcwd)))
     (dynamic-wind
